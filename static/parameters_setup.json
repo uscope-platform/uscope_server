@@ -1,0 +1,23 @@
+{
+    "adcSamplingSpeed":{
+        "name": "ADC Samping Speed",
+        "min-limit": 0.1,
+        "max-limit": 400,
+        "default-value": 10,
+        "default-unit": "kS/s"
+    },
+    "switchingFrequency":{
+        "name": "Switching Frequency",
+        "min-limit": 1,
+        "max-limit": 150,
+        "default-value": 120,
+        "default-unit": "kHz"
+    },
+    "TorqueKp":{
+        "name": "Torque Kp",
+        "min-limit": 0,
+        "max-limit": 100,
+        "default-value": 1,
+        "default-unit": ""
+    }
+  }

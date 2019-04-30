@@ -1,0 +1,32 @@
+{
+    "CurrentA":{
+        "name": "Current A",
+        "min-limit": 0,
+        "max-limit": 180
+    },
+    "CurrentB":{
+        "name": "Current B",
+        "min-limit": 0,
+        "max-limit": 180
+    },
+    "CurrentC":{
+        "name": "Current C",
+        "min-limit": 0,
+        "max-limit": 180
+    },
+    "VoltageA":{
+        "name": "Voltage A",
+        "min-limit": 0,
+        "max-limit": 600
+    },
+    "VoltageB":{
+        "name": "Voltage A",
+        "min-limit": 0,
+        "max-limit": 600
+    },
+    "VoltageC":{
+        "name": "Voltage A",
+        "min-limit": 0,
+        "max-limit": 600
+    }
+  }
