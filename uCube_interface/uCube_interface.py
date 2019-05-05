@@ -3,16 +3,21 @@ import ctypes
 
 
 class uCube_interface:
-    def __init__(self, driver_file = "/dev/uio0"):
+    def __init__(self, driver_file="/dev/uio0"):
         cwd = os.getcwd()
+        # Compile low level functions
         os.system("rm low_level_functions.so")
-        os.system("gcc -shared -fPIC -o low_level_functions.so low_level_functions.c")
+        os.system("gcc -shared -fPIC -o low_level_functions.so low_level_functions.c > /dev/null")
+        # Load FPGA with correct bitstream
+        os.system("echo 0 > /sys/class/fpga_manager/fpga0/flags")
+        os.system("echo AdcTest.bin > /sys/class/fpga_manager/fpga0/firmware")
+
         self.low_level_lib = ctypes.cdll.LoadLibrary(cwd+'/low_level_functions.so')
 
         self.buffer_size = 4096
 
         filename = ctypes.c_char_p(driver_file.encode("utf-8"))
-        self.low_level_lib.low_level_init(filename,self.buffer_size)
+        self.low_level_lib.low_level_init(filename, self.buffer_size, 0x7E200000, 0x43c00000)
         self.acknowledge_interrupt()
 
     def acknowledge_interrupt(self):
@@ -28,16 +33,10 @@ class uCube_interface:
         data = [arr[i] for i in range(20)]
         return data
 
-    def start_dma(self):
-        os.system("devmem2 0x7E200018 w 0xC0000000>/dev/null")
-        os.system("devmem2 0x7E200020 w 0x100000>/dev/null")
-        os.system("devmem2 0x7E200028 w 0x1000>/dev/null")
-
 
 if __name__ == '__main__':
         a = uCube_interface()
         while True:
             a.wait_for_data()
-            a.start_dma()
             data = a.read_data()
             a.acknowledge_interrupt()
