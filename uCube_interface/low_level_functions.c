@@ -13,6 +13,7 @@
 uint32_t fd_data;
 int mmap_fd1;
 int mmap_fd2;
+int registers_base_addr;
 
 uint32_t mmap_size;
 
@@ -27,7 +28,7 @@ volatile uint32_t* registers;
 
 int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
 
-
+    registers_base_addr = reg_addr;
     //mmap buffer
     fd_data = open(filename, O_RDWR| O_SYNC);
     mmap_size = size;
@@ -36,10 +37,13 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
     if(buffer < 0) {
       fprintf(stderr, "Cannot mmap uio device: %s\n",
         strerror(errno));
+
     }
 
     if((mmap_fd2 = open("/dev/mem", O_RDWR | O_SYNC)) == -1) FATAL;
-    dma_controls = (uint32_t* ) mmap(0, 11*sizeof(uint32_t),  PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd2, dma_addr);
+    dma_controls = (uint32_t* ) mmap(0, 4096,  PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd2, dma_addr);
+        printf("Buffer: %d\n", dma_controls);
+        fflush(stdout);
     if(dma_controls < 0) {
       fprintf(stderr, "Cannot mmap dma controls: %s\n",
         strerror(errno));
@@ -50,18 +54,23 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
     registers = (uint32_t* ) mmap(0, 6*4096,  PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd1, reg_addr);
 
     //Configure SPI peripheral
-    registers[1] = 0x28;
-    registers[0] = 0x5C4;
+    write_register(0x43c00004, 0x28);
+    write_register(0x43c00000, 0x5C4);
 
-    //Configure Adc processing chain
-    registers[68] = 0x0B04051B;
-    registers[69] = 0x146D1086;
-    registers[70] = 0x146D15D6;
-    registers[71] = 0x0B041086;
-    registers[72] = 0x051B;
-    registers[73] = 0x0;
-    registers[74] = 0x1;
+    write_register(0x43c00110, 0x0B04051B);
+    write_register(0x43c00114, 0x146D1086);
+    write_register(0x43c00118, 0x146D15D6);
+    write_register(0x43c0011C, 0x0B041086);
+    write_register(0x43c00120, 0x051B);
+    write_register(0x43c00124, 0x0);
+    write_register(0x43c00128, 0x1);
+
     return(fd_data);
+}
+
+void write_register(int addr, int val){
+    int offset = (addr - registers_base_addr)/4;
+    registers[offset] = val;
 }
 
 
@@ -71,7 +80,6 @@ int wait_for_Interrupt(void){
     dma_controls[6] = 0xC0000000;
     dma_controls[8] = 0x100000;
     dma_controls[10] = 0x1000;
-
     if(ret_val < 0) {
       fprintf(stderr, "Cannot wait for uio device interrupt: %s\n",
         strerror(errno));
@@ -82,7 +90,6 @@ int wait_for_Interrupt(void){
 int acknowledge_interrupt(void){
     uint32_t write_val = 1;
     int ret_val = write(fd_data, &write_val, sizeof(write_val));
-
      if(ret_val<0) {
       fprintf(stderr, "Cannot acknowledge uio device interrupt: %s\n",
         strerror(errno));
@@ -91,6 +98,6 @@ int acknowledge_interrupt(void){
     return ret_val;
 }
 
-void read_data(uint32_t *data){
-    memcpy(data, buffer,20*sizeof(uint32_t));
+void read_data(uint32_t *data, int size){
+    memcpy(data, buffer,size*sizeof(uint32_t));
 }

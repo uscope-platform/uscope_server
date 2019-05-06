@@ -5,11 +5,13 @@ from flask_restful import Resource, Api, reqparse
 from flask_restful.utils import cors
 import logging
 
-
+from uCube_interface import uCube_interface
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'uScope-CORS-key'
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+
+interface = uCube_interface.uCube_interface()
 
 api = Api(app)
 
@@ -48,14 +50,16 @@ class Channels(Resource):
     def post(self):
         global enabled_channels
         enabled_channels = request.get_json(force=True)
-
         return '200'
 
 
 class ChannelsData(Resource):
     @cors.crossdomain(origin='*')
     def get(self,channel_id):
-        dts = ((channel_id+1)*np.random.rand(1000)).tolist()
+
+        interface.wait_for_data()
+        dts = interface.read_data()
+        interface.acknowledge_interrupt()
         data_to_send = jsonify(dts)
         return data_to_send
 
@@ -68,4 +72,4 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', threaded=True)
