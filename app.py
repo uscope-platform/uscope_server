@@ -15,15 +15,27 @@ interface = uCube_interface.uCube_interface()
 
 api = Api(app)
 
-timescale = np.linspace(0,1,50000)
-
-trace1 = 20*np.sin(2*np.pi*123*timescale+0)
-trace2 = 20*np.sin(2*np.pi*123*timescale+2/3*np.pi)
-trace3 = 20*np.sin(2*np.pi*123*timescale-2/3*np.pi)
-traces = np.array([trace1, trace2, trace3])
-trace_pointer = 0
+timescale = np.linspace(0,1,20480)
+channel_0_data = np.zeros(20480)
 
 enabled_channels = [False, False, False, False, False, False]
+
+
+class PlotControls(Resource):
+    @cors.crossdomain(origin='*')
+    def post(self, id):
+        print("here\n")
+        print(id)
+        global channel_0_data
+        if id is "1":
+            pass # start acquisition
+        elif id is "2":
+            pass # pause acquisition
+        elif id is "3":
+            channel_0_data = np.zeros(20480)
+        else:
+            return '404'
+        return '200'
 
 
 class Parameters(Resource):
@@ -39,7 +51,6 @@ class Parameters(Resource):
         return '200'
 
 class Channels(Resource):
-
     @cors.crossdomain(origin='*')
     def get(self):
         with open("static/channels_setup.json", 'r') as f:
@@ -56,20 +67,22 @@ class Channels(Resource):
 class ChannelsData(Resource):
     @cors.crossdomain(origin='*')
     def get(self,channel_id):
-
+        global channel_0_data
         interface.wait_for_data()
         dts = interface.read_data()
-        interface.acknowledge_interrupt()
-        data_to_send = jsonify(dts)
+        channel_0_data = np.roll(channel_0_data, len(dts))
+        channel_0_data[0:len(dts)] = dts
+        data_to_send = jsonify(channel_0_data.tolist())
         return data_to_send
 
 
 api.add_resource(Parameters, '/uscope/params')
 api.add_resource(Channels, '/uscope/channels')
 api.add_resource(ChannelsData, '/uscope/channels/data/<int:channel_id>')
+api.add_resource(PlotControls, '/uscope/plot/<int:id>')
 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+#log = logging.getLogger('werkzeug')
+#log.setLevel(logging.ERROR)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', threaded=True)

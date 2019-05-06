@@ -1,5 +1,9 @@
 import os
 import ctypes
+import numpy as np
+
+channel_0_data = np.zeros(50000)
+channel_data_raw = []
 
 
 class uCube_interface:
@@ -24,10 +28,6 @@ class uCube_interface:
 
         filename = ctypes.c_char_p(driver_file.encode("utf-8"))
         self.low_level_lib.low_level_init(filename, self.buffer_size, 0x7E200000, 0x43c00000)
-        self.acknowledge_interrupt()
-
-    def acknowledge_interrupt(self):
-        return self.low_level_lib.acknowledge_interrupt()
 
     def wait_for_data(self):
         return self.low_level_lib.wait_for_Interrupt()
@@ -37,11 +37,14 @@ class uCube_interface:
         arr = (ctypes.c_int * len(data))(*data)
         self.low_level_lib.read_data(arr, 1024)
         data = [arr[i] for i in range(1024)]
-        return data
+        return data[::-1]
 
 if __name__ == '__main__':
     a = uCube_interface(dbg=True)
     while True:
         a.wait_for_data()
         data = a.read_data()
-        a.acknowledge_interrupt()
+        channel_0_data = np.roll(channel_0_data, len(data))
+        channel_0_data[0:len(data)] = data
+        channel_data_raw.append(data)
+

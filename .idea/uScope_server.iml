@@ -8,6 +8,9 @@
     <orderEntry type="jdk" jdkName="Remote Python 3.7.0 (sftp://root@10.190.0.10:22/usr/local/bin/python3)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
+  <component name="PyDocumentationSettings">
+    <option name="renderExternalDocumentation" value="true" />
+  </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_FOLDERS">
       <list>
