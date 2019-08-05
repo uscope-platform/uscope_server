@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -17,8 +18,7 @@ int registers_base_addr;
 
 uint32_t mmap_size;
 
-volatile uint32_t* buffer;
-volatile uint32_t* dma_controls;
+volatile uint16_t* buffer;
 volatile uint32_t* registers;
 
 
@@ -33,31 +33,22 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
     fd_data = open(filename, O_RDWR| O_SYNC);
     mmap_size = size;
 
-    buffer = (uint32_t* ) mmap(NULL, mmap_size, PROT_READ, MAP_SHARED, fd_data, 0);
+    buffer = (uint16_t* ) mmap(NULL, mmap_size, PROT_READ, MAP_SHARED, fd_data, 0);
     if(buffer < 0) {
       fprintf(stderr, "Cannot mmap uio device: %s\n",
         strerror(errno));
 
     }
-
-    if((mmap_fd2 = open("/dev/mem", O_RDWR | O_SYNC)) == -1) FATAL;
-    dma_controls = (uint32_t* ) mmap(0, 4096,  PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd2, dma_addr);
-        printf("Buffer: %d\n", dma_controls);
-        fflush(stdout);
-    if(dma_controls < 0) {
-      fprintf(stderr, "Cannot mmap dma controls: %s\n",
-        strerror(errno));
-    }
-
+    printf("init.c");
     if((mmap_fd1 = open("/dev/mem", O_RDWR | O_SYNC)) == -1) FATAL;
 
     registers = (uint32_t* ) mmap(0, 6*4096,  PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd1, reg_addr);
 
     //Configure SPI peripheral
-    write_register(0x43c00014, 50000);//97751
+    //write_register(0x43c00014, 50000);//97751
     //write_register(0x43c00014, 40);
-    write_register(0x43c00004, 0x28);
-    write_register(0x43c00000, 0x11C4);
+    //write_register(0x43c00004, 0x28);
+    //write_register(0x43c00000, 0x11C4);
 
     write_register(0x43c00110, 0x0B04051B);
     write_register(0x43c00114, 0x146D1086);
@@ -66,6 +57,10 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
     write_register(0x43c00120, 0x051B);
     write_register(0x43c00124, 0x0);
     write_register(0x43c00128, 0x1);
+
+    write_register(0x43c00300,0x3);
+
+
     uint32_t write_val = 1;
     write(fd_data, &write_val, sizeof(write_val));
     return(fd_data);
@@ -82,12 +77,9 @@ int wait_for_Interrupt(void){
     uint32_t write_val = 1;
     read(fd_data, &read_val, sizeof(read_val));
     write(fd_data, &write_val, sizeof(write_val));
-    dma_controls[6] = 0xC0000000;
-    dma_controls[8] = 0x100000;
-    dma_controls[10] = 0x1000;
     return 0;
 }
 
-void read_data(uint32_t *data, int size){
-    memcpy(data, buffer,size*sizeof(uint32_t));
+void read_data(uint16_t *data, int size){
+    memcpy(data, buffer,size*sizeof(uint16_t));
 }

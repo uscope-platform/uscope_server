@@ -81,7 +81,6 @@ api.add_resource(Channels, '/uscope/channels')
 api.add_resource(ChannelsData, '/uscope/channels/data/<int:channel_id>')
 api.add_resource(PlotControls, '/uscope/plot/<int:id>')
 
-#log = logging.getLogger('werkzeug')
 #log.setLevel(logging.ERROR)
 
 if __name__ == '__main__':

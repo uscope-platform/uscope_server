@@ -8,6 +8,7 @@ channel_data_raw = []
 
 class uCube_interface:
     def __init__(self, driver_file="/dev/uio0",dbg=False):
+
         cwd = os.getcwd()
         if dbg:
             lib = cwd + '/low_level_functions.so'
@@ -34,7 +35,7 @@ class uCube_interface:
 
     def read_data(self):
         data = [0] * 1024
-        arr = (ctypes.c_int * len(data))(*data)
+        arr = (ctypes.c_uint16 * len(data))(*data)
         self.low_level_lib.read_data(arr, 1024)
         data = [arr[i] for i in range(1024)]
         return data[::-1]
