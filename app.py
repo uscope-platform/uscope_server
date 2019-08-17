@@ -21,23 +21,6 @@ channel_0_data = np.zeros(20480)
 enabled_channels = [False, False, False, False, False, False]
 
 
-class PlotControls(Resource):
-    @cors.crossdomain(origin='*')
-    def post(self, id):
-        print("here\n")
-        print(id)
-        global channel_0_data
-        if id is "1":
-            pass # start acquisition
-        elif id is "2":
-            pass # pause acquisition
-        elif id is "3":
-            channel_0_data = np.zeros(20480)
-        else:
-            return '404'
-        return '200'
-
-
 class Parameters(Resource):
     @cors.crossdomain(origin='*')
     def get(self):
@@ -79,7 +62,6 @@ class ChannelsData(Resource):
 api.add_resource(Parameters, '/uscope/params')
 api.add_resource(Channels, '/uscope/channels')
 api.add_resource(ChannelsData, '/uscope/channels/data/<int:channel_id>')
-api.add_resource(PlotControls, '/uscope/plot/<int:id>')
 
 #log.setLevel(logging.ERROR)
 

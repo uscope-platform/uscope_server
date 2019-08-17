@@ -18,7 +18,7 @@ int registers_base_addr;
 
 uint32_t mmap_size;
 
-volatile uint16_t* buffer;
+volatile uint32_t* buffer;
 volatile uint32_t* registers;
 
 
@@ -33,7 +33,7 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
     fd_data = open(filename, O_RDWR| O_SYNC);
     mmap_size = size;
 
-    buffer = (uint16_t* ) mmap(NULL, mmap_size, PROT_READ, MAP_SHARED, fd_data, 0);
+    buffer = (uint32_t* ) mmap(NULL, mmap_size, PROT_READ, MAP_SHARED, fd_data, 0);
     if(buffer < 0) {
       fprintf(stderr, "Cannot mmap uio device: %s\n",
         strerror(errno));
@@ -58,6 +58,7 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
     write_register(0x43c00124, 0x0);
     write_register(0x43c00128, 0x1);
 
+    write_register(0x43c00400, 0x1200);
     write_register(0x43c00300,0x3);
 
 
@@ -80,6 +81,6 @@ int wait_for_Interrupt(void){
     return 0;
 }
 
-void read_data(uint16_t *data, int size){
-    memcpy(data, buffer,size*sizeof(uint16_t));
+void read_data(uint32_t *data, int size){
+    memcpy(data, buffer,size*sizeof(uint32_t));
 }

@@ -34,11 +34,12 @@ class uCube_interface:
         return self.low_level_lib.wait_for_Interrupt()
 
     def read_data(self):
-        data = [0] * 1024
-        arr = (ctypes.c_uint16 * len(data))(*data)
+        rec_data = [0] * 1024
+        arr = (ctypes.c_uint32 * len(rec_data))(*rec_data)
         self.low_level_lib.read_data(arr, 1024)
-        data = [arr[i] for i in range(1024)]
-        return data[::-1]
+        rec_data = [arr[i] for i in range(1024)]
+        return rec_data[::-1]
+
 
 if __name__ == '__main__':
     a = uCube_interface(dbg=True)
