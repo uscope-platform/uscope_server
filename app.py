@@ -15,8 +15,8 @@ interface = uCube_interface.uCube_interface()
 
 api = Api(app)
 
-timescale = np.linspace(0,1,20480)
-channel_0_data = np.zeros(20480)
+timescale = np.linspace(0,1,1079)
+channel_0_data = np.zeros(1079)
 
 enabled_channels = [False, False, False, False, False, False]
 
