@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="root@192.168.1.2:22">
+  <component name="PublishConfigData" autoUpload="Always" serverName="root@155.185.48.185:22">
     <serverData>
-      <paths name="root@192.168.1.2:22">
+      <paths name="root@155.185.48.185:22">
         <serverdata>
           <mappings>
             <mapping deploy="/home/root/uScope/tmp/pycharm_project_808" local="$PROJECT_DIR$" />

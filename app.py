@@ -31,6 +31,9 @@ class Parameters(Resource):
     @cors.crossdomain(origin='*')
     def post(self):
         parameters = request.get_json(force=True)
+        for i in parameters:
+            if i['param_name']=='uscope_timebase_change':
+                interface.change_timebase(i['param_value'])
         return '200'
 
 class Channels(Resource):

@@ -41,6 +41,9 @@ class uCube_interface:
         return rec_data[::-1]
 
 
+    def change_timebase(self, timebase):
+        pass
+
 if __name__ == '__main__':
     a = uCube_interface(dbg=True)
     while True:
