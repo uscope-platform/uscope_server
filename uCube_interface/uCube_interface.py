@@ -43,23 +43,10 @@ class uCube_interface:
         rec_data = [arr[i] for i in range(1024)]
         return rec_data[::-1]
 
-    def change_timebase(self,str_timebase : str):
-        timebase = 0
-        str_timebase = str_timebase.replace(" ", "")
-        if str_timebase[-1].isdigit():
-            timebase = float(str_timebase)
-        else:
-            if str_timebase[-1] == 'm':
-                timebase = float(str_timebase[0:-1])*1e-3
-            elif str_timebase[-1] == 'u' or timebase[-1] == 'U':
-                timebase = float(str_timebase[0:-1])*1e-6
-            elif str_timebase[-1] == 'n' or timebase[-1] == 'N':
-                timebase = float(str_timebase[0:-1]) * 1e-9
-            elif str_timebase[-1] == 'K' or timebase[-1] == 'K':
-                timebase = float(str_timebase[0:-1]) * 1e3
-            elif str_timebase[-1] == 'M':
-                timebase = float(str_timebase[0:-1]) * 1e6
+    def change_timebase(self, timebase):
+
         counter_val = round(timebase/self.clock_frequency**-1)
+        self.low_level_lib.write_register(0x43c00400, counter_val)
         pass
 
 if __name__ == '__main__':
