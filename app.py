@@ -15,8 +15,8 @@ interface = uCube_interface.uCube_interface()
 
 api = Api(app)
 
-timescale = np.linspace(0,1,1079)
-channel_0_data = np.zeros(1079)
+timescale = np.linspace(0, 1, 1024)
+channel_0_data = np.zeros(1024)
 
 enabled_channels = [False, False, False, False, False, False]
 
@@ -36,6 +36,7 @@ class Parameters(Resource):
                 interface.change_timebase(i['param_value'])
         return '200'
 
+
 class Channels(Resource):
     @cors.crossdomain(origin='*')
     def get(self):
@@ -52,7 +53,7 @@ class Channels(Resource):
 
 class ChannelsData(Resource):
     @cors.crossdomain(origin='*')
-    def get(self,channel_id):
+    def get(self, channel_id):
         global channel_0_data
         interface.wait_for_data()
         dts = interface.read_data()
