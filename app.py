@@ -37,6 +37,14 @@ class Parameters(Resource):
         return '200'
 
 
+class RegistersDescription(Resource):
+    @cors.crossdomain(origin='*')
+    def get(self, data):
+        with open("static/"+data+"_registers.json", 'r') as f:
+            parameters = json.load(f)
+        return jsonify(parameters)
+
+
 class Channels(Resource):
     @cors.crossdomain(origin='*')
     def get(self):
@@ -66,6 +74,7 @@ class ChannelsData(Resource):
 api.add_resource(Parameters, '/uscope/params')
 api.add_resource(Channels, '/uscope/channels')
 api.add_resource(ChannelsData, '/uscope/channels/data/<int:channel_id>')
+api.add_resource(RegistersDescription, '/uscope/registers/<string:data>')
 
 #log.setLevel(logging.ERROR)
 

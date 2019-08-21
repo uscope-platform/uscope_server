@@ -1,0 +1,66 @@
+{
+  "peripheral_name": "ADC_processing",
+  "version" : 0.1,
+  "registers" : [
+      {
+          "name": "Comparators threshold 1",
+          "offset": "0x0",
+          "direction": "R/W",
+          "description": "This register controls the thresholds for the low (latching mode) and low-falling (normal mode) thresholds, for the filtered (lower word) and fast acting (higher word) comparators"
+      },
+      {
+          "name": "Comparators threshold 2",
+          "offset": "0x4",
+          "direction": "R/W",
+          "description": "This register controls the thresholds for the low-raising (normal mode) thresholds, for the filtered (lower word) and fast acting (higher word) comparators"
+      },
+      {
+          "name": "Comparators threshold 3",
+          "offset": "0x8",
+          "direction": "R/W",
+          "description": "This register controls the thresholds for the high-falling (normal mode) thresholds, for the filtered (lower word) and fast acting (higher word) comparators"
+      },
+      {
+          "name": "Comparators threshold 4",
+          "offset": "0xC",
+          "direction": "R/W",
+          "description": "This register controls the thresholds for the high (latching mode) and high-raising (normal mode) thresholds, for the filtered (lower word) and fast acting (higher word) comparators"
+      },
+      {
+          "name": "filter tap 1",
+          "offset": "0x10",
+          "direction": "R/W",
+          "description": "This register controls the value of the tap coefficients #1(low word) and #2(high word)"
+      },
+      {
+          "name": "filter tap 2",
+          "offset": "0x14",
+          "direction": "R/W",
+          "description": "This register controls the value of the tap coefficients #2(low word) and #3(high word)"
+      },
+      {
+          "name": "filter tap 3",
+          "offset": "0x18",
+          "direction": "R/W",
+          "description": "This register controls the value of the tap coefficients #4(low word) and #5(high word)"
+      },
+      {
+          "name": "filter tap 4",
+          "offset": "0x1C",
+          "direction": "R/W",
+          "description": "This register controls the value of the tap coefficients #6(low word) and #7(high word)"
+      },
+      {
+          "name": "filter tap 5",
+          "offset": "0x20",
+          "direction": "R/W",
+          "description": "This register controls the value of the tap coefficient #9(low word)"
+      },
+      {
+          "name": "calibration",
+          "offset": "0x24",
+          "direction": "R/W",
+          "description": "This register stores the additive(high word) and multiplicative(low word) coefficients for a first order calibration"
+      }
+  ]
+}

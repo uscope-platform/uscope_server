@@ -1,0 +1,44 @@
+{
+  "peripheral_name": "SPI",
+  "version" : 0.1,
+  "registers" : [
+      {
+          "name": "control register",
+          "offset": "0x0",
+          "direction": "R/W",
+          "description": "Main control register of the peripheral"
+      },
+      {
+          "name": "chip select delay register",
+          "offset": "0x4",
+          "direction": "R/W",
+          "description": "When the SPI is in normal mode this register controls the delay between the chip select pulse and the first clock edge, when in ADC mode it controls the lenght of the conversion (chip select) pulse"
+      },
+      {
+          "name": "SPI data out",
+          "offset": "0x8",
+          "direction": "R/W",
+          "description": "The content of this register will be sent in the next transfer"
+      },
+      {
+          "name": "start conversion",
+          "offset": "0xC",
+          "direction": "W",
+          "description": "A write to this register triggers an SPI transfer"
+      },
+      {
+          "name": "SPI data in",
+          "offset": "0x10",
+          "direction": "R",
+          "description": "This register stores the last received data"
+      },
+      {
+          "name": "Clock period",
+          "offset": "0x14",
+          "direction": "R/W",
+          "description": "This register controls the SPI clock period length"
+      }
+  ]
+
+
+}

@@ -32,7 +32,6 @@ class uCube_interface:
 
         self.clock_frequency = 100e6
 
-
     def wait_for_data(self):
         return self.low_level_lib.wait_for_Interrupt()
 
@@ -48,6 +47,7 @@ class uCube_interface:
         counter_val = round(timebase/self.clock_frequency**-1)
         self.low_level_lib.write_register(0x43c00400, counter_val)
         pass
+
 
 if __name__ == '__main__':
     a = uCube_interface(dbg=True)
