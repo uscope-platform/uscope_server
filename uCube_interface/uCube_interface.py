@@ -48,6 +48,13 @@ class uCube_interface:
         self.low_level_lib.write_register(0x43c00400, counter_val)
         pass
 
+    def read_register(self, address):
+        val = self.low_level_lib.read_register(address)
+        return val
+
+    def write_register(self, address, value):
+        self.write_register(address, value)
+
 
 if __name__ == '__main__':
     a = uCube_interface(dbg=True)

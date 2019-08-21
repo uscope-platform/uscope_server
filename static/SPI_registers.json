@@ -1,6 +1,7 @@
 {
   "peripheral_name": "SPI",
   "version" : 0.1,
+  "base_address":"0x43c00000",
   "registers" : [
       {
           "name": "control register",

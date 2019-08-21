@@ -42,6 +42,14 @@ class RegistersDescription(Resource):
     def get(self, data):
         with open("static/"+data+"_registers.json", 'r') as f:
             parameters = json.load(f)
+
+        for i in parameters['registers']:
+            if 'R' in i['direction'] or 'r' in i['direction']:
+                address = int(parameters['base_address'], 0)+int(i['offset'], 0)
+                i['value'] = interface.read_register(address)
+            else:
+                i['value'] = 0
+
         return jsonify(parameters)
 
 

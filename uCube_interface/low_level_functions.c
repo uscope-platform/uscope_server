@@ -71,6 +71,12 @@ void write_register(int addr, int val){
     registers[offset] = val;
 }
 
+int read_register(int addr){
+    int offset = (addr - registers_base_addr)/4;
+    int waste = registers[offset];
+    return registers[offset];
+}
+
 
 int wait_for_Interrupt(void){
     uint32_t read_val;
