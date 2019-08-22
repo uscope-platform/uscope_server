@@ -1,0 +1,27 @@
+{
+  "name":"AdcTest",
+  "version":0.1,
+  "peripherals": {
+    "SPI":{
+      "display_name": "SPI",
+      "base_address": "0x43c00000",
+      "user_accessible": true
+    },
+    "ADC_processing":{
+      "display_name": "Adc Processing",
+      "base_address" : "0x43c00100",
+      "user_accessible": true
+    },
+    "GPIO":{
+      "display_name": "GPIO",
+      "base_address": "0x43c00300",
+      "user_accessible": false
+    },
+    "enable_generator":{
+      "display_name": "Enable Generator",
+      "base_address": "0x43c00400",
+      "user_accessible": false
+    }
+  },
+  "scope_enabled":"true"
+}

@@ -1,27 +1,46 @@
 import numpy as np
 from flask import Flask, jsonify, request
-import json
+import json, logging, os
 from flask_restful import Resource, Api, reqparse
 from flask_restful.utils import cors
-import logging
 
 from uCube_interface import uCube_interface
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'uScope-CORS-key'
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 interface = uCube_interface.uCube_interface()
-
 api = Api(app)
 
 timescale = np.linspace(0, 1, 1024)
 channel_0_data = np.zeros(1024)
-
 enabled_channels = [False, False, False, False, False, False]
-
 components_specs = {}
+application_specs = {}
+application_list = []
 
+def load_peripherals():
+    settings = [f for f in os.listdir('static') if os.path.isfile(os.path.join('static', f))]
+
+    for fname in settings:
+        if not fname.split('.')[1] =='json':
+            continue
+        else:
+            name = fname.replace('.json', '')
+        parsed = name.rsplit('_', 1)
+        if parsed[1] =='descriptor':
+            with open('static/'+fname,'r') as f:
+                content = json.load(f)
+                application_specs[content['name']] = content
+        elif parsed[1] == 'registers':
+            with open('static/'+fname,'r') as f:
+                content = json.load(f)
+                components_specs[content['peripheral_name']] = content
+
+    for i in application_specs:
+        application_list.append(i)
 
 class Parameters(Resource):
     @cors.crossdomain(origin='*')
@@ -39,18 +58,31 @@ class Parameters(Resource):
         return '200'
 
 
+class ApplicationsList(Resource):
+    @cors.crossdomain(origin='*')
+    def get(self):
+        return jsonify(application_list)
+
+
+class Application(Resource):
+    @cors.crossdomain(origin="*")
+    def get(self, application_name):
+        return jsonify(application_specs[application_name])
+
+
 class RegistersDescription(Resource):
     @cors.crossdomain(origin='*')
     def get(self, data):
 
-        with open("static/"+data+"_registers.json", 'r') as f:
-            parameters = json.load(f)
-        if parameters['peripheral_name'] not in components_specs:
-            components_specs[parameters['peripheral_name']] = parameters
+        if data in components_specs:
+            parameters = components_specs[data]
+        else:
+            raise ValueError("The component register file was not found")
 
+        base_address = int(application_specs['AdcTest']['peripherals'][data]['base_address'],0)
         for i in parameters['registers']:
             if 'R' in i['direction'] or 'r' in i['direction']:
-                address = int(parameters['base_address'], 0)+int(i['offset'], 0)
+                address = base_address + int(i['offset'], 0)
                 i['value'] = interface.read_register(address)
             else:
                 i['value'] = 0
@@ -67,7 +99,6 @@ class RegistersDescription(Resource):
                 value = registers_to_write[i['name']]
                 interface.write_register(address, value)
         return 200
-
 
 
 class Channels(Resource):
@@ -100,8 +131,11 @@ api.add_resource(Parameters, '/uscope/params')
 api.add_resource(Channels, '/uscope/channels')
 api.add_resource(ChannelsData, '/uscope/channels/data/<int:channel_id>')
 api.add_resource(RegistersDescription, '/uscope/registers/<string:data>')
+api.add_resource(ApplicationsList, '/uscope/applicationList')
+api.add_resource(Application, '/uscope/application/<string:application_name>')
 
 #log.setLevel(logging.ERROR)
 
 if __name__ == '__main__':
+    load_peripherals()
     app.run(host='0.0.0.0', threaded=True)
