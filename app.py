@@ -20,6 +20,8 @@ channel_0_data = np.zeros(1024)
 
 enabled_channels = [False, False, False, False, False, False]
 
+components_specs = {}
+
 
 class Parameters(Resource):
     @cors.crossdomain(origin='*')
@@ -40,8 +42,11 @@ class Parameters(Resource):
 class RegistersDescription(Resource):
     @cors.crossdomain(origin='*')
     def get(self, data):
+
         with open("static/"+data+"_registers.json", 'r') as f:
             parameters = json.load(f)
+        if parameters['peripheral_name'] not in components_specs:
+            components_specs[parameters['peripheral_name']] = parameters
 
         for i in parameters['registers']:
             if 'R' in i['direction'] or 'r' in i['direction']:
@@ -51,6 +56,18 @@ class RegistersDescription(Resource):
                 i['value'] = 0
 
         return jsonify(parameters)
+
+    def post(self, data):
+        registers_to_write = request.get_json(force=True)
+        peripheral_registers = components_specs['SPI']['registers']
+
+        for i in peripheral_registers:
+            if i['name'] in registers_to_write:
+                address = int(components_specs['SPI']['base_address'], 0)+int(i['offset'], 0)
+                value = registers_to_write[i['name']]
+                interface.write_register(address, value)
+        return 200
+
 
 
 class Channels(Resource):

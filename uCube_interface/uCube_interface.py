@@ -8,7 +8,6 @@ channel_data_raw = []
 
 class uCube_interface:
     def __init__(self, driver_file="/dev/uio0",dbg=False):
-
         cwd = os.getcwd()
         if dbg:
             lib = cwd + '/low_level_functions.so'
@@ -31,6 +30,7 @@ class uCube_interface:
         self.low_level_lib.low_level_init(filename, self.buffer_size, 0x7E200000, 0x43c00000)
 
         self.clock_frequency = 100e6
+        return
 
     def wait_for_data(self):
         return self.low_level_lib.wait_for_Interrupt()
@@ -53,7 +53,7 @@ class uCube_interface:
         return val
 
     def write_register(self, address, value):
-        self.write_register(address, value)
+        self.low_level_lib.write_register(address, value)
 
 
 if __name__ == '__main__':
