@@ -1,34 +1,33 @@
 import os
 import ctypes
 import numpy as np
-
+from .low_level_emulator import emulator
 channel_0_data = np.zeros(50000)
 channel_data_raw = []
 
 
 class uCube_interface:
     def __init__(self, driver_file="/dev/uio0",dbg=False):
-        cwd = os.getcwd()
-        if dbg:
-            lib = cwd + '/low_level_functions.so'
-            src = cwd + '/low_level_functions.c'
-        else:
+        self.dbg = True
+
+        if not self.dbg:
+            cwd = os.getcwd()
             lib = cwd + '/uCube_interface/low_level_functions.so'
             src = cwd + '/uCube_interface/low_level_functions.c'
-        # Compile low level functions
-        os.system('rm '+lib)
-        os.system('gcc -shared -g -fPIC -o '+lib+' '+src+'&> /dev/null')
-        # Load FPGA with correct bitstream
-        os.system("echo 0 > /sys/class/fpga_manager/fpga0/flags")
-        os.system("echo AdcTest.bin > /sys/class/fpga_manager/fpga0/firmware")
+            # Compile low level functions
+            os.system('rm '+lib)
+            os.system('gcc -shared -g -fPIC -o '+lib+' '+src+'&> /dev/null')
+            # Load FPGA with correct bitstream
+            os.system("echo 0 > /sys/class/fpga_manager/fpga0/flags")
+            os.system("echo AdcTest.bin > /sys/class/fpga_manager/fpga0/firmware")
 
-        self.low_level_lib = ctypes.cdll.LoadLibrary(lib)
-
-        self.buffer_size = 4*4096
-
+            self.low_level_lib = ctypes.cdll.LoadLibrary(lib)
+        else:
+            self.low_level_lib = emulator()
         filename = ctypes.c_char_p(driver_file.encode("utf-8"))
-        self.low_level_lib.low_level_init(filename, self.buffer_size, 0x7E200000, 0x43c00000)
 
+        self.buffer_size = 4 * 4096
+        self.low_level_lib.low_level_init(filename, self.buffer_size, 0x7E200000, 0x43c00000)
         self.clock_frequency = 100e6
         return
 

@@ -1,6 +1,6 @@
 import numpy as np
 from flask import Flask, jsonify, request
-import json, logging, os
+import json, logging, os, sys
 from flask_restful import Resource, Api, reqparse
 from flask_restful.utils import cors
 
@@ -11,7 +11,7 @@ app.config['SECRET_KEY'] = 'uScope-CORS-key'
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-interface = uCube_interface.uCube_interface()
+interface = ""
 api = Api(app)
 
 timescale = np.linspace(0, 1, 1024)
@@ -137,5 +137,10 @@ api.add_resource(Application, '/uscope/application/<string:application_name>')
 #log.setLevel(logging.ERROR)
 
 if __name__ == '__main__':
+
+    if sys.argv[1] == "DBG":
+        interface = uCube_interface.uCube_interface(dbg=True)
+    else:
+        interface = uCube_interface.uCube_interface(dbg=False)
     load_peripherals()
     app.run(host='0.0.0.0', threaded=True)
