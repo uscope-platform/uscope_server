@@ -6,6 +6,9 @@ from flask_restful.utils import cors
 
 from uCube_interface import uCube_interface
 
+import pydevd_pycharm
+#pydevd_pycharm.settrace('172.19.0.1', port=21000, stdoutToServer=True, stderrToServer=True)
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'uScope-CORS-key'
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -89,6 +92,7 @@ class RegistersDescription(Resource):
 
         return jsonify(parameters)
 
+    @cors.crossdomain(origin='*')
     def post(self, data):
         registers_to_write = request.get_json(force=True)
         peripheral_registers = components_specs['SPI']['registers']
@@ -98,7 +102,7 @@ class RegistersDescription(Resource):
                 address = int(components_specs['SPI']['base_address'], 0)+int(i['offset'], 0)
                 value = registers_to_write[i['name']]
                 interface.write_register(address, value)
-        return 200
+        return '200'
 
 
 class Channels(Resource):
@@ -127,12 +131,12 @@ class ChannelsData(Resource):
         return data_to_send
 
 
-api.add_resource(Parameters, '/uscope/params')
-api.add_resource(Channels, '/uscope/channels')
-api.add_resource(ChannelsData, '/uscope/channels/data/<int:channel_id>')
-api.add_resource(RegistersDescription, '/uscope/registers/<string:data>')
-api.add_resource(ApplicationsList, '/uscope/applicationList')
-api.add_resource(Application, '/uscope/application/<string:application_name>')
+api.add_resource(Parameters, '/params')
+api.add_resource(Channels, '/channels')
+api.add_resource(ChannelsData, '/channels/data/<int:channel_id>')
+api.add_resource(RegistersDescription, '/registers/<string:data>')
+api.add_resource(ApplicationsList, '/applicationList')
+api.add_resource(Application, '/application/<string:application_name>')
 
 #log.setLevel(logging.ERROR)
 
