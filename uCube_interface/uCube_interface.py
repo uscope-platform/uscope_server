@@ -1,14 +1,14 @@
 import os
 import ctypes
 import numpy as np
-from .low_level_emulator import emulator
+
 channel_0_data = np.zeros(50000)
 channel_data_raw = []
 
 
 class uCube_interface:
-    def __init__(self, driver_file="/dev/uio0",dbg=False):
-        self.dbg = True
+    def __init__(self, driver_file="/dev/uio0", dbg=False):
+        self.dbg = dbg
 
         if not self.dbg:
             cwd = os.getcwd()

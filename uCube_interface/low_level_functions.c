@@ -73,7 +73,6 @@ void write_register(int addr, int val){
 
 int read_register(int addr){
     int offset = (addr - registers_base_addr)/4;
-    int waste = registers[offset];
     return registers[offset];
 }
 
