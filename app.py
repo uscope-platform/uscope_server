@@ -6,13 +6,12 @@ from flask_restful.utils import cors
 
 from uCube_interface import uCube_interface
 
-import pydevd_pycharm
+#import pydevd_pycharm
 #pydevd_pycharm.settrace('172.19.0.1', port=21000, stdoutToServer=True, stderrToServer=True)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'uScope-CORS-key'
 app.config['CORS_HEADERS'] = 'Content-Type'
-
 
 interface = ""
 api = Api(app)
@@ -23,6 +22,7 @@ enabled_channels = [False, False, False, False, False, False]
 components_specs = {}
 application_specs = {}
 application_list = []
+
 
 def load_peripherals():
     settings = [f for f in os.listdir('static') if os.path.isfile(os.path.join('static', f))]
@@ -138,13 +138,17 @@ api.add_resource(RegistersDescription, '/registers/<string:data>')
 api.add_resource(ApplicationsList, '/applicationList')
 api.add_resource(Application, '/application/<string:application_name>')
 
-#log.setLevel(logging.ERROR)
+log = logging.getLogger('werkzeug')
+
+log.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
+load_peripherals()
 
 if __name__ == '__main__':
+    print ("test sys.stdout")
 
-    if sys.argv[1] == "DBG":
+    if len(sys.argv) > 1 and sys.argv[1] == "DBG":
         interface = uCube_interface.uCube_interface(dbg=True)
     else:
         interface = uCube_interface.uCube_interface(dbg=False)
-    load_peripherals()
     app.run(host='0.0.0.0', threaded=True)
