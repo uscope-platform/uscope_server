@@ -45,6 +45,13 @@ def load_peripherals():
     for i in application_specs:
         application_list.append(i)
 
+
+def split_dword(val):
+    w1 = int(val & 0xffff)
+    w2 = int((val >> 16) & 0xffff)
+    return w1, w2
+
+
 class Parameters(Resource):
     @cors.crossdomain(origin='*')
     def get(self):
@@ -56,7 +63,7 @@ class Parameters(Resource):
     def post(self):
         parameters = request.get_json(force=True)
         for i in parameters:
-            if i['param_name']=='uscope_timebase_change':
+            if i['param_name'] == 'uscope_timebase_change':
                 interface.change_timebase(i['param_value'])
         return '200'
 
@@ -82,11 +89,16 @@ class RegistersDescription(Resource):
         else:
             raise ValueError("The component register file was not found")
 
-        base_address = int(application_specs['AdcTest']['peripherals'][data]['base_address'],0)
+        base_address = int(application_specs['AdcTest']['peripherals'][data]['base_address'], 0)
+
         for i in parameters['registers']:
             if 'R' in i['direction'] or 'r' in i['direction']:
                 address = base_address + int(i['offset'], 0)
-                i['value'] = interface.read_register(address)
+                if i['register_format'] == 'words':
+                    i['value'] = split_dword(interface.read_register(address))
+                else:
+                    i['value'] = interface.read_register(address)
+
             else:
                 i['value'] = 0
 
