@@ -61,6 +61,12 @@
           "offset": "0x24",
           "direction": "R/W",
           "description": "This register stores the additive(high word) and multiplicative(low word) coefficients for a first order calibration"
+      },
+      {
+          "name": "Control register",
+          "offset": "0x28",
+          "direction": "R/W",
+          "description": "Main control register for the ADC post processing module"
       }
   ]
 }
