@@ -22,7 +22,7 @@ enabled_channels = [False, False, False, False, False, False]
 components_specs = {}
 application_specs = {}
 application_list = []
-
+chosen_application = ""
 
 def load_peripherals():
     settings = [f for f in os.listdir('static') if os.path.isfile(os.path.join('static', f))]
@@ -77,6 +77,8 @@ class ApplicationsList(Resource):
 class Application(Resource):
     @cors.crossdomain(origin="*")
     def get(self, application_name):
+        global chosen_application
+        chosen_application = application_specs[application_name]
         return jsonify(application_specs[application_name])
 
 
@@ -107,11 +109,13 @@ class RegistersDescription(Resource):
     @cors.crossdomain(origin='*')
     def post(self, data):
         registers_to_write = request.get_json(force=True)
-        peripheral_registers = components_specs['SPI']['registers']
+        periph = registers_to_write['peripheral_name']
+        registers_to_write = registers_to_write['registers']
+        peripheral_registers = components_specs[periph]['registers']
 
         for i in peripheral_registers:
             if i['name'] in registers_to_write:
-                address = int(components_specs['SPI']['base_address'], 0)+int(i['offset'], 0)
+                address = int(chosen_application['peripherals'][periph]['base_address'], 0)+int(i['offset'], 0)
                 value = registers_to_write[i['name']]
                 interface.write_register(address, value)
         return '200'
