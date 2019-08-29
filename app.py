@@ -161,7 +161,6 @@ logging.basicConfig(level=logging.DEBUG)
 load_peripherals()
 
 if __name__ == '__main__':
-    print ("test sys.stdout")
 
     if len(sys.argv) > 1 and sys.argv[1] == "DBG":
         interface = uCube_interface.uCube_interface(dbg=True)

@@ -39,7 +39,6 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
         strerror(errno));
 
     }
-    printf("init.c");
     if((mmap_fd1 = open("/dev/mem", O_RDWR | O_SYNC)) == -1) FATAL;
 
     registers = (uint32_t* ) mmap(0, 6*4096,  PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd1, reg_addr);
