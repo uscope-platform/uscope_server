@@ -38,7 +38,7 @@ class uCube_interface:
         arr = (ctypes.c_uint32 * len(rec_data))(*rec_data)
         self.low_level_lib.read_data(arr, 1024)
         rec_data = [arr[i] for i in range(1024)]
-        return rec_data[::-1]
+        return rec_data
 
     def change_timebase(self, timebase):
 
