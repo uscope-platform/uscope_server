@@ -24,6 +24,8 @@ application_specs = {}
 application_list = []
 chosen_application = ""
 
+display_limits = {}
+
 def load_peripherals():
     settings = [f for f in os.listdir('static') if os.path.isfile(os.path.join('static', f))]
 
@@ -130,10 +132,14 @@ class Channels(Resource):
 
     @cors.crossdomain(origin='*')
     def post(self):
-        global enabled_channels
-        enabled_channels = request.get_json(force=True)
+        message = reqparse.get_json(force=True)
+        if message['type'] == 'enabled_channels':
+            global enabled_channels
+            enabled_channels = message['content']
+        elif message['type'] == 'display_limits':
+            global  display_limits
+            display_limits[message['content']['channel_id']] = (message['content']['min'],message['content']['max'])
         return '200'
-
 
 class ChannelsData(Resource):
     @cors.crossdomain(origin='*')
@@ -147,12 +153,13 @@ class ChannelsData(Resource):
         return data_to_send
 
 
+
 api.add_resource(Parameters, '/params')
 api.add_resource(Channels, '/channels')
 api.add_resource(ChannelsData, '/channels/data/<int:channel_id>')
 api.add_resource(RegistersDescription, '/registers/<string:data>')
-api.add_resource(ApplicationsList, '/applicationList')
-api.add_resource(Application, '/application/<string:application_name>')
+#api.add_resource(ApplicationsList, '/applicationList')
+#api.add_resource(Application, '/application/<string:application_name>')
 
 log = logging.getLogger('werkzeug')
 
@@ -162,8 +169,13 @@ load_peripherals()
 
 if __name__ == '__main__':
 
+    from uScopeBackend.application_manager import application_manager_bp
+
+    app.register_blueprint(application_manager_bp)
+
     if len(sys.argv) > 1 and sys.argv[1] == "DBG":
         interface = uCube_interface.uCube_interface(dbg=True)
     else:
         interface = uCube_interface.uCube_interface(dbg=False)
-    app.run(host='0.0.0.0', threaded=True)
+
+    app.run(host='0.0.0.0', threaded=True, port=4998)

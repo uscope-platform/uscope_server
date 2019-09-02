@@ -1,5 +1,6 @@
 import os
 import ctypes
+from .low_level_emulator import emulator
 import numpy as np
 
 channel_0_data = np.zeros(50000)

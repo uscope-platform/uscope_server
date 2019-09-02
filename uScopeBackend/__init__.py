@@ -1,0 +1,1 @@
+from .application_manager import application_manager_bp
