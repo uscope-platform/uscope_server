@@ -1,44 +1,59 @@
-from flask import current_app, Blueprint, jsonify
+from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
-
+import os, json
 
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
-
-
-
 
 application_manager_bp = Blueprint('application_manager', __name__, url_prefix='/application')
 
 api = Api(application_manager_bp)
 
 
-class Application_list(Resource):
+class ApplicationList(Resource):
     def get(self):
-        return jsonify(current_app.applicationManager.applications_list)
+        return jsonify(current_app.app_mgr.applications_list)
 
 
-class Application_specs(Resource):
-    def get(self,name):
-        return jsonify(current_app.applicationManager.get_application(name))
+class ApplicationSpecs(Resource):
+    def get(self, application_name):
+        return jsonify(current_app.app_mgr.get_application(application_name))
 
 
-api.add_resource(Application_list, '/list')
-api.add_resource(Application_specs, '/specs')
+class ApplicationParameters(Resource):
+    def get(self):
+        return jsonify(current_app.app_mgr.get_parameters())
 
+    def post(self):
+        parameters = request.get_json(force=True)
+        current_app.app_mgr.set_parameters(parameters)
+        return '200'
+
+
+api.add_resource(ApplicationList, '/list')
+api.add_resource(ApplicationSpecs, '/specs/<string:application_name>')
+api.add_resource(ApplicationParameters, '/parameters')
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
 
 
 class ApplicationManager:
-    def __init__(self):
+    def __init__(self, interface):
         self.applications, self.applications_list = self.load_applications()
+        with open("static/parameters_setup.json", 'r') as f:
+            # TODO: add support for per application parameters
+            self.parameters_specs = json.load(f)
+        self.parameters = {}
+        self.chosen_application = {}
+        self.interface = interface
 
     @staticmethod
     def load_applications():
         settings = [f for f in os.listdir('static') if os.path.isfile(os.path.join('static', f))]
+        application_specs = {}
+        application_list = []
         for fname in settings:
             if not fname.split('.')[1] == 'json':
                 continue
@@ -57,10 +72,22 @@ class ApplicationManager:
 
         return application_specs, application_list
 
+    def get_parameters(self):
+        return self.parameters_specs
+
     def get_application(self, application_name):
-        chosen_application = self.applications[application_name]
+        self.chosen_application = self.applications[application_name]
         self.load_bitstream(application_name)
-        return  chosen_application
+        return self.chosen_application
+
+    def get_peripheral_base_address(self, peripheral):
+        return self.chosen_application['peripherals'][peripheral]['base_address']
+
+    def set_parameters(self, new_parameter):
+        for i in new_parameter:
+            self.parameters[i['param_name']] = i['param_value']
+            if i['param_name'] == 'uscope_timebase_change':
+                self.interface.change_timebase(i['param_value'])
 
     def load_bitstream(self, name):
         pass
