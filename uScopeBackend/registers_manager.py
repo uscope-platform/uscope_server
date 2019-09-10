@@ -21,7 +21,7 @@ class RegisterValue(Resource):
 
     def post(self, peripheral):
         registers_to_write = request.get_json(force=True)
-        current_app.register_mgr.set_register_value(peripheral, registers_to_write)
+        current_app.register_mgr.set_register_value(peripheral, registers_to_write['payload'])
         return '200'
 
 
@@ -84,17 +84,16 @@ class RegistersManager:
     def get_register_value(self, peripheral_name, register_name):
         pass
 
-    def set_register_value(self, peripheral, registers_to_write):
-        periph = registers_to_write['peripheral_name']
-        registers_to_write = registers_to_write['registers']
+    def set_register_value(self, peripheral, register):
+        periph = register['peripheral']
         peripheral_registers = self.components_specs[periph]['registers']
 
         base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral), 0)
 
         for i in peripheral_registers:
-            if i['name'] in registers_to_write:
+            if i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)
-                value = registers_to_write[i['name']]
+                value = register['value']
                 self.interface.write_register(address, value)
 
     def __split_dword(self, val):

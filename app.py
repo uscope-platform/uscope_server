@@ -1,4 +1,6 @@
 from flask import Flask
+from flask_cors import CORS
+
 import logging
 import sys
 
@@ -7,6 +9,7 @@ from uCube_interface import uCube_interface
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'uScope-CORS-key'
 app.config['CORS_HEADERS'] = 'Content-Type'
+CORS(app)
 
 log = logging.getLogger('werkzeug')
 
