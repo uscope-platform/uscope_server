@@ -65,7 +65,7 @@ class ApplicationManager:
             if parsed[1] == 'descriptor':
                 with open('static/'+fname,'r') as f:
                     content = json.load(f)
-                    application_specs[content['name']] = content
+                    application_specs[parsed[0]] = content
 
         for i in application_specs:
             application_list.append(i)
@@ -73,7 +73,7 @@ class ApplicationManager:
         return application_specs, application_list
 
     def get_parameters(self):
-        return self.parameters_specs
+        return self.parameters_specs['parameters']
 
     def get_application(self, application_name):
         self.chosen_application = self.applications[application_name]
@@ -81,7 +81,12 @@ class ApplicationManager:
         return self.chosen_application
 
     def get_peripheral_base_address(self, peripheral):
-        return self.chosen_application['peripherals'][peripheral]['base_address']
+        for tab in self.chosen_application['tabs']:
+            if tab['tab_id'] == peripheral:
+                return tab['base_address']
+            pass
+
+        raise ValueError('could not find the periperal %s' % peripheral)
 
     def set_parameters(self, new_parameter):
         for i in new_parameter:

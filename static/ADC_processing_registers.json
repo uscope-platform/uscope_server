@@ -3,113 +3,95 @@
   "version" : 0.1,
   "registers" : [
       {
-          "name": "Comparators threshold 1",
+          "register_name": "Comparators threshold 1",
           "offset": "0x0",
           "direction": "R/W",
           "description": "This register controls the thresholds for the low (latching mode) and low-falling (normal mode) thresholds, for the filtered (lower word) and fast acting (higher word) comparators",
           "register_format": "words",
-          "fields":{
-              "names": ["Filtered threshold", "Fast threshold"],
-              "descriptions": ["Threshold for the filtered comparator", "Threshold for the fast acting comparator"]
-          }
+          "field_names": ["Filtered threshold", "Fast threshold"],
+          "field_descriptions": ["Threshold for the filtered comparator", "Threshold for the fast acting comparator"]
       },
       {
-          "name": "Comparators threshold 2",
+          "register_name": "Comparators threshold 2",
           "offset": "0x4",
           "direction": "R/W",
           "description": "This register controls the thresholds for the low-raising (normal mode) thresholds, for the filtered (lower word) and fast acting (higher word) comparators",
           "register_format": "words",
-          "fields":{
-              "names": ["Filtered threshold", "Fast threshold"],
-              "descriptions": ["Threshold for the filtered comparator", "Threshold for the fast acting comparator"]
-          }
+          "field_names": ["Filtered threshold", "Fast threshold"],
+          "field_descriptions": ["Threshold for the filtered comparator", "Threshold for the fast acting comparator"]
       },
       {
-          "name": "Comparators threshold 3",
+          "register_name": "Comparators threshold 3",
           "offset": "0x8",
           "direction": "R/W",
           "description": "This register controls the thresholds for the high-falling (normal mode) thresholds, for the filtered (lower word) and fast acting (higher word) comparators",
           "register_format": "words",
-          "fields":{
-              "names": ["Filtered threshold", "Fast threshold"],
-              "descriptions": ["Threshold for the filtered comparator", "Threshold for the fast acting comparator"]
-          }
+          "field_names": ["Filtered threshold", "Fast threshold"],
+          "field_descriptions": ["Threshold for the filtered comparator", "Threshold for the fast acting comparator"]
       },
       {
-          "name": "Comparators threshold 4",
+          "register_name": "Comparators threshold 4",
           "offset": "0xC",
           "direction": "R/W",
           "description": "This register controls the thresholds for the high (latching mode) and high-raising (normal mode) thresholds, for the filtered (lower word) and fast acting (higher word) comparators",
           "register_format": "words",
-          "fields":{
-              "names": ["Filtered threshold", "Fast threshold"],
-              "descriptions": ["Threshold for the filtered comparator", "Threshold for the fast acting comparator"]
-          }
+          "field_names": ["Filtered threshold", "Fast threshold"],
+          "field_descriptions": ["Threshold for the filtered comparator", "Threshold for the fast acting comparator"]
       },
       {
-          "name": "filter tap 1",
+          "register_name": "filter tap 1",
           "offset": "0x10",
           "direction": "R/W",
           "description": "This register controls the value of the tap coefficients #1(low word) and #2(high word)",
           "register_format": "words",
-          "fields":{
-              "names": ["Tap #1", "Tap #2"],
-              "descriptions": ["1st tap for the FIR filter", "2nd tap for the FIR filter"]
-          }
+          "field_names": ["Tap #1", "Tap #2"],
+          "field_descriptions": ["1st tap for the FIR filter", "2nd tap for the FIR filter"]
       },
       {
-          "name": "filter tap 2",
+          "register_name": "filter tap 2",
           "offset": "0x14",
           "direction": "R/W",
           "description": "This register controls the value of the tap coefficients #2(low word) and #3(high word)",
           "register_format": "words",
-          "fields":{
-              "names": ["Tap #3", "Tap #4"],
-              "descriptions": ["3rd tap for the FIR filter", "4th tap for the FIR filter"]
-          }
+          "field_names": ["Tap #3", "Tap #4"],
+          "field_descriptions": ["3rd tap for the FIR filter", "4th tap for the FIR filter"]
       },
       {
-          "name": "filter tap 3",
+          "register_name": "filter tap 3",
           "offset": "0x18",
           "direction": "R/W",
           "description": "This register controls the value of the tap coefficients #4(low word) and #5(high word)",
           "register_format": "words",
-          "fields":{
-              "names": ["Tap #5", "Tap #6"],
-              "descriptions": ["5th tap for the FIR filter", "6th tap for the FIR filter"]
-          }
+          "field_names": ["Tap #5", "Tap #6"],
+          "field_descriptions": ["5th tap for the FIR filter", "6th tap for the FIR filter"]
       },
       {
-          "name": "filter tap 4",
+          "register_name": "filter tap 4",
           "offset": "0x1C",
           "direction": "R/W",
           "description": "This register controls the value of the tap coefficients #6(low word) and #7(high word)",
           "register_format": "words",
-          "fields":{
-              "names": ["Tap #7", "Tap #8"],
-              "descriptions": ["7th tap for the FIR filter", "8th tap for the FIR filter"]
-          }
+          "field_names": ["Tap #7", "Tap #8"],
+          "field_descriptions": ["7th tap for the FIR filter", "8th tap for the FIR filter"]
       },
       {
-          "name": "filter tap 5",
+          "register_name": "filter tap 5",
           "offset": "0x20",
           "direction": "R/W",
           "description": "This register controls the value of the tap coefficient #9(low word)",
           "register_format": "single"
       },
       {
-          "name": "calibration",
+          "register_name": "calibration",
           "offset": "0x24",
           "direction": "R/W",
           "description": "This register stores the additive(high word) and multiplicative(low word) coefficients for a first order calibration",
           "register_format": "words",
-          "fields":{
-              "names": ["Offset coefficient1", "gain correction"],
-              "descriptions": ["additive offset correction coefficient", "multiplicative gain correction coefficient"]
-          }
+          "field_names": ["Offset coefficient1", "gain correction"],
+          "field_descriptions": ["additive offset correction coefficient", "multiplicative gain correction coefficient"]
       },
       {
-          "name": "Control register",
+          "register_name": "Control register",
           "offset": "0x28",
           "direction": "R/W",
           "description": "Main control register for the ADC post processing module",

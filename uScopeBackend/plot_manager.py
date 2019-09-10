@@ -72,7 +72,7 @@ class PlotManager:
         return self.channel_data[0].tolist()
 
     def get_channels_specs(self):
-        return self.channel_specs
+        return self.channel_specs['channels']
 
     def get_channel_params(self, name):
         return self.channel_parameters[name]
