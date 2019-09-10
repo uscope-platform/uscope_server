@@ -27,7 +27,7 @@ class ApplicationParameters(Resource):
 
     def post(self):
         parameters = request.get_json(force=True)
-        current_app.app_mgr.set_parameters(parameters)
+        current_app.app_mgr.set_parameters(parameters['payload'])
         return '200'
 
 
@@ -88,11 +88,10 @@ class ApplicationManager:
 
         raise ValueError('could not find the periperal %s' % peripheral)
 
-    def set_parameters(self, new_parameter):
-        for i in new_parameter:
-            self.parameters[i['param_name']] = i['param_value']
-            if i['param_name'] == 'uscope_timebase_change':
-                self.interface.change_timebase(i['param_value'])
+    def set_parameters(self, param):
+        self.parameters[param['name']] = param['value']
+        if param['name'] == 'uscope_timebase_change':
+            self.interface.change_timebase(param['value'])
 
     def load_bitstream(self, name):
         pass

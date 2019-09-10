@@ -72,7 +72,7 @@ class RegistersManager:
             if 'R' in i['direction'] or 'r' in i['direction']:
                 address = base_address + int(i['offset'], 0)
                 if i['register_format'] == 'words':
-                    i['value'] = self.__split_dword(self.interface.read_register(address))
+                    i['value'] = self.interface.read_register(address)
                 else:
                     i['value'] = self.interface.read_register(address)
 
