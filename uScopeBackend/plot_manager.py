@@ -37,7 +37,9 @@ class Timebase(Resource):
         pass
 
     def post(self):
-        pass
+        parameters = request.get_json(force=True)
+        current_app.plot_mgr.set_timebase(parameters)
+        return '200'
 
 
 api.add_resource(Timebase, '/timebase')
@@ -86,3 +88,6 @@ class PlotManager:
                 self.channel_specs['channels'][s['channel_id']][s['name']] = s['value']
         else:
             self.channel_parameters[name] = value
+
+    def set_timebase(self, param):
+        self.interface.change_timebase(param['value'])

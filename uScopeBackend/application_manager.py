@@ -72,8 +72,6 @@ class ApplicationManager:
 
     def set_parameters(self, param):
         self.parameters[param['name']] = param['value']
-        if param['name'] == 'uscope_timebase_change':
-            self.interface.change_timebase(param['value'])
 
     def load_bitstream(self, name):
         pass
