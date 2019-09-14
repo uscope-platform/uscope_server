@@ -13,11 +13,13 @@ api = Api(application_manager_bp)
 
 class ApplicationList(Resource):
     def get(self):
-        return jsonify(current_app.app_mgr.applications_list)
+        applist = list(current_app.app_mgr.get_all_applications().keys())
+        return jsonify(applist)
 
 
 class ApplicationSpecs(Resource):
     def get(self, application_name):
+        current_app.plot_mgr.set_application(application_name)
         return jsonify(current_app.app_mgr.get_application(application_name))
 
 
@@ -40,45 +42,25 @@ api.add_resource(ApplicationParameters, '/parameters')
 
 
 class ApplicationManager:
-    def __init__(self, interface):
-        self.applications, self.applications_list = self.load_applications()
-        with open("static/parameters_setup.json", 'r') as f:
-            # TODO: add support for per application parameters
-            self.parameters_specs = json.load(f)
+    def __init__(self, interface, store):
+
+        self.applications = store.load_applications()
+
         self.parameters = {}
         self.chosen_application = {}
         self.interface = interface
 
-    @staticmethod
-    def load_applications():
-        settings = [f for f in os.listdir('static') if os.path.isfile(os.path.join('static', f))]
-        application_specs = {}
-        application_list = []
-        for fname in settings:
-            if not fname.split('.')[1] == 'json':
-                continue
-            else:
-                name = fname.replace('.json', '')
-
-            parsed = name.rsplit('_', 1)
-
-            if parsed[1] == 'descriptor':
-                with open('static/'+fname,'r') as f:
-                    content = json.load(f)
-                    application_specs[parsed[0]] = content
-
-        for i in application_specs:
-            application_list.append(i)
-
-        return application_specs, application_list
-
     def get_parameters(self):
-        return self.parameters_specs['parameters']
+        return self.parameters
 
     def get_application(self, application_name):
         self.chosen_application = self.applications[application_name]
+        self.parameters = self.chosen_application['parameters']
         self.load_bitstream(application_name)
         return self.chosen_application
+
+    def get_all_applications(self):
+        return self.applications
 
     def get_peripheral_base_address(self, peripheral):
         for tab in self.chosen_application['tabs']:

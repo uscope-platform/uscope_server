@@ -43,22 +43,11 @@ api.add_resource(RegisterDescriptions, '/<string:peripheral>/descriptions')
 
 class RegistersManager:
 
-    def __init__(self, interface):
+    def __init__(self, interface, store):
         self.interface = interface
         self.components_specs = {}
 
-        settings = [f for f in os.listdir('static') if os.path.isfile(os.path.join('static', f))]
-
-        for fname in settings:
-            if not fname.split('.')[1] == 'json':
-                continue
-            else:
-                name = fname.replace('.json', '')
-            parsed = name.rsplit('_', 1)
-            if parsed[1] == 'registers':
-                with open('static/' + fname, 'r') as f:
-                    content = json.load(f)
-                    self.components_specs[content['peripheral_name']] = content
+        self.components_specs = store.load_peripherals()
 
     def get_registers_descriptions(self, peripheral_name):
         if peripheral_name in self.components_specs:
