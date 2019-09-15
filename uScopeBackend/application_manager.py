@@ -1,6 +1,7 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 import os, json
+from sqlitedict import SqliteDict
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -47,31 +48,45 @@ class ApplicationManager:
         self.applications = store.load_applications()
 
         self.parameters = {}
-        self.chosen_application = {}
         self.interface = interface
 
-    def get_parameters(self):
-        return self.parameters
 
     def get_application(self, application_name):
-        self.chosen_application = self.applications[application_name]
-        self.parameters = self.chosen_application['parameters']
+        with SqliteDict('.shared_storage.db') as storage:
+            storage['chosen_application'] = self.applications[application_name]
+            storage['parameters'] =  self.applications[application_name]['parameters']
+            storage.commit()
+
         self.load_bitstream(application_name)
-        return self.chosen_application
+        return self.applications[application_name]
 
     def get_all_applications(self):
         return self.applications
 
     def get_peripheral_base_address(self, peripheral):
-        for tab in self.chosen_application['tabs']:
+        with SqliteDict('.shared_storage.db') as storage:
+            chosen_application = storage['chosen_application']
+        for tab in chosen_application['tabs']:
             if tab['tab_id'] == peripheral:
                 return tab['base_address']
             pass
 
         raise ValueError('could not find the periperal %s' % peripheral)
 
+    def get_parameters(self):
+        with SqliteDict('.shared_storage.db') as storage:
+            params = storage['parameters']
+
+        return params
+
     def set_parameters(self, param):
-        self.parameters[param['name']] = param['value']
+        with SqliteDict('.shared_storage.db') as storage:
+            params = storage['parameters']
+            params[param['name']] = param['value']
+            storage['parameters'] = param
+            storage.commit()
+
+
 
     def load_bitstream(self, name):
         pass

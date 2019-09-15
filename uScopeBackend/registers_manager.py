@@ -55,7 +55,7 @@ class RegistersManager:
         else:
             raise ValueError("The component register file was not found")
 
-        base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral_name),0)
+        base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral_name), 0)
 
         for i in parameters['registers']:
             if 'R' in i['direction'] or 'r' in i['direction']:

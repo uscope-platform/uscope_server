@@ -3,6 +3,7 @@ from flask_restful import Api, Resource
 
 import json
 import numpy as np
+from sqlitedict import SqliteDict
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
@@ -59,12 +60,13 @@ class PlotManager:
         self.channel_data = d = np.empty((6, 1024))
         self.store = store
 
-        self.channel_parameters = {}
         self.interface = low_level_interface
 
     def set_application(self, name):
-        self.channel_parameters = self.store.load_application(name)['parameters']
-        self.channel_specs = self.store.load_application(name)['channels']
+        with SqliteDict('.shared_storage.db') as storage:
+            storage['channel_parameters'] = self.store.load_application(name)['parameters']
+            storage['channel_specs'] = self.store.load_application(name)['channels']
+            storage.commit()
 
     def get_data(self, channel):
         #self.interface.wait_for_data()
@@ -74,20 +76,32 @@ class PlotManager:
         #self.channel_data[0][0:len(dts)] = dts
 
         #return self.channel_data[0].tolist()
-        return {"channel":0, "data":np.random.rand(1024).tolist()}
+        return {"channel": 0, "data": np.random.rand(1024).tolist()}
 
     def get_channels_specs(self):
-        return self.channel_specs
+        with SqliteDict('.shared_storage.db') as storage:
+            specs = storage['channel_specs']
+        return specs
 
     def get_channel_params(self, name):
-        return self.channel_parameters[name]
+        with SqliteDict('.shared_storage.db') as storage:
+            params = storage['channel_parameters']
+        return params[name]
 
     def set_channel_params(self, message):
-        if type(message) is list:
-            for s in message:
-                self.channel_specs['channels'][s['channel_id']][s['name']] = s['value']
-        else:
-            self.channel_parameters[name] = value
+
+        with SqliteDict('.shared_storage.db') as storage:
+            params = storage['channel_parameters']
+            specs = storage['channel_specs']
+
+            if type(message) is list:
+                for s in message:
+                    specs['channels'][s['channel_id']][s['name']] = s['value']
+            else:
+                params[name] = value
+            storage['channel_parameters'] = params
+            storage['channel_specs']  = specs
+            storage.commit()
 
     def set_timebase(self, param):
         self.interface.change_timebase(param['value'])

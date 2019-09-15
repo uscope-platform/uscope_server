@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 
 import logging
+import os
 
 from uCube_interface import uCube_interface
 from DataStore.data_store import DataStore
@@ -31,7 +32,6 @@ def create_app(debug=False):
         from uScopeBackend.registers_manager import registers_manager_bp, RegistersManager
 
         store = DataStore('uDB')
-
         app.app_mgr = ApplicationManager(interface, store)
         app.plot_mgr = PlotManager(interface, store)
         app.register_mgr = RegistersManager(interface, store)
