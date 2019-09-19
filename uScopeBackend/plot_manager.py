@@ -100,7 +100,7 @@ class PlotManager:
             else:
                 params[name] = value
             storage['channel_parameters'] = params
-            storage['channel_specs']  = specs
+            storage['channel_specs'] = specs
             storage.commit()
 
     def set_timebase(self, param):

@@ -50,7 +50,6 @@ class ApplicationManager:
         self.parameters = {}
         self.interface = interface
 
-
     def get_application(self, application_name):
         with SqliteDict('.shared_storage.db') as storage:
             storage['chosen_application'] = self.applications[application_name]
