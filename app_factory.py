@@ -30,15 +30,17 @@ def create_app(debug=False):
         from uScopeBackend.application_manager import application_manager_bp, ApplicationManager
         from uScopeBackend.plot_manager import plot_manager_bp, PlotManager
         from uScopeBackend.registers_manager import registers_manager_bp, RegistersManager
-
+        from uScopeBackend.tab_creator_manager import tab_creator_manager_bp,TabCreatorManager
         store = DataStore('uDB')
         app.app_mgr = ApplicationManager(interface, store)
         app.plot_mgr = PlotManager(interface, store)
         app.register_mgr = RegistersManager(interface, store)
+        app.tab_creator_mgr = TabCreatorManager(store)
 
         # Register Blueprints
         app.register_blueprint(application_manager_bp)
         app.register_blueprint(plot_manager_bp)
+        app.register_blueprint(tab_creator_manager_bp)
         app.register_blueprint(registers_manager_bp)
 
     return app
