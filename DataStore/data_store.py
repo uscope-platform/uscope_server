@@ -21,3 +21,6 @@ class DataStore:
 
     def load_manifest(self):
         return self.manifest
+
+    def add_peripheral(self, periph):
+        self.peripherals = {**self.peripherals,**periph}
