@@ -30,8 +30,8 @@ class PeripheralTabImage(Resource):
         pass
 
     def post(self):
-        uploaded_file = request.files['file']
-        current_app.tab_creator_mgr.set_file(uploaded_file)
+        content = request.files['file'].read()
+        current_app.tab_creator_mgr.set_image_file(content, request.files['file'].filename)
         return '200'
 
 
@@ -47,15 +47,17 @@ class TabCreatorManager:
 
     def __init__(self, store):
         self.store = store
-        self.new_tab = {}
-        self.file = None
+        self.image_filename = ''
+        self.image_content = None
 
-    def set_image(self, image):
-        pass
-
-    def set_file(self, file):
-        self.file = file
-        self.new_tab['filename'] = file.filename
+    def set_image_file(self, image_content, name):
+        self.image_content = image_content
+        self.image_filename = name
 
     def create_peripheral(self, periph):
         self.store.add_peripheral(periph)
+        image_path = 'static/Images/' + self.image_filename
+        if os.path.exists(image_path):
+            os.remove(image_path)
+        with open(image_path, 'wb') as f:
+            f.write(self.image_content)
