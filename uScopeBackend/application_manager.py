@@ -72,6 +72,14 @@ class ApplicationManager:
 
         raise ValueError('could not find the periperal %s' % peripheral)
 
+    def get_peripheral_proxy_address(self, peripheral):
+        with SqliteDict('.shared_storage.db') as storage:
+            chosen_application = storage['chosen_application']
+        for tab in chosen_application['tabs']:
+            if tab['tab_id'] == peripheral:
+                return tab['proxy_address']
+            pass
+
     def get_parameters(self):
         with SqliteDict('.shared_storage.db') as storage:
             params = storage['parameters']

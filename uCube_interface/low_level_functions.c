@@ -75,6 +75,12 @@ int read_register(int addr){
     return registers[offset];
 }
 
+int write_proxied_registers(int proxy_base_addr, int addr, int val){
+    offset = (addr - registers_base_addr)/4;
+    registers[offset] = val;
+    registers[offset+1] = addr;
+}
+
 
 int wait_for_Interrupt(void){
     uint32_t read_val;
