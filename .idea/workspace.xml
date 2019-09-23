@@ -5,8 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/uCube_interface/uCube_interface.py" beforeDir="false" afterPath="$PROJECT_DIR$/uCube_interface/uCube_interface.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/uScopeBackend/plot_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/uScopeBackend/plot_manager.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,11 +32,20 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="js.buildTools.grunt.grunt-cli.package" value="" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/app.py" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/static" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -51,7 +59,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.local">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="uScope_server" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -74,7 +82,29 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="app" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+    <configuration name="local" type="PythonConfigurationType" factoryName="Python">
+      <module name="uScope_server" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/app.py" />
+      <option name="PARAMETERS" value="DBG" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="uCube_interface" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="uScope_server" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -96,21 +126,33 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="uServer" type="Python.FlaskServer">
+    <configuration name="uwsgi" type="PythonConfigurationType" factoryName="Python">
       <module name="uScope_server" />
-      <option name="target" value="$PROJECT_DIR$/app.py" />
-      <option name="targetType" value="PATH" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="$USER_HOME$/anaconda3/bin/python" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="sftp://root@155.185.48.185:22/usr/local/bin/python3" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="launchJavascriptDebuger" value="false" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/uwsgi.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.uwsgi" />
+      <item itemvalue="Python.uCube_interface" />
+      <item itemvalue="Python.local" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -135,7 +177,33 @@
       <workItem from="1557102826875" duration="19852000" />
       <workItem from="1564481368752" duration="1202000" />
       <workItem from="1564482665279" duration="1302000" />
-      <workItem from="1566219359086" duration="3161000" />
+      <workItem from="1566219359086" duration="5451000" />
+      <workItem from="1566287547356" duration="2761000" />
+      <workItem from="1566301566427" duration="73000" />
+      <workItem from="1566306204128" duration="639000" />
+      <workItem from="1566380268965" duration="10255000" />
+      <workItem from="1566399765939" duration="475000" />
+      <workItem from="1566460430641" duration="14282000" />
+      <workItem from="1566478375612" duration="5323000" />
+      <workItem from="1566807368934" duration="7558000" />
+      <workItem from="1566892862520" duration="13000" />
+      <workItem from="1566899258118" duration="37000" />
+      <workItem from="1566905573552" duration="32000" />
+      <workItem from="1566909027450" duration="1162000" />
+      <workItem from="1566982995433" duration="15983000" />
+      <workItem from="1567064854572" duration="12285000" />
+      <workItem from="1567412884707" duration="22000" />
+      <workItem from="1567413820030" duration="1038000" />
+      <workItem from="1567434059481" duration="2581000" />
+      <workItem from="1567519773898" duration="2298000" />
+      <workItem from="1567582502022" duration="5241000" />
+      <workItem from="1567589741668" duration="8965000" />
+      <workItem from="1568020488452" duration="1899000" />
+      <workItem from="1568023853196" duration="3708000" />
+      <workItem from="1568032307209" duration="7750000" />
+      <workItem from="1568101452135" duration="11291000" />
+      <workItem from="1568213790787" duration="270000" />
+      <workItem from="1568294816565" duration="2874000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <created>1556621920394</created>
@@ -171,16 +239,18 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/app.py</url>
-          <line>32</line>
-          <option name="timeStamp" value="52" />
+          <url>file://$PROJECT_DIR$/uScopeBackend/registers_manager.py</url>
+          <line>93</line>
+          <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/uScope_server$uServer.coverage" NAME="uServer Coverage Results" MODIFIED="1557035971697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/uScope_server$local.coverage" NAME="local Coverage Results" MODIFIED="1568124296393" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/uScope_server$untitled.coverage" NAME="untitled Coverage Results" MODIFIED="1556763848091" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/uScope_server$uCube_interface.coverage" NAME="uCube_interface Coverage Results" MODIFIED="1566222647026" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/uScope_server$uCube_interface.coverage" NAME="uCube_interface Coverage Results" MODIFIED="1567603046822" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/uScope_server$uwsgi.coverage" NAME="uwsgi Coverage Results" MODIFIED="1566985502928" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
