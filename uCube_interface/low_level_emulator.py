@@ -16,3 +16,6 @@ class emulator:
 
     def read_data(self, data, size):
         return
+
+    def init_adcTest_registers(self):
+        return

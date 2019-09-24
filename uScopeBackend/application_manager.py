@@ -53,10 +53,9 @@ class ApplicationManager:
     def get_application(self, application_name):
         with SqliteDict('.shared_storage.db') as storage:
             storage['chosen_application'] = self.applications[application_name]
-            storage['parameters'] =  self.applications[application_name]['parameters']
+            storage['parameters'] = self.applications[application_name]['parameters']
             storage.commit()
-
-        self.load_bitstream(application_name)
+        self.load_bitstream(self.applications[application_name]['bitstream'])
         return self.applications[application_name]
 
     def get_all_applications(self):
@@ -93,7 +92,5 @@ class ApplicationManager:
             storage['parameters'] = param
             storage.commit()
 
-
-
     def load_bitstream(self, name):
-        pass
+        self.interface.load_bitstream(name)

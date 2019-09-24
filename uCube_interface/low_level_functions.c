@@ -43,8 +43,14 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
 
     registers = (uint32_t* ) mmap(0, 6*4096,  PROT_READ | PROT_WRITE, MAP_SHARED, mmap_fd1, reg_addr);
 
-    //Configure SPI peripheral
 
+    uint32_t write_val = 1;
+    write(fd_data, &write_val, sizeof(write_val));
+    return(fd_data);
+}
+
+void init_adcTest_registers(){
+    //Configure SPI peripheral
     write_register(0x43c00004, 0x28);
     write_register(0x43c00000, 0x1DC4);
 
@@ -59,10 +65,6 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
     write_register(0x43c00400, 0x1200);
     write_register(0x43c00300,0x3);
 
-
-    uint32_t write_val = 1;
-    write(fd_data, &write_val, sizeof(write_val));
-    return(fd_data);
 }
 
 void write_register(int addr, int val){
