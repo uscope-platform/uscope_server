@@ -14,24 +14,13 @@ registers_manager_bp = Blueprint('regusters_manager', __name__, url_prefix='/reg
 
 api = Api(registers_manager_bp)
 
-
-class ProxiedRegisterValue(Resource):
+class RegisterValue(Resource):
     def get(self):
         pass
 
     def post(self, peripheral):
         registers_to_write = request.get_json(force=True)
-        current_app.register_mgr.set_proxied_register_value(peripheral, registers_to_write['payload'])
-        return '200'
-
-
-class DirectRegisterValue(Resource):
-    def get(self):
-        pass
-
-    def post(self, peripheral):
-        registers_to_write = request.get_json(force=True)
-        current_app.register_mgr.set_direct_register_value(peripheral, registers_to_write['payload'])
+        current_app.register_mgr.set_register_value(peripheral, registers_to_write['payload'])
         return '200'
 
 
@@ -43,8 +32,7 @@ class RegisterDescriptions(Resource):
         pass
 
 
-api.add_resource(ProxiedRegisterValue, '/<string:peripheral>/proxied-value')
-api.add_resource(DirectRegisterValue, '/<string:peripheral>/value')
+api.add_resource(RegisterValue, '/<string:peripheral>/value')
 api.add_resource(RegisterDescriptions, '/<string:peripheral>/descriptions')
 
 ############################################################
@@ -84,11 +72,21 @@ class RegistersManager:
     def get_register_value(self, peripheral_name, register_name):
         pass
 
-    def set_direct_register_value(self, peripheral, register):
+    def set_register_value(self, peripheral, register):
         periph = register['peripheral']
         peripheral_registers = self.components_specs[periph]['registers']
-
         base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral), 0)
+
+        if current_app.app_mgr.peripheral_is_proxied(peripheral):
+            proxy_addr = int(current_app.app_mgr.get_peripheral_proxy_address(peripheral), 0)
+            self.__set_proxied_register_value(register, base_address, proxy_addr)
+        else:
+            self.__set_direct_register_value(register, base_address)
+
+    def __set_direct_register_value(self, register, base_address):
+
+        periph = register['peripheral']
+        peripheral_registers = self.components_specs[periph]['registers']
 
         for i in peripheral_registers:
             if i['register_name'] == register['name']:
@@ -96,17 +94,15 @@ class RegistersManager:
                 value = register['value']
                 self.interface.write_register(address, value)
 
-    def set_proxied_register_value(self, peripheral, register):
+    def __set_proxied_register_value(self, register, base_address, proxy_addr):
         periph = register['peripheral']
         peripheral_registers = self.components_specs[periph]['registers']
 
-        base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral), 0)
-        proxy_addr = int(current_app.app_mgr.get_peripheral_proxy_address(peripheral), 0)
         for i in peripheral_registers:
             if i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)
                 value = register['value']
-                self.interface.write_proxied_registers(proxy_addr, address, value)
+                self.interface.write_proxied_register(proxy_addr, address, value)
 
     def __split_dword(self, val):
         w1 = int(val & 0xffff)

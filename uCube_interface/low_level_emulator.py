@@ -19,3 +19,6 @@ class emulator:
 
     def init_adcTest_registers(self):
         return
+
+    def write_proxied_register(self, proxy_address, address, value):
+        return

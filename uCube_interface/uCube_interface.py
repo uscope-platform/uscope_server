@@ -99,6 +99,19 @@ class uCube_interface:
         else:
             raise RuntimeError("FPGA access before bitstream loading is done")
 
+    def write_proxied_register(self, proxy_address, address, value):
+        with SqliteDict('.shared_storage.db') as storage:
+            bitstream_loaded = storage['bitstream_loaded']
+
+        if bitstream_loaded:
+            self.interface_lock.acquire()
+            self.low_level_lib.write_proxied_register(proxy_address, address, value)
+            self.interface_lock.release()
+        else:
+            raise RuntimeError("FPGA access before bitstream loading is done")
+
+
+
     def load_bitstream(self, bitstream):
         # The low level interface is not used here, however the lock is acquired
         # to prevent other threads hitting the bus before the configuration is done

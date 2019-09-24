@@ -43,4 +43,3 @@ def create_app(debug=False):
         app.register_blueprint(registers_manager_bp)
 
     return app
-
