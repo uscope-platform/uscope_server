@@ -2,6 +2,7 @@ import os
 import ctypes
 from .low_level_emulator import emulator
 import numpy as np
+from threading import Lock
 
 channel_0_data = np.zeros(50000)
 channel_data_raw = []
@@ -9,7 +10,7 @@ channel_data_raw = []
 class uCube_interface:
     def __init__(self, driver_file="/dev/uio0", dbg=False):
         self.dbg = dbg
-
+        self.interface_lock = Lock()
         if not self.dbg:
             cwd = os.getcwd()
             lib = cwd + '/uCube_interface/low_level_functions.so'
@@ -32,28 +33,41 @@ class uCube_interface:
         return
 
     def wait_for_data(self):
-        return self.low_level_lib.wait_for_Interrupt()
+        self.interface_lock.acquire()
+        retval = self.low_level_lib.wait_for_Interrupt()
+        self.interface_lock.release()
+        return retval
 
     def read_data(self):
         rec_data = [0] * 1024
         arr = (ctypes.c_uint32 * len(rec_data))(*rec_data)
+
+        self.interface_lock.acquire()
         self.low_level_lib.read_data(arr, 1024)
+        self.interface_lock.release()
+
         rec_data = [arr[i] for i in range(1024)]
         return rec_data
 
     def change_timebase(self, timebase):
 
         counter_val = round(timebase/self.clock_frequency**-1)
+        self.interface_lock.acquire()
         self.low_level_lib.write_register(0x43c00400, counter_val)
-        pass
+        self.interface_lock.release()
+
+        return
 
     def read_register(self, address):
+        self.interface_lock.acquire()
         val = self.low_level_lib.read_register(address)
+        self.interface_lock.release()
         return val
 
     def write_register(self, address, value):
+        self.interface_lock.acquire()
         self.low_level_lib.write_register(address, value)
-
+        self.interface_lock.release()
 
 if __name__ == '__main__':
     a = uCube_interface(dbg=True)
