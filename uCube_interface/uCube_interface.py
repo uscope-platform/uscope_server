@@ -115,11 +115,6 @@ class uCube_interface:
             storage.commit()
         self.interface_lock.release()
 
-        if bitstream == 'AdcTest.bin':
-            self.interface_lock.acquire()
-            self.low_level_lib.init_adcTest_registers()
-            self.interface_lock.release()
-
 
 if __name__ == '__main__':
     a = uCube_interface(dbg=True)

@@ -15,10 +15,9 @@ def create_app(debug=False):
     app.config['CORS_HEADERS'] = 'Content-Type'
     CORS(app)
 
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.DEBUG)
+    logging.getLogger('werkzeug').setLevel(logging.DEBUG)
     logging.basicConfig(level=logging.DEBUG)
-
+    logging.getLogger("sqlitedict").setLevel(logging.CRITICAL)
     if debug:
         interface = uCube_interface.uCube_interface(dbg=True)
     else:

@@ -55,7 +55,11 @@ class ApplicationManager:
             storage['chosen_application'] = self.applications[application_name]
             storage['parameters'] = self.applications[application_name]['parameters']
             storage.commit()
+
         self.load_bitstream(self.applications[application_name]['bitstream'])
+        if 'initial_registers_values' in self.applications[application_name]:
+            self.initialize_registers(self.applications[application_name]['initial_registers_values'])
+
         return self.applications[application_name]
 
     def get_all_applications(self):
@@ -94,3 +98,9 @@ class ApplicationManager:
 
     def load_bitstream(self, name):
         self.interface.load_bitstream(name)
+
+    def initialize_registers(self, registers):
+        for reg in registers:
+            addr = int(reg['address'], 0)
+            value = int(reg['value'], 0)
+            self.interface.write_register(addr, value)

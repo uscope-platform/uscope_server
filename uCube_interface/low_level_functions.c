@@ -49,24 +49,6 @@ int low_level_init(char* filename, int size, int dma_addr, int reg_addr){
     return(fd_data);
 }
 
-void init_adcTest_registers(){
-    //Configure SPI peripheral
-    write_register(0x43c00004, 0x28);
-    write_register(0x43c00000, 0x1DC4);
-
-    write_register(0x43c00110, 0x0B04051B);
-    write_register(0x43c00114, 0x146D1086);
-    write_register(0x43c00118, 0x146D15D6);
-    write_register(0x43c0011C, 0x0B041086);
-    write_register(0x43c00120, 0x051B);
-    write_register(0x43c00124, 0x0);
-    write_register(0x43c00128, 0x1);
-
-    write_register(0x43c00400, 0x1200);
-    write_register(0x43c00300,0x3);
-
-}
-
 void write_register(int addr, int val){
     int offset = (addr - registers_base_addr)/4;
     registers[offset] = val;
