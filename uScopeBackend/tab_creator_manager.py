@@ -36,8 +36,17 @@ class PeripheralTabImage(Resource):
         return '200'
 
 
+class RemovePeripheral(Resource):
+    def get(self, peripheral):
+        current_app.tab_creator_mgr.remove_peripheral(peripheral)
+
+    def post(self):
+        pass
+
+
 api.add_resource(PeripheralTabImage, '/diagram')
 api.add_resource(CreatePeripheral, '/create_peripheral')
+api.add_resource(RemovePeripheral, '/remove_peripheral/<string:peripheral>')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -65,3 +74,6 @@ class TabCreatorManager:
                 os.remove(image_path)
             with open(image_path, 'wb') as f:
                 f.write(storage['image_content'])
+
+    def remove_peripheral(self,peripheral):
+        self.store.remove_peripheral(peripheral)

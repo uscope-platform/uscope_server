@@ -25,8 +25,7 @@ class DataStore:
     def load_manifest(self):
         return self.manifest
 
-    def add_peripheral(self, periph):
-        self.peripherals = {**self.peripherals, **periph}
+    def __persist_udb(self):
         with open('Applications.json', 'w') as f:
             json.dump(self.applications, f)
         with open('Peripherals.json', 'w') as f:
@@ -42,3 +41,11 @@ class DataStore:
 
         for f in ['Applications.json', 'Peripherals.json', 'manifest.json']:
             os.remove(f)
+
+    def add_peripheral(self, periph):
+        self.peripherals = {**self.peripherals, **periph}
+        self.__persist_udb()
+
+    def remove_peripheral(self, peripheral):
+        del self.peripherals[peripheral]
+        self.__persist_udb()
