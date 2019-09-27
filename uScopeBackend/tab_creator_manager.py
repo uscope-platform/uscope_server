@@ -1,6 +1,7 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 
+from sqlitedict import SqliteDict
 import os, json
 
 
@@ -51,13 +52,16 @@ class TabCreatorManager:
         self.image_content = None
 
     def set_image_file(self, image_content, name):
-        self.image_content = image_content
-        self.image_filename = name
+        with SqliteDict('.shared_storage.db') as storage:
+            storage['image_content'] = image_content
+            storage['image_filename'] = name
+            storage.commit()
 
     def create_peripheral(self, periph):
-        self.store.add_peripheral(periph)
-        image_path = 'static/Images/' + self.image_filename
-        if os.path.exists(image_path):
-            os.remove(image_path)
-        with open(image_path, 'wb') as f:
-            f.write(self.image_content)
+        with SqliteDict('.shared_storage.db') as storage:
+            self.store.add_peripheral(periph)
+            image_path = 'static/Images/' + storage['image_filename']
+            if os.path.exists(image_path):
+                os.remove(image_path)
+            with open(image_path, 'wb') as f:
+                f.write(storage['image_content'])
