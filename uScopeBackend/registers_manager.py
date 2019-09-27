@@ -32,8 +32,14 @@ class RegisterDescriptions(Resource):
         pass
 
 
+class PeripheralsSpecs(Resource):
+    def get(self):
+        return jsonify(current_app.register_mgr.get_all_peripherals())
+
+
 api.add_resource(RegisterValue, '/<string:peripheral>/value')
 api.add_resource(RegisterDescriptions, '/<string:peripheral>/descriptions')
+api.add_resource(PeripheralsSpecs, '/all_peripheral/descriptions')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -48,6 +54,9 @@ class RegistersManager:
 
         self.components_specs = store.load_peripherals()
 
+    def get_all_peripherals(self):
+        return self.components_specs
+
     def get_registers_descriptions(self, peripheral_name):
         if peripheral_name in self.components_specs:
             parameters = self.components_specs[peripheral_name]
@@ -55,19 +64,19 @@ class RegistersManager:
             raise ValueError("The component register file was not found")
 
         base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral_name), 0)
-
+        registers_values = {}
         for i in parameters['registers']:
             if 'R' in i['direction'] or 'r' in i['direction']:
                 address = base_address + int(i['offset'], 0)
                 if i['register_format'] == 'words':
-                    i['value'] = self.interface.read_register(address)
+                    registers_values[i['register_name']] = self.interface.read_register(address)
                 else:
-                    i['value'] = self.interface.read_register(address)
+                    registers_values[i['register_name']] = self.interface.read_register(address)
 
             else:
-                i['value'] = 0
+                registers_values[i['register_name']] = 0
 
-        return parameters
+        return {'peripheral_name': parameters['peripheral_name'], 'registers': registers_values}
 
     def get_register_value(self, peripheral_name, register_name):
         pass
