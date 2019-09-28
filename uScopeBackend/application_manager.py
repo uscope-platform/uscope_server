@@ -12,17 +12,10 @@ application_manager_bp = Blueprint('application_manager', __name__, url_prefix='
 api = Api(application_manager_bp)
 
 
-class ApplicationList(Resource):
-    def get(self):
-        applist = list(current_app.app_mgr.get_all_applications().keys())
-        return jsonify(applist)
-
-
-class ApplicationSpecs(Resource):
+class ApplicationSet(Resource):
     def get(self, application_name):
         current_app.plot_mgr.set_application(application_name)
-        return jsonify(current_app.app_mgr.get_application(application_name))
-
+        return jsonify(current_app.app_mgr.set_application(application_name))
 
 class ApplicationParameters(Resource):
     def get(self):
@@ -39,10 +32,16 @@ class ApplicationsDigest(Resource):
         return current_app.app_mgr.get_applications_hash()
 
 
-api.add_resource(ApplicationList, '/list')
-api.add_resource(ApplicationSpecs, '/specs/<string:application_name>')
+class ApplicationsSpecs(Resource):
+    def get(self):
+        return jsonify(current_app.app_mgr.get_all_applications())
+
+
+api.add_resource(ApplicationsSpecs, '/all/specs')
+api.add_resource(ApplicationSet, '/set/<string:application_name>')
 api.add_resource(ApplicationParameters, '/parameters')
 api.add_resource(ApplicationsDigest, '/digest')
+
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
@@ -54,7 +53,7 @@ class ApplicationManager:
         self.parameters = {}
         self.interface = interface
 
-    def get_application(self, application_name):
+    def set_application(self, application_name):
         with SqliteDict('.shared_storage.db') as storage:
             storage['chosen_application'] = self.store.get_applications()[application_name]
             storage['parameters'] = self.store.get_applications()[application_name]['parameters']
@@ -63,8 +62,6 @@ class ApplicationManager:
         self.load_bitstream(self.store.get_applications()[application_name]['bitstream'])
         if 'initial_registers_values' in self.store.get_applications()[application_name]:
             self.initialize_registers(self.store.get_applications()[application_name]['initial_registers_values'])
-
-        return self.store.get_applications()[application_name]
 
     def get_all_applications(self):
         return self.store.get_applications()

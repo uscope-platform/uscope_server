@@ -3,11 +3,12 @@ import json
 import os
 import hashlib
 from threading import Lock
-
+from flask import jsonify
 
 class DataStore:
 
     def __init__(self, filename):
+        json.encoder.FLOAT_REPR = lambda x: format(x, '.12f')
         self.database_lock = Lock()
         tar = tarfile.open(filename, 'r:xz')
         self.filename = filename
@@ -20,7 +21,7 @@ class DataStore:
         return self.applications
 
     def get_applications_hash(self):
-        return hashlib.sha3_256(json.dumps(self.applications, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        return hashlib.sha256(json.dumps(self.applications, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
     def get_application(self, name):
         return self.applications[name]
@@ -32,7 +33,7 @@ class DataStore:
         return self.peripherals
 
     def get_manifest_hash(self):
-        return hashlib.sha3_256(json.dumps(self.manifest, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        return hashlib.sha256(json.dumps(self.manifest, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
     def get_manifest(self):
         return self.manifest
