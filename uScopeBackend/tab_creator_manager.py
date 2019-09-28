@@ -22,7 +22,7 @@ class CreatePeripheral(Resource):
 
     def post(self):
         peripheral = request.get_json()
-        current_app.tab_creator_mgr.create_peripheral(peripheral['payload'])
+        current_app.tab_creator_mgr.create_peripheral(peripheral)
         return '200'
 
 
@@ -67,13 +67,14 @@ class TabCreatorManager:
             storage.commit()
 
     def create_peripheral(self, periph):
-        with SqliteDict('.shared_storage.db') as storage:
-            self.store.add_peripheral(periph)
-            image_path = 'static/Images/' + storage['image_filename']
-            if os.path.exists(image_path):
-                os.remove(image_path)
-            with open(image_path, 'wb') as f:
-                f.write(storage['image_content'])
+        self.store.add_peripheral(periph['payload'])
+        if periph['image']:
+            with SqliteDict('.shared_storage.db') as storage:
+                image_path = 'static/Images/' + storage['image_filename']
+                if os.path.exists(image_path):
+                    os.remove(image_path)
+                with open(image_path, 'wb') as f:
+                    f.write(storage['image_content'])
 
     def remove_peripheral(self,peripheral):
         self.store.remove_peripheral(peripheral)
