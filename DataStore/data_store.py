@@ -1,11 +1,12 @@
 import tarfile
 import json
 import os
-
+from threading import Lock
 
 class DataStore:
 
     def __init__(self, filename):
+        self.database_lock = Lock()
         tar = tarfile.open(filename, 'r:xz')
         self.filename = filename
         self.applications = json.load(tar.extractfile(tar.getmember('Applications.json')))
@@ -13,19 +14,20 @@ class DataStore:
         self.manifest = json.load(tar.extractfile(tar.getmember('manifest.json')))
         tar.close()
 
-    def load_applications(self):
+    def get_applications(self):
         return self.applications
 
-    def load_application(self, name):
+    def get_application(self, name):
         return self.applications[name]
 
-    def load_peripherals(self):
+    def get_peripherals(self):
         return self.peripherals
 
-    def load_manifest(self):
+    def get_manifest(self):
         return self.manifest
 
     def __persist_udb(self):
+        self.database_lock.acquire()
         with open('Applications.json', 'w') as f:
             json.dump(self.applications, f)
         with open('Peripherals.json', 'w') as f:
@@ -41,6 +43,7 @@ class DataStore:
 
         for f in ['Applications.json', 'Peripherals.json', 'manifest.json']:
             os.remove(f)
+        self.database_lock.release()
 
     def add_peripheral(self, periph):
         self.peripherals = {**self.peripherals, **periph}

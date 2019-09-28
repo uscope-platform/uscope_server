@@ -44,26 +44,24 @@ api.add_resource(ApplicationParameters, '/parameters')
 
 class ApplicationManager:
     def __init__(self, interface, store):
-
-        self.applications = store.load_applications()
-
+        self.store = store
         self.parameters = {}
         self.interface = interface
 
     def get_application(self, application_name):
         with SqliteDict('.shared_storage.db') as storage:
-            storage['chosen_application'] = self.applications[application_name]
-            storage['parameters'] = self.applications[application_name]['parameters']
+            storage['chosen_application'] = self.store.get_applications()[application_name]
+            storage['parameters'] = self.store.get_applications()[application_name]['parameters']
             storage.commit()
 
-        self.load_bitstream(self.applications[application_name]['bitstream'])
-        if 'initial_registers_values' in self.applications[application_name]:
-            self.initialize_registers(self.applications[application_name]['initial_registers_values'])
+        self.load_bitstream(self.store.get_applications()[application_name]['bitstream'])
+        if 'initial_registers_values' in self.store.get_applications()[application_name]:
+            self.initialize_registers(self.store.get_applications()[application_name]['initial_registers_values'])
 
-        return self.applications[application_name]
+        return self.store.get_applications()[application_name]
 
     def get_all_applications(self):
-        return self.applications
+        return self.store.get_applications()
 
     def get_peripheral_base_address(self, peripheral):
         with SqliteDict('.shared_storage.db') as storage:

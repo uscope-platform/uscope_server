@@ -50,16 +50,14 @@ class RegistersManager:
 
     def __init__(self, interface, store):
         self.interface = interface
-        self.components_specs = {}
-
-        self.components_specs = store.load_peripherals()
+        self.store = store
 
     def get_all_peripherals(self):
-        return self.components_specs
+        return self.store.get_peripherals()
 
     def get_registers_descriptions(self, peripheral_name):
-        if peripheral_name in self.components_specs:
-            parameters = self.components_specs[peripheral_name]
+        if peripheral_name in self.store.get_peripherals():
+            parameters = self.store.get_peripherals()[peripheral_name]
         else:
             raise ValueError("The component register file was not found")
 
@@ -83,7 +81,7 @@ class RegistersManager:
 
     def set_register_value(self, peripheral, register):
         periph = register['peripheral']
-        peripheral_registers = self.components_specs[periph]['registers']
+        peripheral_registers = self.store.get_peripherals()[periph]['registers']
         base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral), 0)
 
         if current_app.app_mgr.peripheral_is_proxied(peripheral):
@@ -95,7 +93,7 @@ class RegistersManager:
     def __set_direct_register_value(self, register, base_address):
 
         periph = register['peripheral']
-        peripheral_registers = self.components_specs[periph]['registers']
+        peripheral_registers = self.store.get_peripherals()[periph]['registers']
 
         for i in peripheral_registers:
             if i['register_name'] == register['name']:
@@ -105,7 +103,7 @@ class RegistersManager:
 
     def __set_proxied_register_value(self, register, base_address, proxy_addr):
         periph = register['peripheral']
-        peripheral_registers = self.components_specs[periph]['registers']
+        peripheral_registers = self.store.get_peripherals()[periph]['registers']
 
         for i in peripheral_registers:
             if i['register_name'] == register['name']:

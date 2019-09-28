@@ -64,8 +64,8 @@ class PlotManager:
 
     def set_application(self, name):
         with SqliteDict('.shared_storage.db') as storage:
-            storage['channel_parameters'] = self.store.load_application(name)['parameters']
-            storage['channel_specs'] = self.store.load_application(name)['channels']
+            storage['channel_parameters'] = self.store.get_application(name)['parameters']
+            storage['channel_specs'] = self.store.get_application(name)['channels']
             storage.commit()
 
     def get_data(self, channel):

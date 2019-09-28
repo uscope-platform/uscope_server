@@ -23,6 +23,8 @@ def create_app(debug=False):
     else:
         interface = uCube_interface.uCube_interface(dbg=False)
 
+    store = DataStore('uDB')
+
     with app.app_context():
 
         # Include our Routes
@@ -30,7 +32,7 @@ def create_app(debug=False):
         from uScopeBackend.plot_manager import plot_manager_bp, PlotManager
         from uScopeBackend.registers_manager import registers_manager_bp, RegistersManager
         from uScopeBackend.tab_creator_manager import tab_creator_manager_bp,TabCreatorManager
-        store = DataStore('uDB')
+
         app.app_mgr = ApplicationManager(interface, store)
         app.plot_mgr = PlotManager(interface, store)
         app.register_mgr = RegistersManager(interface, store)
