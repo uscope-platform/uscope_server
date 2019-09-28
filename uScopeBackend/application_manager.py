@@ -34,9 +34,15 @@ class ApplicationParameters(Resource):
         return '200'
 
 
+class ApplicationsDigest(Resource):
+    def get(self):
+        return current_app.app_mgr.get_applications_hash()
+
+
 api.add_resource(ApplicationList, '/list')
 api.add_resource(ApplicationSpecs, '/specs/<string:application_name>')
 api.add_resource(ApplicationParameters, '/parameters')
+api.add_resource(ApplicationsDigest, '/digest')
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
@@ -63,6 +69,9 @@ class ApplicationManager:
     def get_all_applications(self):
         return self.store.get_applications()
 
+    def get_applications_hash(self):
+        return self.store.get_applications_hash()
+
     def get_peripheral_base_address(self, peripheral):
         with SqliteDict('.shared_storage.db') as storage:
             chosen_application = storage['chosen_application']
@@ -72,7 +81,6 @@ class ApplicationManager:
             pass
 
         raise ValueError('could not find the periperal %s' % peripheral)
-
 
     def peripheral_is_proxied(self, peripheral):
         with SqliteDict('.shared_storage.db') as storage:

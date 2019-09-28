@@ -1,7 +1,9 @@
 import tarfile
 import json
 import os
+import hashlib
 from threading import Lock
+
 
 class DataStore:
 
@@ -17,11 +19,20 @@ class DataStore:
     def get_applications(self):
         return self.applications
 
+    def get_applications_hash(self):
+        return hashlib.sha3_256(json.dumps(self.applications, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
     def get_application(self, name):
         return self.applications[name]
 
+    def get_peripherals_hash(self):
+        return hashlib.sha256(json.dumps(self.peripherals, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
     def get_peripherals(self):
         return self.peripherals
+
+    def get_manifest_hash(self):
+        return hashlib.sha3_256(json.dumps(self.manifest, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
     def get_manifest(self):
         return self.manifest

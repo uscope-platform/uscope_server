@@ -16,6 +16,7 @@ class uCube_interface:
         with SqliteDict('.shared_storage.db') as storage:
             storage['bitstream_loaded'] = False
             storage.commit()
+
         if not self.dbg:
             cwd = os.getcwd()
             lib = cwd + '/uCube_interface/low_level_functions.so'
@@ -38,7 +39,7 @@ class uCube_interface:
         with SqliteDict('.shared_storage.db') as storage:
             bitstream_loaded = storage['bitstream_loaded']
 
-        if bitstream_loaded:
+        if bitstream_loaded or self.dbg:
             self.interface_lock.acquire()
             retval = self.low_level_lib.wait_for_Interrupt()
             self.interface_lock.release()
@@ -50,7 +51,7 @@ class uCube_interface:
         with SqliteDict('.shared_storage.db') as storage:
             bitstream_loaded = storage['bitstream_loaded']
 
-        if bitstream_loaded:
+        if bitstream_loaded or self.dbg:
             rec_data = [0] * 1024
             arr = (ctypes.c_uint32 * len(rec_data))(*rec_data)
 
@@ -67,7 +68,7 @@ class uCube_interface:
         with SqliteDict('.shared_storage.db') as storage:
             bitstream_loaded = storage['bitstream_loaded']
 
-        if bitstream_loaded:
+        if bitstream_loaded or self.dbg:
             counter_val = round(timebase / self.clock_frequency ** -1)
             self.interface_lock.acquire()
             self.low_level_lib.write_register(0x43c00400, counter_val)
@@ -80,7 +81,7 @@ class uCube_interface:
         with SqliteDict('.shared_storage.db') as storage:
             bitstream_loaded = storage['bitstream_loaded']
 
-        if bitstream_loaded:
+        if bitstream_loaded or self.dbg:
             self.interface_lock.acquire()
             val = self.low_level_lib.read_register(address)
             self.interface_lock.release()
@@ -92,7 +93,7 @@ class uCube_interface:
         with SqliteDict('.shared_storage.db') as storage:
             bitstream_loaded = storage['bitstream_loaded']
 
-        if bitstream_loaded:
+        if bitstream_loaded or self.dbg:
             self.interface_lock.acquire()
             self.low_level_lib.write_register(address, value)
             self.interface_lock.release()
@@ -103,16 +104,19 @@ class uCube_interface:
         with SqliteDict('.shared_storage.db') as storage:
             bitstream_loaded = storage['bitstream_loaded']
 
-        if bitstream_loaded:
+        if bitstream_loaded or self.dbg:
             self.interface_lock.acquire()
             self.low_level_lib.write_proxied_register(proxy_address, address, value)
             self.interface_lock.release()
         else:
             raise RuntimeError("FPGA access before bitstream loading is done")
 
-
-
     def load_bitstream(self, bitstream):
+        if self.dbg:
+            with SqliteDict('.shared_storage.db') as storage:
+                storage['bitstream_loaded'] = True
+                storage.commit()
+            return
         # The low level interface is not used here, however the lock is acquired
         # to prevent other threads hitting the bus before the configuration is done
         with SqliteDict('.shared_storage.db') as storage:

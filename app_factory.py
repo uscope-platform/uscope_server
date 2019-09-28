@@ -18,6 +18,7 @@ def create_app(debug=False):
     logging.getLogger('werkzeug').setLevel(logging.DEBUG)
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlitedict").setLevel(logging.CRITICAL)
+
     if debug:
         interface = uCube_interface.uCube_interface(dbg=True)
     else:

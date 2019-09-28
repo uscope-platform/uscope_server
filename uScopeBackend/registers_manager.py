@@ -14,6 +14,7 @@ registers_manager_bp = Blueprint('regusters_manager', __name__, url_prefix='/reg
 
 api = Api(registers_manager_bp)
 
+
 class RegisterValue(Resource):
     def get(self):
         pass
@@ -37,9 +38,15 @@ class PeripheralsSpecs(Resource):
         return jsonify(current_app.register_mgr.get_all_peripherals())
 
 
+class PeripheralsDigest(Resource):
+    def get(self):
+        return current_app.register_mgr.get_peripherals_digest()
+
+
 api.add_resource(RegisterValue, '/<string:peripheral>/value')
 api.add_resource(RegisterDescriptions, '/<string:peripheral>/descriptions')
 api.add_resource(PeripheralsSpecs, '/all_peripheral/descriptions')
+api.add_resource(PeripheralsDigest, '/digest')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -54,6 +61,9 @@ class RegistersManager:
 
     def get_all_peripherals(self):
         return self.store.get_peripherals()
+
+    def get_peripherals_digest(self):
+        return self.store.get_peripherals_hash()
 
     def get_registers_descriptions(self, peripheral_name):
         if peripheral_name in self.store.get_peripherals():
