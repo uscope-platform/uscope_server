@@ -37,6 +37,13 @@ class ApplicationsSpecs(Resource):
         return jsonify(current_app.app_mgr.get_all_applications())
 
 
+class ApplicationRemove(Resource):
+    def get(self, application_name):
+        current_app.app_mgr.remove_application(application_name)
+        return '200'
+
+
+api.add_resource(ApplicationRemove, '/remove/<string:application_name>')
 api.add_resource(ApplicationsSpecs, '/all/specs')
 api.add_resource(ApplicationSet, '/set/<string:application_name>')
 api.add_resource(ApplicationParameters, '/parameters')
@@ -52,6 +59,10 @@ class ApplicationManager:
         self.store = store
         self.parameters = {}
         self.interface = interface
+
+    def remove_application(self, application_name):
+        self.store.remove_application(application_name)
+        pass
 
     def set_application(self, application_name):
         with SqliteDict('.shared_storage.db') as storage:

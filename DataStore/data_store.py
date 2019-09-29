@@ -64,3 +64,11 @@ class DataStore:
     def remove_peripheral(self, peripheral):
         del self.peripherals[peripheral]
         self.__persist_udb()
+
+    def add_application(self, app):
+        self.applications = {**self.applications, **app}
+        self.__persist_udb()
+
+    def remove_application(self, app):
+        del self.applications[app]
+        self.__persist_udb()
