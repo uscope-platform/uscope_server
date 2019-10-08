@@ -3,19 +3,19 @@ import ctypes
 from .low_level_emulator import emulator
 import numpy as np
 from threading import Lock
-from sqlitedict import SqliteDict
+import redis
 
 channel_0_data = np.zeros(50000)
 channel_data_raw = []
 
 
 class uCube_interface:
-    def __init__(self, driver_file="/dev/uio0", dbg=False):
+    def __init__(self, driver_file="/dev/uio0", dbg=False, redis_host='localhost'):
         self.dbg = dbg
         self.interface_lock = Lock()
-        with SqliteDict('.shared_storage.db') as storage:
-            storage['bitstream_loaded'] = False
-            storage.commit()
+        self.redis_if = redis.Redis(host=redis_host, port=6379, db=1)
+
+        self.redis_if.set('bitstream_loaded', 'false')
 
         if not self.dbg:
             cwd = os.getcwd()
@@ -36,10 +36,9 @@ class uCube_interface:
         return
 
     def wait_for_data(self):
-        with SqliteDict('.shared_storage.db') as storage:
-            bitstream_loaded = storage['bitstream_loaded']
+        bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded or self.dbg:
+        if bitstream_loaded == 'true' or self.dbg:
             self.interface_lock.acquire()
             retval = self.low_level_lib.wait_for_Interrupt()
             self.interface_lock.release()
@@ -48,10 +47,9 @@ class uCube_interface:
             raise RuntimeError("FPGA access before bitstream loading is done")
 
     def read_data(self):
-        with SqliteDict('.shared_storage.db') as storage:
-            bitstream_loaded = storage['bitstream_loaded']
+        bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded or self.dbg:
+        if bitstream_loaded == 'true' or self.dbg:
             rec_data = [0] * 1024
             arr = (ctypes.c_uint32 * len(rec_data))(*rec_data)
 
@@ -65,10 +63,9 @@ class uCube_interface:
             raise RuntimeError("FPGA access before bitstream loading is done")
 
     def change_timebase(self, timebase):
-        with SqliteDict('.shared_storage.db') as storage:
-            bitstream_loaded = storage['bitstream_loaded']
+        bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded or self.dbg:
+        if bitstream_loaded == 'true' or self.dbg:
             counter_val = round(timebase / self.clock_frequency ** -1)
             self.interface_lock.acquire()
             self.low_level_lib.write_register(0x43c00400, counter_val)
@@ -78,10 +75,9 @@ class uCube_interface:
             raise RuntimeError("FPGA access before bitstream loading is done")
 
     def read_register(self, address):
-        with SqliteDict('.shared_storage.db') as storage:
-            bitstream_loaded = storage['bitstream_loaded']
+        bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded or self.dbg:
+        if bitstream_loaded == 'true' or self.dbg:
             self.interface_lock.acquire()
             val = self.low_level_lib.read_register(address)
             self.interface_lock.release()
@@ -90,10 +86,9 @@ class uCube_interface:
             raise RuntimeError("FPGA access before bitstream loading is done")
 
     def write_register(self, address, value):
-        with SqliteDict('.shared_storage.db') as storage:
-            bitstream_loaded = storage['bitstream_loaded']
+        bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded or self.dbg:
+        if bitstream_loaded == 'true' or self.dbg:
             self.interface_lock.acquire()
             self.low_level_lib.write_register(address, value)
             self.interface_lock.release()
@@ -101,10 +96,9 @@ class uCube_interface:
             raise RuntimeError("FPGA access before bitstream loading is done")
 
     def write_proxied_register(self, proxy_address, address, value):
-        with SqliteDict('.shared_storage.db') as storage:
-            bitstream_loaded = storage['bitstream_loaded']
+        bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded or self.dbg:
+        if bitstream_loaded == 'true' or self.dbg:
             self.interface_lock.acquire()
             self.low_level_lib.write_proxied_register(proxy_address, address, value)
             self.interface_lock.release()
@@ -113,23 +107,18 @@ class uCube_interface:
 
     def load_bitstream(self, bitstream):
         if self.dbg:
-            with SqliteDict('.shared_storage.db') as storage:
-                storage['bitstream_loaded'] = True
-                storage.commit()
+            self.redis_if.set('bitstream_loaded', 'true')
             return
         # The low level interface is not used here, however the lock is acquired
         # to prevent other threads hitting the bus before the configuration is done
-        with SqliteDict('.shared_storage.db') as storage:
-            storage['bitstream_loaded'] = False
-            storage.commit()
+        self.redis_if.set('bitstream_loaded', 'false')
 
         self.interface_lock.acquire()
+
         os.system("echo 0 > /sys/class/fpga_manager/fpga0/flags")
         os.system(f'echo {bitstream} > /sys/class/fpga_manager/fpga0/firmware')
+        self.redis_if.set('bitstream_loaded', 'true')
 
-        with SqliteDict('.shared_storage.db') as storage:
-            storage['bitstream_loaded'] = True
-            storage.commit()
         self.interface_lock.release()
 
 

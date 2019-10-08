@@ -20,9 +20,11 @@ def create_app(debug=False):
     logging.getLogger("sqlitedict").setLevel(logging.CRITICAL)
 
     if debug:
-        interface = uCube_interface.uCube_interface(dbg=True)
+        redis_host = 'redis'
+        interface = uCube_interface.uCube_interface(dbg=True, redis_host=redis_host)
     else:
-        interface = uCube_interface.uCube_interface(dbg=False)
+        redis_host = 'localhost'
+        interface = uCube_interface.uCube_interface(dbg=False, redis_host=redis_host)
 
     store = DataStore('uDB')
 
@@ -34,7 +36,7 @@ def create_app(debug=False):
         from uScopeBackend.registers_manager import registers_manager_bp, RegistersManager
         from uScopeBackend.tab_creator_manager import tab_creator_manager_bp,TabCreatorManager
 
-        app.app_mgr = ApplicationManager(interface, store)
+        app.app_mgr = ApplicationManager(interface, store, redis_host)
         app.plot_mgr = PlotManager(interface, store)
         app.register_mgr = RegistersManager(interface, store)
         app.tab_creator_mgr = TabCreatorManager(store)

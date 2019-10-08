@@ -1,7 +1,7 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 import os, json
-from sqlitedict import SqliteDict
+import redis
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -55,20 +55,20 @@ api.add_resource(ApplicationsDigest, '/digest')
 
 
 class ApplicationManager:
-    def __init__(self, interface, store):
+    def __init__(self, interface, store, redis_host):
         self.store = store
         self.parameters = {}
         self.interface = interface
+        self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
 
     def remove_application(self, application_name):
         self.store.remove_application(application_name)
         pass
 
     def set_application(self, application_name):
-        with SqliteDict('.shared_storage.db') as storage:
-            storage['chosen_application'] = self.store.get_applications()[application_name]
-            storage['parameters'] = self.store.get_applications()[application_name]['parameters']
-            storage.commit()
+        json.dumps(self.store.get_applications()[application_name])
+        print(self.redis_if.set('chosen_application', json.dumps(self.store.get_applications()[application_name])))
+        self.redis_if.set('parameters', json.dumps(self.store.get_applications()[application_name]['parameters']))
 
         self.load_bitstream(self.store.get_applications()[application_name]['bitstream'])
         if 'initial_registers_values' in self.store.get_applications()[application_name]:
@@ -81,8 +81,7 @@ class ApplicationManager:
         return self.store.get_applications_hash()
 
     def get_peripheral_base_address(self, peripheral):
-        with SqliteDict('.shared_storage.db') as storage:
-            chosen_application = storage['chosen_application']
+        chosen_application = json.loads(self.redis_if.get('chosen_application'))
         for tab in chosen_application['tabs']:
             if tab['tab_id'] == peripheral:
                 return tab['base_address']
@@ -91,8 +90,7 @@ class ApplicationManager:
         raise ValueError('could not find the periperal %s' % peripheral)
 
     def peripheral_is_proxied(self, peripheral):
-        with SqliteDict('.shared_storage.db') as storage:
-            chosen_application = storage['chosen_application']
+        chosen_application = json.loads(self.redis_if.get('chosen_application'))
         for tab in chosen_application['tabs']:
             if tab['tab_id'] == peripheral:
                 return tab['proxied']
@@ -101,25 +99,21 @@ class ApplicationManager:
         raise ValueError('could not find the periperal %s' % peripheral)
 
     def get_peripheral_proxy_address(self, peripheral):
-        with SqliteDict('.shared_storage.db') as storage:
-            chosen_application = storage['chosen_application']
+        chosen_application = json.loads(self.redis_if.get('chosen_application'))
         for tab in chosen_application['tabs']:
             if tab['tab_id'] == peripheral:
                 return tab['proxy_address']
             pass
 
     def get_parameters(self):
-        with SqliteDict('.shared_storage.db') as storage:
-            params = storage['parameters']
-
+        params = json.loads(self.redis_if.get('parameters'))
         return params
 
     def set_parameters(self, param):
-        with SqliteDict('.shared_storage.db') as storage:
-            params = storage['parameters']
-            params[param['name']] = param['value']
-            storage['parameters'] = param
-            storage.commit()
+        params = json.loads(self.redis_if.get('parameters'))
+        params[param['name']] = param['value']
+        self.redis_if.set('parameters', json.dumps(params))
+
 
     def load_bitstream(self, name):
         self.interface.load_bitstream(name)
