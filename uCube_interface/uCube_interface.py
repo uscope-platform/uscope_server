@@ -38,7 +38,7 @@ class uCube_interface:
     def wait_for_data(self):
         bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded == 'true' or self.dbg:
+        if bitstream_loaded == b'true' or self.dbg:
             self.interface_lock.acquire()
             retval = self.low_level_lib.wait_for_Interrupt()
             self.interface_lock.release()
@@ -49,7 +49,7 @@ class uCube_interface:
     def read_data(self):
         bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded == 'true' or self.dbg:
+        if bitstream_loaded == b'true' or self.dbg:
             rec_data = [0] * 1024
             arr = (ctypes.c_uint32 * len(rec_data))(*rec_data)
 
@@ -65,7 +65,7 @@ class uCube_interface:
     def change_timebase(self, timebase):
         bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded == 'true' or self.dbg:
+        if bitstream_loaded == b'true' or self.dbg:
             counter_val = round(timebase / self.clock_frequency ** -1)
             self.interface_lock.acquire()
             self.low_level_lib.write_register(0x43c00400, counter_val)
@@ -77,7 +77,7 @@ class uCube_interface:
     def read_register(self, address):
         bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded == 'true' or self.dbg:
+        if bitstream_loaded == b'true' or self.dbg:
             self.interface_lock.acquire()
             val = self.low_level_lib.read_register(address)
             self.interface_lock.release()
@@ -87,8 +87,7 @@ class uCube_interface:
 
     def write_register(self, address, value):
         bitstream_loaded = self.redis_if.get('bitstream_loaded')
-
-        if bitstream_loaded == 'true' or self.dbg:
+        if bitstream_loaded == b'true' or self.dbg:
             self.interface_lock.acquire()
             self.low_level_lib.write_register(address, value)
             self.interface_lock.release()
@@ -98,7 +97,7 @@ class uCube_interface:
     def write_proxied_register(self, proxy_address, address, value):
         bitstream_loaded = self.redis_if.get('bitstream_loaded')
 
-        if bitstream_loaded == 'true' or self.dbg:
+        if bitstream_loaded == b'true' or self.dbg:
             self.interface_lock.acquire()
             self.low_level_lib.write_proxied_register(proxy_address, address, value)
             self.interface_lock.release()

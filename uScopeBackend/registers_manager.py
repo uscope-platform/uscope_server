@@ -1,8 +1,7 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 
-import os, json
-
+import time
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -43,9 +42,18 @@ class PeripheralsDigest(Resource):
         return current_app.register_mgr.get_peripherals_digest()
 
 
+class RegistersBulkWrite(Resource):
+
+    def post(self):
+        registers_to_write = request.get_json(force=True)
+        current_app.register_mgr.bulk_write(registers_to_write['payload'])
+        return '200'
+
+
 api.add_resource(RegisterValue, '/<string:peripheral>/value')
 api.add_resource(RegisterDescriptions, '/<string:peripheral>/descriptions')
 api.add_resource(PeripheralsSpecs, '/all_peripheral/descriptions')
+api.add_resource(RegistersBulkWrite, '/bulk_write')
 api.add_resource(PeripheralsDigest, '/digest')
 
 ############################################################
@@ -70,11 +78,10 @@ class RegistersManager:
             parameters = self.store.get_peripherals()[peripheral_name]
         else:
             raise ValueError("The component register file was not found")
-
         base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral_name), 0)
         registers_values = {}
         for i in parameters['registers']:
-            if 'R' in i['direction'] or 'r' in i['direction']:
+            if ('R' in i['direction'] or 'r' in i['direction']) and not current_app.app_mgr.peripheral_is_proxied(peripheral_name):
                 address = base_address + int(i['offset'], 0)
                 if i['register_format'] == 'words':
                     registers_values[i['register_name']] = self.interface.read_register(address)
@@ -90,35 +97,37 @@ class RegistersManager:
         pass
 
     def set_register_value(self, peripheral, register):
-        periph = register['peripheral']
-        peripheral_registers = self.store.get_peripherals()[periph]['registers']
         base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral), 0)
-
         if current_app.app_mgr.peripheral_is_proxied(peripheral):
             proxy_addr = int(current_app.app_mgr.get_peripheral_proxy_address(peripheral), 0)
             self.__set_proxied_register_value(register, base_address, proxy_addr)
         else:
             self.__set_direct_register_value(register, base_address)
 
-    def __set_direct_register_value(self, register, base_address):
+    def bulk_write(self, registers):
+        for i in registers:
+            self.set_register_value(i['peripheral'], i)
 
+    def __set_direct_register_value(self, register, base_address):
         periph = register['peripheral']
         peripheral_registers = self.store.get_peripherals()[periph]['registers']
 
         for i in peripheral_registers:
-            if i['register_name'] == register['name']:
+            if i['register_name'] == register['ID'] or i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)
                 value = register['value']
+                print(f'DIRECT WRITE: writen: {value} to register at address: {hex(address)}')
                 self.interface.write_register(address, value)
 
     def __set_proxied_register_value(self, register, base_address, proxy_addr):
         periph = register['peripheral']
-        peripheral_registers = self.store.get_peripherals()[periph]['registers']
 
+        peripheral_registers = self.store.get_peripherals()[periph]['registers']
         for i in peripheral_registers:
-            if i['register_name'] == register['name']:
+            if i['ID'] == register['name'] or i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)
                 value = register['value']
+                print(f'PROXY WRITE: writen: {value} to register at address: {hex(address)} through proxy at address: {hex(proxy_addr)}')
                 self.interface.write_proxied_register(proxy_addr, address, value)
 
     def __split_dword(self, val):

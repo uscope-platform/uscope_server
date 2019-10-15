@@ -1,6 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
-import os, json
+import json
 import redis
 
 ############################################################
@@ -43,11 +43,20 @@ class ApplicationRemove(Resource):
         return '200'
 
 
+class ApplicationAdd(Resource):
+
+    def post(self):
+        parameters = request.get_json(force=True)
+        current_app.app_mgr.add_application(parameters)
+        return '200'
+
+
 api.add_resource(ApplicationRemove, '/remove/<string:application_name>')
 api.add_resource(ApplicationsSpecs, '/all/specs')
 api.add_resource(ApplicationSet, '/set/<string:application_name>')
 api.add_resource(ApplicationParameters, '/parameters')
 api.add_resource(ApplicationsDigest, '/digest')
+api.add_resource(ApplicationAdd, '/add')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -61,13 +70,14 @@ class ApplicationManager:
         self.interface = interface
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
 
+    def add_application(self, application):
+        self.store.add_application(application)
+
     def remove_application(self, application_name):
         self.store.remove_application(application_name)
-        pass
 
     def set_application(self, application_name):
-        json.dumps(self.store.get_applications()[application_name])
-        print(self.redis_if.set('chosen_application', json.dumps(self.store.get_applications()[application_name])))
+        self.redis_if.set('chosen_application', json.dumps(self.store.get_applications()[application_name]))
         self.redis_if.set('parameters', json.dumps(self.store.get_applications()[application_name]['parameters']))
 
         self.load_bitstream(self.store.get_applications()[application_name]['bitstream'])
@@ -95,7 +105,6 @@ class ApplicationManager:
             if tab['tab_id'] == peripheral:
                 return tab['proxied']
             pass
-
         raise ValueError('could not find the periperal %s' % peripheral)
 
     def get_peripheral_proxy_address(self, peripheral):
@@ -113,7 +122,6 @@ class ApplicationManager:
         params = json.loads(self.redis_if.get('parameters'))
         params[param['name']] = param['value']
         self.redis_if.set('parameters', json.dumps(params))
-
 
     def load_bitstream(self, name):
         self.interface.load_bitstream(name)

@@ -1,0 +1,323 @@
+{
+    "AdcTest": {
+        "tabs": [
+            {
+                "name": "Plot",
+                "tab_id": "Plot",
+                "type": "Scope",
+                "user_accessible": true
+            },
+            {
+                "name": "ADC processing",
+                "tab_id": "ADC_processing",
+                "type": "Registers",
+                "base_address": "0x43c00100",
+                "proxied": false,
+                "user_accessible": true,
+                "image_src": "static/Images/ADC_processing.png"
+            },
+            {
+                "name": "SPI",
+                "tab_id": "SPI",
+                "type": "Registers",
+                "base_address": "0x43c00000",
+                "user_accessible": true,
+                "proxied": false,
+                "image_src": "static/Images/SPI.png"
+            },
+            {
+                "name": "GPIO",
+                "tab_id": "GPIO",
+                "type": "Registers",
+                "base_address": "0x43c00300",
+                "proxied": false,
+                "user_accessible": false
+            },
+            {
+                "name": "enable generator",
+                "tab_id": "enable_generator",
+                "type": "Registers",
+                "base_address": "0x43c00400",
+                "proxied": false,
+                "user_accessible": false
+            }
+        ],
+        "channels": [
+            {
+                "id": 1,
+                "name": "Current A",
+                "min_value": 0,
+                "max_value": 180,
+                "enabled": false
+            },
+            {
+                "id": 2,
+                "name": "Current B",
+                "min_value": 0,
+                "max_value": 180,
+                "enabled": false
+            },
+            {
+                "id": 3,
+                "name": "Current C",
+                "min_value": 0,
+                "max_value": 180,
+                "enabled": false
+            },
+            {
+                "id": 4,
+                "name": "Voltage A",
+                "min_value": 0,
+                "max_value": 600,
+                "enabled": false
+            },
+            {
+                "id": 5,
+                "name": "Voltage B",
+                "min_value": 0,
+                "max_value": 600,
+                "enabled": false
+            },
+            {
+                "id": 6,
+                "name": "Voltage C",
+                "min_value": 0,
+                "max_value": 600,
+                "enabled": false
+            }
+        ],
+        "parameters": [
+            {
+                "parameter_name": "Switching Frequency",
+                "parameter_id": "sw_freq",
+                "trigger": "switching_frequency_trigger",
+                "value": 1000.0,
+                "visible": true,
+                "default-unit": ""
+            },
+            {
+                "parameter_name": "Duty Cycle",
+                "parameter_id": "duty",
+                "trigger": "duty_trigger",
+                "value": 0.5,
+                "visible": true,
+                "default-unit": ""
+            },
+            {
+                "parameter_name": "Mid level duration",
+                "parameter_id": "mid_lvl_duration",
+                "trigger": "mid_level_trigger",
+                "value": 2e-08,
+                "visible": true,
+                "default-unit": ""
+            },
+            {
+                "parameter_name": "clock_frequency",
+                "parameter_id": "clk_freq",
+                "value": 40000000.0,
+                "visible": false
+            },
+            {
+                "parameter_name": "Deadtime",
+                "parameter_id": "deadtime",
+                "value": 1e-06,
+                "visible": false
+            }
+        ],
+        "bitstream": "AdcTest.bin",
+        "initial_registers_values": [
+            {
+                "address": "0x43c00004",
+                "value": "0x28"
+            },
+            {
+                "address": "0x43c00000",
+                "value": "0x1DC4"
+            },
+            {
+                "address": "0x43c00110",
+                "value": "0x0B04051B"
+            },
+            {
+                "address": "0x43c00114",
+                "value": "0x146D1086"
+            },
+            {
+                "address": "0x43c00118",
+                "value": "0x146D15D6"
+            },
+            {
+                "address": "0x43c0011C",
+                "value": "0x0B041086"
+            },
+            {
+                "address": "0x43c00120",
+                "value": "0x051B"
+            },
+            {
+                "address": "0x43c00124",
+                "value": "0x0"
+            },
+            {
+                "address": "0x43c00128",
+                "value": "0x1"
+            },
+            {
+                "address": "0x43c00400",
+                "value": "0x1200"
+            },
+            {
+                "address": "0x43c00300",
+                "value": "0x3"
+            }
+        ],
+        "macro": [
+            {
+                "name": "start",
+                "trigger": "start_trigger"
+            },
+            {
+                "name": "stop",
+                "trigger": "stop_trigger"
+            },
+            {
+                "name": "macro 3",
+                "trigger": "trigger_3"
+            },
+            {
+                "name": "macro 4",
+                "trigger": "trigger_4"
+            },
+            {
+                "name": "macro 5",
+                "trigger": "trigger_5"
+            },
+            {
+                "name": "macro 6",
+                "trigger": "trigger_6"
+            }
+        ]
+    },
+    "RtcuMaster": {
+        "tabs": [
+            {
+                "name": "Plot",
+                "tab_id": "Plot",
+                "type": "Scope",
+                "user_accessible": true
+            },
+            {
+                "name": "RTCU Master",
+                "tab_id": "RTCU_master",
+                "type": "Registers",
+                "base_address": "0x43c00000",
+                "proxied": false,
+                "user_accessible": true,
+                "image_src": ""
+            },
+            {
+                "name": "Pwm Generator",
+                "tab_id": "Pwm_Generator",
+                "type": "Registers",
+                "base_address": "0x0",
+                "proxy_address": "0x43c00000",
+                "proxied": true,
+                "user_accessible": true,
+                "image_src": "static/Images/Pwm Generator.svg"
+            }
+        ],
+        "channels": [
+            {
+                "id": 1,
+                "name": "Current A",
+                "min_value": 0,
+                "max_value": 180,
+                "enabled": false
+            },
+            {
+                "id": 2,
+                "name": "Current B",
+                "min_value": 0,
+                "max_value": 180,
+                "enabled": false
+            },
+            {
+                "id": 3,
+                "name": "Current C",
+                "min_value": 0,
+                "max_value": 180,
+                "enabled": false
+            },
+            {
+                "id": 4,
+                "name": "Voltage A",
+                "min_value": 0,
+                "max_value": 600,
+                "enabled": false
+            },
+            {
+                "id": 5,
+                "name": "Voltage B",
+                "min_value": 0,
+                "max_value": 600,
+                "enabled": false
+            },
+            {
+                "id": 6,
+                "name": "Voltage C",
+                "min_value": 0,
+                "max_value": 600,
+                "enabled": false
+            }
+        ],
+        "parameters": [
+            {
+                "parameter_name": "Switching Frequency",
+                "parameter_id": "sw_freq",
+                "trigger": "switching_frequency_trigger",
+                "value": 1000.0,
+                "visible": true,
+                "default-unit": ""
+            },
+            {
+                "parameter_name": "Duty Cycle",
+                "parameter_id": "duty",
+                "trigger": "duty_trigger",
+                "value": 0.5,
+                "visible": true,
+                "default-unit": ""
+            },
+            {
+                "parameter_name": "Mid level duration",
+                "parameter_id": "mid_lvl_duration",
+                "trigger": "mid_level_trigger",
+                "value": 2e-08,
+                "visible": true,
+                "default-unit": ""
+            },
+            {
+                "parameter_name": "clock_frequency",
+                "parameter_id": "clk_freq",
+                "value": 40000000.0,
+                "visible": false
+            },
+            {
+                "parameter_name": "Deadtime",
+                "parameter_id": "deadtime",
+                "value": 1e-06,
+                "visible": false
+            }
+        ],
+        "macro": [
+            {
+                "name": "start",
+                "trigger": "start_trigger"
+            },
+            {
+                "name": "stop",
+                "trigger": "stop_trigger"
+            }
+        ],
+        "bitstream": "RTCU.bin"
+    }
+}

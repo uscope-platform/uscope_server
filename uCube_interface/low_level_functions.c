@@ -60,7 +60,7 @@ int read_register(int addr){
 }
 
 int write_proxied_register(int proxy_base_addr, int addr, int val){
-    int offset = (addr - registers_base_addr)/4;
+    int offset = (proxy_base_addr - registers_base_addr)/4;
     registers[offset] = val;
     registers[offset+1] = addr;
 }
