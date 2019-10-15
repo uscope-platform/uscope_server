@@ -304,8 +304,9 @@
             {
                 "parameter_name": "Deadtime",
                 "parameter_id": "deadtime",
+                "trigger": "deadtime_trigger",
                 "value": 1e-06,
-                "visible": false
+                "visible": true
             }
         ],
         "macro": [
