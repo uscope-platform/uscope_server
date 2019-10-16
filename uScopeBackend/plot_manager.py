@@ -57,7 +57,7 @@ class PlotManager:
 
     def __init__(self, low_level_interface, store):
         # TODO: enable dynamic number of channels based on the application channel specs
-        self.channel_data = d = np.empty((6, 1024))
+        self.channel_data = np.empty((6, 1024))
         self.store = store
 
         self.interface = low_level_interface
@@ -69,14 +69,14 @@ class PlotManager:
             storage.commit()
 
     def get_data(self, channel):
-        #self.interface.wait_for_data()
-        #dts = self.interface.read_data()
+        self.interface.wait_for_data()
+        dts = self.interface.read_data()
         # TODO: implement channel selection mechanic
-        #self.channel_data[0] = np.roll(self.channel_data[0], len(dts))
-        #self.channel_data[0][0:len(dts)] = dts
+        self.channel_data[0] = np.roll(self.channel_data[0], len(dts))
+        self.channel_data[0][0:len(dts)] = dts
 
-        #return self.channel_data[0].tolist()
-        return {"channel": 0, "data": np.random.rand(1024).tolist()}
+        return {"channel": 0, "data": self.channel_data[0].tolist()}
+        #return {"channel": 0, "data": np.random.rand(1024).tolist()}
 
     def get_channels_specs(self):
         with SqliteDict('.shared_storage.db') as storage:
