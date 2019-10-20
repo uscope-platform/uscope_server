@@ -128,11 +128,11 @@
         "initial_registers_values": [
             {
                 "address": "0x43c00004",
-                "value": "0x28"
+                "value": "0x1B"
             },
             {
                 "address": "0x43c00000",
-                "value": "0x1DC4"
+                "value": "0x1DC2"
             },
             {
                 "address": "0x43c00110",
@@ -320,5 +320,107 @@
             }
         ],
         "bitstream": "RTCU.bin"
+    },
+    "test_loop_slave": {
+        "bitstream": "cl_master.bin",
+        "initial_registers_values": [
+            {
+                "address": "0x43c00004",
+                "value": "0x1B"
+            },
+            {
+                "address": "0x43c00000",
+                "value": "0x1DC2"
+            },
+            {
+                "address": "0x43c00110",
+                "value": "0xFA2E01E9"
+            },
+            {
+                "address": "0x43c00114",
+                "value": "0x2550FA49"
+            },
+            {
+                "address": "0x43c00118",
+                "value": "0x2550479C"
+            },
+            {
+                "address": "0x43c0011C",
+                "value": "0xFA2EFA49"
+            },
+            {
+                "address": "0x43c00120",
+                "value": "0x01E9"
+            },
+            {
+                "address": "0x43c00124",
+                "value": "0x0"
+            },
+            {
+                "address": "0x43c00128",
+                "value": "0x1"
+            },
+            {
+                "address": "0x43c00300",
+                "value": "0x1200"
+            },
+            {
+                "address": "0x43c00400",
+                "value": "0x1000"
+            }
+        ],
+        "tabs": [
+            {
+                "name": "Plot",
+                "tab_id": "Plot",
+                "type": "Scope",
+                "user_accessible": true
+            },
+            {
+                "user_accessible": false,
+                "proxied": false,
+                "base_address": "0x43c00500",
+                "type": "Registers",
+                "name": "RTCU_master",
+                "tab_id": "RTCU_master"
+            },
+            {
+                "user_accessible": false,
+                "proxied": true,
+                "base_address": "0",
+                "proxy_address": "0x43c00500",
+                "type": "Registers",
+                "name": "Pwm_Generator",
+                "tab_id": "Pwm_Generator"
+            }
+        ],
+        "parameters": [
+            {
+                "visible": true,
+                "parameter_name": "duty",
+                "parameter_id": "duty",
+                "trigger": "dutyTrigger_cl",
+                "default_value": "0.5"
+            }
+        ],
+        "macro": [
+            {
+                "name": "start",
+                "trigger": "start_trigger_cl"
+            },
+            {
+                "name": "stop",
+                "trigger": "stop_trigger_cl"
+            }
+        ],
+        "channels": [
+            {
+                "name": "ADC",
+                "min_value": "0",
+                "max_value": "100",
+                "enabled": false,
+                "id": 1
+            }
+        ]
     }
 }

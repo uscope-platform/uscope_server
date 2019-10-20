@@ -30,6 +30,10 @@ class uCube_interface:
             self.low_level_lib = emulator()
         filename = ctypes.c_char_p(driver_file.encode("utf-8"))
 
+        #TODO: clean up this dirty hack
+        self.timebase_addr = 0x43c00400
+
+
         self.buffer_size = 4 * 4096
         self.low_level_lib.low_level_init(filename, self.buffer_size, 0x7E200000, 0x43c00000)
         self.clock_frequency = 100e6
@@ -68,7 +72,7 @@ class uCube_interface:
         if bitstream_loaded == b'true' or self.dbg:
             counter_val = round(timebase / self.clock_frequency ** -1)
             self.interface_lock.acquire()
-            self.low_level_lib.write_register(0x43c00400, counter_val)
+            self.low_level_lib.write_register(self.timebase_addr, counter_val)
             self.interface_lock.release()
             return
         else:
@@ -111,6 +115,10 @@ class uCube_interface:
         # The low level interface is not used here, however the lock is acquired
         # to prevent other threads hitting the bus before the configuration is done
         self.redis_if.set('bitstream_loaded', 'false')
+
+        # TODO: clean up this dirty hack
+        if bitstream == 'cl_master.bin':
+            self.timebase_addr = 0x43c00300
 
         self.interface_lock.acquire()
 
