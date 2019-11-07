@@ -55,7 +55,7 @@ class uCube_interface:
 
         if bitstream_loaded == b'true' or self.dbg:
             rec_data = [0] * 1024
-            arr = (ctypes.c_uint32 * len(rec_data))(*rec_data)
+            arr = (ctypes.c_int32 * len(rec_data))(*rec_data)
 
             self.interface_lock.acquire()
             self.low_level_lib.read_data(arr, 1024)

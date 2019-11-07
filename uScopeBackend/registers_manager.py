@@ -111,9 +111,8 @@ class RegistersManager:
     def __set_direct_register_value(self, register, base_address):
         periph = register['peripheral']
         peripheral_registers = self.store.get_peripherals()[periph]['registers']
-
         for i in peripheral_registers:
-            if i['register_name'] == register['ID'] or i['register_name'] == register['name']:
+            if i['ID'] == register['name'] or i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)
                 value = register['value']
                 print(f'DIRECT WRITE: writen: {value} to register at address: {hex(address)}')

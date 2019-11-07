@@ -366,7 +366,7 @@
             },
             {
                 "address": "0x43c00400",
-                "value": "0x1000"
+                "value": "0x1FF"
             }
         ],
         "tabs": [
@@ -392,6 +392,14 @@
                 "type": "Registers",
                 "name": "Pwm_Generator",
                 "tab_id": "Pwm_Generator"
+            },
+            {
+                "user_accessible": false,
+                "proxied": false,
+                "base_address": "0x43c00200",
+                "type": "Registers",
+                "name": "PID",
+                "tab_id": "PID"
             }
         ],
         "parameters": [
@@ -400,7 +408,49 @@
                 "parameter_name": "duty",
                 "parameter_id": "duty",
                 "trigger": "dutyTrigger_cl",
-                "default_value": "0.5"
+                "value": 0.5
+            },
+            {
+                "visible": true,
+                "parameter_name": "Kp",
+                "parameter_id": "Kp",
+                "trigger": "kp_trigger_cl",
+                "value": 1
+            },
+            {
+                "visible": true,
+                "parameter_name": "Ki",
+                "parameter_id": "Ki",
+                "trigger": "ki_trigger_cl",
+                "value": 0
+            },
+            {
+                "visible": true,
+                "parameter_name": "PID output max",
+                "parameter_id": "pid_sat_max",
+                "trigger": "pid_out_sat_max_cl",
+                "value": 32767
+            },
+            {
+                "visible": true,
+                "parameter_name": "PID output min",
+                "parameter_id": "pid_sat_min",
+                "trigger": "pid_out_sat_min_cl",
+                "value": -32767
+            },
+            {
+                "visible": true,
+                "parameter_name": "PID integral max",
+                "parameter_id": "pid_int_sat_max",
+                "trigger": "pid_int_sat_max_cl",
+                "value": 32767
+            },
+            {
+                "visible": true,
+                "parameter_name": "PID integral min",
+                "parameter_id": "pid_int_sat_min",
+                "trigger": "pid_int_sat_min_cl",
+                "value": -32767
             }
         ],
         "macro": [

@@ -569,5 +569,75 @@
                 "register_format": "single"
             }
         ]
+    },
+    "PID": {
+        "peripheral_name": "PID",
+        "version": "0.1",
+        "registers": [
+            {
+                "register_name": "Control register",
+                "ID": "ctrl",
+                "offset": "0x0",
+                "description": "PID controller control register",
+                "direction": "R/W",
+                "register_format": "single"
+            },
+            {
+                "register_name": "Kp",
+                "ID": "kp",
+                "offset": "0x4",
+                "description": "Proportional action gain",
+                "direction": "R/W",
+                "register_format": "single"
+            },
+            {
+                "register_name": "Ki",
+                "ID": "ki",
+                "offset": "0x8",
+                "description": "integral action gain",
+                "direction": "R/W",
+                "register_format": "single"
+            },
+            {
+                "register_name": "Kd (placeholder)",
+                "ID": "kd",
+                "offset": "0xC",
+                "description": "Derivative action gain",
+                "direction": "R/W",
+                "register_format": "single"
+            },
+            {
+                "register_name": "Output saturation positive",
+                "ID": "out_sat_p",
+                "offset": "0x10",
+                "description": "Maximum positive value the output is allowed to take",
+                "direction": "R/W",
+                "register_format": "single"
+            },
+            {
+                "register_name": "Output saturation negative",
+                "ID": "out_sat_n",
+                "offset": "0x14",
+                "description": "Minimum negative value the output is allowed to take",
+                "direction": "R/W",
+                "register_format": "single"
+            },
+            {
+                "register_name": "Integral saturation positive",
+                "ID": "int_sat_p",
+                "offset": "0x18",
+                "description": "Maximum allowed value for the integral memory",
+                "direction": "R/W",
+                "register_format": "single"
+            },
+            {
+                "register_name": "Integral saturation negative",
+                "ID": "int_sat_n",
+                "offset": "0x1C",
+                "description": "Minimum allowed value for the integral memory",
+                "direction": "R/W",
+                "register_format": "single"
+            }
+        ]
     }
 }
