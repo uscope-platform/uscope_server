@@ -42,12 +42,18 @@ class DataStore:
         return self.applications
 
     def get_applications_hash(self):
+        return self.redis_if.get('Applications-hash')
+
+    def calc_applications_hash(self):
         return hashlib.sha256(json.dumps(self.applications, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
     def get_application(self, name):
         return self.applications[name]
 
     def get_peripherals_hash(self):
+        return self.redis_if.get('Peripherals-hash')
+
+    def calc_peripherals_hash(self):
         return hashlib.sha256(json.dumps(self.peripherals, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
     def get_peripherals(self):
@@ -84,6 +90,10 @@ class DataStore:
         if self.backend is "redis":
             key, value = periph.popitem()
             self.redis_if.hset('Peripherals', key, json.dumps(value))
+
+            hash = self.calc_peripherals_hash()
+            self.redis_if.set('Peripherals-hash', hash)
+
         elif self.backend is "udb":
             self.__persist_udb()
 
@@ -92,6 +102,10 @@ class DataStore:
 
         if self.backend is "redis":
             self.redis_if.hdel('Peripherals', peripheral)
+
+            hash = self.calc_peripherals_hash()
+            self.redis_if.set('Peripherals-hash', hash)
+
         elif self.backend is "udb":
             self.__persist_udb()
 
@@ -101,6 +115,10 @@ class DataStore:
         if self.backend is "redis":
             key, value = app.popitem()
             self.redis_if.hset('Applications', key, json.dumps(value))
+
+            hash = self.calc_applications_hash()
+            self.redis_if.set('Applications-hash', hash)
+
         elif self.backend is "udb":
             self.__persist_udb()
 
@@ -109,5 +127,9 @@ class DataStore:
 
         if self.backend is "redis":
             self.redis_if.hdel('Applications', app)
+
+            hash = self.calc_applications_hash()
+            self.redis_if.set('Applications-hash', hash)
+
         elif self.backend is "udb":
             self.__persist_udb()
