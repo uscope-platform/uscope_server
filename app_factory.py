@@ -26,7 +26,7 @@ def create_app(debug=False):
         redis_host = 'localhost'
         interface = uCube_interface.uCube_interface(dbg=False, redis_host=redis_host)
 
-    store = DataStore('uDB', redis_host, backend="redis")
+    store = DataStore(redis_host)
 
     with app.app_context():
 
