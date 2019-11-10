@@ -2,3 +2,5 @@
 __pycache__/
 
 .shared_storage.db
+
+debug_main.py

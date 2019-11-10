@@ -7,8 +7,8 @@ import os
 from uCube_interface import uCube_interface
 from DataStore.data_store import DataStore
 
-
 def create_app(debug=False):
+
 
     app = Flask(__name__, instance_relative_config=True)
     app.config['SECRET_KEY'] = 'uScope-CORS-key'
@@ -20,13 +20,13 @@ def create_app(debug=False):
     logging.getLogger("sqlitedict").setLevel(logging.CRITICAL)
 
     if debug:
-        redis_host = 'redis'
+        redis_host = 'localhost'
         interface = uCube_interface.uCube_interface(dbg=True, redis_host=redis_host)
     else:
         redis_host = 'localhost'
         interface = uCube_interface.uCube_interface(dbg=False, redis_host=redis_host)
 
-    store = DataStore('uDB')
+    store = DataStore('uDB', redis_host, backend="redis")
 
     with app.app_context():
 
