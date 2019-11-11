@@ -6,6 +6,9 @@ import redis
 class DataStore:
     def __init__(self, redis_host):
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=2, charset="utf-8", decode_responses=True)
+        # Refresh hashes to include stuff added offline
+        self.redis_if.set('Applications-hash', self.calc_applications_hash())
+        self.redis_if.set('Peripherals-hash', self.calc_peripherals_hash())
 
     def load_applications(self):
         applications = self.redis_if.hgetall('Applications')

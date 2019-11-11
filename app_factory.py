@@ -7,8 +7,8 @@ import os
 from uCube_interface import uCube_interface
 from DataStore.data_store import DataStore
 
-def create_app(debug=False):
 
+def create_app(debug=False):
 
     app = Flask(__name__, instance_relative_config=True)
     app.config['SECRET_KEY'] = 'uScope-CORS-key'
