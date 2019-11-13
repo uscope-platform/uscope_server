@@ -21,10 +21,10 @@ def create_app(debug=False):
 
     if debug:
         redis_host = 'localhost'
-        interface = uCube_interface.uCube_interface(dbg=True, redis_host=redis_host)
+        interface = uCube_interface.uCube_interface(redis_host)
     else:
         redis_host = 'localhost'
-        interface = uCube_interface.uCube_interface(dbg=False, redis_host=redis_host)
+        interface = uCube_interface.uCube_interface(redis_host)
 
     store = DataStore(redis_host)
 

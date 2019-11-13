@@ -43,7 +43,21 @@ class Timebase(Resource):
         return '200'
 
 
+class SetupCapture(Resource):
+    def get(self):
+        data = jsonify(current_app.plot_mgr.get_capture_data())
+        print(data)
+        return data
+
+
+    def post(self):
+        parameters = request.get_json(force=True)
+        current_app.plot_mgr.setup_capture(parameters)
+        return '200'
+
+
 api.add_resource(Timebase, '/timebase')
+api.add_resource(SetupCapture, '/capture')
 api.add_resource(ChannelsSpecs, '/channels/specs')
 api.add_resource(ChannelParams, '/channels/params')
 api.add_resource(ChannelsData, '/channels/data')
@@ -70,13 +84,13 @@ class PlotManager:
 
     def get_data(self, channel):
         self.interface.wait_for_data()
-        dts = self.interface.read_data()
+        dts, final_capture = self.interface.read_data()
         # TODO: implement channel selection mechanic
         self.channel_data[0] = np.roll(self.channel_data[0], len(dts))
         self.channel_data[0][0:len(dts)] = dts
 
         return {"channel": 0, "data": self.channel_data[0].tolist()}
-        #return {"channel": 0, "data": np.random.rand(1024).tolist()}
+        # return {"channel": 0, "data": np.random.rand(1024).tolist()}
 
     def get_channels_specs(self):
         with SqliteDict('.shared_storage.db') as storage:
@@ -105,3 +119,11 @@ class PlotManager:
 
     def set_timebase(self, param):
         self.interface.change_timebase(param['value'])
+
+    def setup_capture(self, param):
+        n_buffers = param['length']
+
+        self.interface.setup_capture_mode(n_buffers)
+
+    def get_capture_data(self):
+        return self.interface.get_capture_data()
