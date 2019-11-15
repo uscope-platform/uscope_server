@@ -17,22 +17,23 @@ C_SINGLE_REGISTER_READ = '4'
 C_BULK_REGISTER_READ = '5'
 C_START_CAPTURE = '6'
 C_PROXIED_WRITE = '7'
+C_READ_DATA = '8'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
+
 
 class uCube_interface:
     def __init__(self, redis_host):
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=4)
 
     def read_data(self):
-        pass
+        self.redis_if.publish("command",f'{C_READ_DATA}')
 
     def change_timebase(self, timebase):
         pass
 
     def read_register(self, address):
-
         self.redis_if.publish("command", f'{C_SINGLE_REGISTER_READ} {address}')
 
     def write_register(self, address, value):
