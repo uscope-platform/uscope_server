@@ -120,7 +120,6 @@ class RegistersManager:
 
     def __set_proxied_register_value(self, register, base_address, proxy_addr):
         periph = register['peripheral']
-
         peripheral_registers = self.store.get_peripherals()[periph]['registers']
         for i in peripheral_registers:
             if i['ID'] == register['name'] or i['register_name'] == register['name']:

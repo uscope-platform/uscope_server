@@ -126,6 +126,10 @@ class ApplicationManager:
     def load_bitstream(self, name):
         self.interface.load_bitstream(name)
 
+    def get_timebase_addr(self):
+        chosen_application = json.loads(self.redis_if.get('chosen_application'))
+        return int(chosen_application['timebase_address'], 16)
+
     def initialize_registers(self, registers):
         for reg in registers:
             addr = int(reg['address'], 0)

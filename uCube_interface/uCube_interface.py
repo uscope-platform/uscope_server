@@ -29,9 +29,6 @@ class uCube_interface:
         self.redis_if.publish("command", f'{C_READ_DATA}')
         return self.buf
 
-    def change_timebase(self, timebase):
-        pass
-
     def read_register(self, address):
         self.redis_if.publish("command", f'{C_SINGLE_REGISTER_READ} {address}')
 

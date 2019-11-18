@@ -39,14 +39,13 @@ class Timebase(Resource):
 
     def post(self):
         parameters = request.get_json(force=True)
-        current_app.plot_mgr.set_timebase(parameters)
+        current_app.plot_mgr.set_timebase(current_app.app_mgr.get_timebase_addr(), parameters['value'])
         return '200'
 
 
 class SetupCapture(Resource):
     def get(self):
         data = jsonify(current_app.plot_mgr.get_capture_data())
-        print(data)
         return data
 
 
@@ -73,6 +72,9 @@ class PlotManager:
         # TODO: enable dynamic number of channels based on the application channel specs
         self.channel_data = np.empty((6, 1024))
         self.store = store
+
+        #TODO: remove this hardcoded constant
+        self.clock_frequency = 100e6
 
         self.interface = low_level_interface
 
@@ -116,13 +118,15 @@ class PlotManager:
             storage['channel_specs'] = specs
             storage.commit()
 
-    def set_timebase(self, param):
-        self.interface.change_timebase(param['value'])
+    def set_timebase(self, address, value):
+        counter_val = round(value / self.clock_frequency ** -1)
+        self.interface.write_register(address, counter_val)
 
     def setup_capture(self, param):
         n_buffers = param['length']
-
         self.interface.setup_capture_mode(n_buffers)
 
     def get_capture_data(self):
         return self.interface.get_capture_data()
+
+
