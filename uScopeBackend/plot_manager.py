@@ -83,14 +83,13 @@ class PlotManager:
             storage.commit()
 
     def get_data(self, channel):
-        self.interface.read_data()
+        dts = self.interface.read_data()
         # TODO: implement channel selection mechanic
-        #self.channel_data[0] = np.roll(self.channel_data[0], len(dts))
-        #self.channel_data[0][0:len(dts)] = dts
+        self.channel_data[0] = np.roll(self.channel_data[0], len(dts))
+        self.channel_data[0][0:len(dts)] = dts[:, 0]
 
-         # return {"channel": 0, "data": self.channel_data[0].tolist()}
-         # return {"channel": 0, "data": np.random.rand(1024).tolist()}
-        return {"channel": 0, "data": np.zeros(1024).tolist()}
+        return {"channel": 0, "data": self.channel_data[0].tolist()}
+        # return {"channel": 0, "data": np.random.rand(1024).tolist()}
 
     def get_channels_specs(self):
         with SqliteDict('.shared_storage.db') as storage:

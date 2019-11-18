@@ -1,10 +1,5 @@
-import os
-import ctypes
-from .low_level_emulator import emulator
 import numpy as np
-from threading import Lock
 import redis
-from collections import deque
 
 channel_0_data = np.zeros(50000)
 channel_data_raw = []
@@ -26,9 +21,13 @@ RESP_ERR_BITSTREAM_NOT_FOUND = '2'
 class uCube_interface:
     def __init__(self, redis_host):
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=4)
+        self.redis_response = redis.Redis(host=redis_host, port=6379, db=4).pubsub()
+        self.redis_response.subscribe("response")
+        self.buf = np.memmap('/dev/shm/uscope_mapped_mem', dtype='int32', mode='r', shape=(1024, 1))
 
     def read_data(self):
-        self.redis_if.publish("command",f'{C_READ_DATA}')
+        self.redis_if.publish("command", f'{C_READ_DATA}')
+        return self.buf
 
     def change_timebase(self, timebase):
         pass
