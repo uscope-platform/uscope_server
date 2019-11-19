@@ -1,5 +1,6 @@
 import numpy as np
 import redis
+import time
 
 channel_0_data = np.zeros(50000)
 channel_data_raw = []
@@ -13,6 +14,7 @@ C_BULK_REGISTER_READ = '5'
 C_START_CAPTURE = '6'
 C_PROXIED_WRITE = '7'
 C_READ_DATA = '8'
+C_CHECK_CAPTURE_PROGRESS = '9'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -23,6 +25,7 @@ class uCube_interface:
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=4)
         self.redis_response = redis.Redis(host=redis_host, port=6379, db=4).pubsub()
         self.redis_response.subscribe("response")
+        message = self.redis_response.get_message()
         self.buf = np.memmap('/dev/shm/uscope_mapped_mem', dtype='int32', mode='r', shape=(1024, 1))
 
     def read_data(self):
@@ -31,6 +34,7 @@ class uCube_interface:
 
     def read_register(self, address):
         self.redis_if.publish("command", f'{C_SINGLE_REGISTER_READ} {address}')
+        message = self.redis_response.get_message()
 
     def write_register(self, address, value):
         self.redis_if.publish("command", f"{C_SINGLE_REGISTER_WRITE} {address} {value}")
@@ -45,4 +49,19 @@ class uCube_interface:
         self.redis_if.publish("command", f'{C_START_CAPTURE} {n_buffers}')
 
     def get_capture_data(self):
-        pass
+        self.redis_if.publish("command", f'{C_CHECK_CAPTURE_PROGRESS}')
+        response = self.wait_for_response(C_CHECK_CAPTURE_PROGRESS.encode())
+        return int(response[2].decode())
+
+    def wait_for_response(self, command):
+        response = None
+        while True:
+            message = self.redis_response.get_message()
+            if message is None:
+                continue
+            response = message['data'].split(b' ')
+            if response[0] == command:
+                return response
+            else:
+                time.sleep(1e-3)
+        return response

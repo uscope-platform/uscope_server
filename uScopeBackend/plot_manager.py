@@ -127,6 +127,12 @@ class PlotManager:
         self.interface.setup_capture_mode(n_buffers)
 
     def get_capture_data(self):
-        return self.interface.get_capture_data()
+        returnval = {}
+        returnval['elapsed'] = self.interface.get_capture_data()
+        if returnval['elapsed'] == 0:
+            with open('/dev/shm/uscope_capture_writeback', 'r') as f:
+                returnval['data'] = f.read()
+        return returnval
+
 
 
