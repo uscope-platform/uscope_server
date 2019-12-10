@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../uScope_server/.idea/uScope_server.iml" filepath="$PROJECT_DIR$/../uScope_server/.idea/uScope_server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/uscope_server.iml" filepath="$PROJECT_DIR$/.idea/uscope_server.iml" />
     </modules>
   </component>
 </project>

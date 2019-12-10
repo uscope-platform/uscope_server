@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="uCube">
+  <component name="PublishConfigData">
     <serverData>
-      <paths name="uCube">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/server" local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
       <paths name="ucube debug">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/pycharm_project_261" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
     </serverData>
-    <option name="myAutoUpload" value="ALWAYS" />
   </component>
 </project>

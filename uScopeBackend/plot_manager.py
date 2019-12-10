@@ -3,7 +3,7 @@ from flask_restful import Api, Resource
 
 import json
 import numpy as np
-from sqlitedict import SqliteDict
+import redis
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
@@ -56,18 +56,17 @@ api.add_resource(ChannelsData, '/channels/data')
 
 class PlotManager:
 
-    def __init__(self, low_level_interface, store):
+    def __init__(self, low_level_interface, store, redis_host):
         # TODO: enable dynamic number of channels based on the application channel specs
         self.channel_data = np.empty((6, 1024))
         self.store = store
 
         self.interface = low_level_interface
+        self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
 
     def set_application(self, name):
-        with SqliteDict('.shared_storage.db') as storage:
-            storage['channel_parameters'] = self.store.get_application(name)['parameters']
-            storage['channel_specs'] = self.store.get_application(name)['channels']
-            storage.commit()
+        self.redis_if.set('channel_parameters', json.dumps(self.store.get_application(name)['parameters']))
+        self.redis_if.set('channel_specs', json.dumps(self.store.get_application(name)['channels']))
 
     def get_data(self, channel):
         dts = self.interface.read_data()
@@ -79,29 +78,24 @@ class PlotManager:
         # return {"channel": 0, "data": np.random.rand(1024).tolist()}
 
     def get_channels_specs(self):
-        with SqliteDict('.shared_storage.db') as storage:
-            specs = storage['channel_specs']
-        return specs
+        return json.loads(self.redis_if.get('channel_specs'))
 
     def get_channel_params(self, name):
-        with SqliteDict('.shared_storage.db') as storage:
-            params = storage['channel_parameters']
-        return params[name]
+        return json.loads(self.redis_if.get('channel_parameters'))[name]
 
     def set_channel_params(self, message):
+        params = json.loads(self.redis_if.get('channel_parameters'))
+        specs = json.loads(self.redis_if.get('channel_specs'))
 
-        with SqliteDict('.shared_storage.db') as storage:
-            params = storage['channel_parameters']
-            specs = storage['channel_specs']
+        if type(message) is list:
+            for s in message:
+                specs['channels'][s['channel_id']][s['name']] = s['value']
+        else:
+            params[message['name']] = params[message['value']]
 
-            if type(message) is list:
-                for s in message:
-                    specs['channels'][s['channel_id']][s['name']] = s['value']
-            else:
-                params[name] = value
-            storage['channel_parameters'] = params
-            storage['channel_specs'] = specs
-            storage.commit()
+        self.redis_if.set('channel_parameters', json.dumps(params))
+        self.redis_if.set('channel_specs', json.dumps(specs))
+
 
     def setup_capture(self, param):
         n_buffers = param['length']

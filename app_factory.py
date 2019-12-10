@@ -37,7 +37,7 @@ def create_app(debug=False):
         from uScopeBackend.tab_creator_manager import tab_creator_manager_bp,TabCreatorManager
 
         app.app_mgr = ApplicationManager(interface, store, redis_host)
-        app.plot_mgr = PlotManager(interface, store)
+        app.plot_mgr = PlotManager(interface, store, redis_host)
         app.register_mgr = RegistersManager(interface, store)
         app.tab_creator_mgr = TabCreatorManager(store)
 
