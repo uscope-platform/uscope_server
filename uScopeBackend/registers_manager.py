@@ -68,12 +68,29 @@ class RegistersManager:
         self.store = store
 
     def get_all_peripherals(self):
+        """Returns all the peripherals present in the database
+
+            Returns:
+                List:list of peripherals in the database
+           """
         return self.store.get_peripherals()
 
     def get_peripherals_digest(self):
+        """Returns an hash of the jsonified peripherals list
+
+            Returns:
+                str:Digest of the peripherals present in the database
+           """
         return self.store.get_peripherals_hash()
 
     def get_registers_descriptions(self, peripheral_name):
+        """Returns the specification for the registers of the specified peripheral
+
+            Parameters:
+                peripheral_name: name of the peripheral whose registers need to be returned
+            Returns:
+                List:list of registers in the peripheral
+           """
         if peripheral_name in self.store.get_peripherals():
             parameters = self.store.get_peripherals()[peripheral_name]
         else:
@@ -97,6 +114,12 @@ class RegistersManager:
         pass
 
     def set_register_value(self, peripheral, register):
+        """Writes to a specifier register
+
+            Parameters:
+                peripheral: name of the peripheral whose registers need to be returned
+                register: dictionary containing the register name and value
+        """
         base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral), 0)
         if current_app.app_mgr.peripheral_is_proxied(peripheral):
             proxy_addr = int(current_app.app_mgr.get_peripheral_proxy_address(peripheral), 0)
@@ -105,10 +128,21 @@ class RegistersManager:
             self.__set_direct_register_value(register, base_address)
 
     def bulk_write(self, registers):
+        """ Perform a bulk register write operations
+
+            Parameters:
+                registers: List of dictionaries containing the details for a single register write
+           """
         for i in registers:
             self.set_register_value(i['peripheral'], i)
 
     def __set_direct_register_value(self, register, base_address):
+        """Writes to a register that is directly accessible through the CPU bus itself
+
+            Parameters:
+                register: dictionary containing the details of the register write to perform
+                base_address: base address of the peripheral to write to
+           """
         periph = register['peripheral']
         peripheral_registers = self.store.get_peripherals()[periph]['registers']
         for i in peripheral_registers:
@@ -119,6 +153,13 @@ class RegistersManager:
                 self.interface.write_register(address, value)
 
     def __set_proxied_register_value(self, register, base_address, proxy_addr):
+        """Writes to a register that is not directly connected to the bus but needs to be spoken with through a proxy peripheral
+
+            Parameters:
+                register: dictionary containing the details of the register write to perform
+                base_address: base address of the peripheral to write to
+                proxy_addr: base address of the proxy peripheral
+           """
         periph = register['peripheral']
         peripheral_registers = self.store.get_peripherals()[periph]['registers']
         for i in peripheral_registers:
@@ -129,6 +170,14 @@ class RegistersManager:
                 self.interface.write_proxied_register(proxy_addr, address, value)
 
     def __split_dword(self, val):
+        """Splits a single 32 bit register value to two 16 bit field values
+
+            Parameters:
+                val: register value to be split
+            Returns:
+                Tuple: couple of field values
+
+           """
         w1 = int(val & 0xffff)
         w2 = int((val >> 16) & 0xffff)
         return w1, w2

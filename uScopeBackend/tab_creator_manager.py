@@ -61,12 +61,23 @@ class TabCreatorManager:
         self.image_content = None
 
     def set_image_file(self, image_content, name):
+        """Stores the the image file for a peripheral tab
+
+            Parameters:
+                image_content: Content of the image file to store
+                name: Name of the image file to store
+           """
         with SqliteDict('.shared_storage.db') as storage:
             storage['image_content'] = image_content
             storage['image_filename'] = name
             storage.commit()
 
     def create_peripheral(self, periph):
+        """Adds a peripheral to the database
+
+            Parameters:
+                periph: peripheral to store into the database
+           """
         self.store.add_peripheral(periph['payload'])
         if periph['image']:
             with SqliteDict('.shared_storage.db') as storage:
@@ -76,5 +87,10 @@ class TabCreatorManager:
                 with open(image_path, 'wb') as f:
                     f.write(storage['image_content'])
 
-    def remove_peripheral(self,peripheral):
+    def remove_peripheral(self, peripheral):
+        """Removes a peripheral from the database
+
+            Parameters:
+                peripheral: name of the peripheral to remove
+           """
         self.store.remove_peripheral(peripheral)

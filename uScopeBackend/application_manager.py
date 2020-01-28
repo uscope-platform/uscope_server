@@ -71,12 +71,27 @@ class ApplicationManager:
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
 
     def add_application(self, application):
+        """Adds the application from the parameters to the database
+
+            Parameters:
+                application: application to add
+        """
         self.store.add_application(application)
 
     def remove_application(self, application_name):
+        """Remove application by name from the database
+
+            Parameters:
+                application_name: name of the application to remove
+        """
         self.store.remove_application(application_name)
 
     def set_application(self, application_name):
+        """Setup and start a capture
+
+            Parameters:
+                param: parameters of the capture
+        """
         self.redis_if.set('chosen_application', json.dumps(self.store.get_applications()[application_name]))
         self.redis_if.set('parameters', json.dumps(self.store.get_applications()[application_name]['parameters']))
 
@@ -85,12 +100,27 @@ class ApplicationManager:
             self.initialize_registers(self.store.get_applications()[application_name]['initial_registers_values'])
 
     def get_all_applications(self):
+        """ Get all the application specifications
+
+            Returns:
+                List: List of single application dictionaries
+        """
         return self.store.get_applications()
 
     def get_applications_hash(self):
+        """Get the version hash for the current application database
+
+            Returns:
+                String: Hash
+        """
         return self.store.get_applications_hash()
 
     def get_peripheral_base_address(self, peripheral):
+        """ Get base address for the specified peripheral
+
+            Parameters:
+                peripheral: peripheral id
+        """
         chosen_application = json.loads(self.redis_if.get('chosen_application'))
         for tab in chosen_application['tabs']:
             if tab['tab_id'] == peripheral:
@@ -100,6 +130,11 @@ class ApplicationManager:
         raise ValueError('could not find the periperal %s' % peripheral)
 
     def peripheral_is_proxied(self, peripheral):
+        """Find out whether a peripheral is proxied or not
+
+            Parameters:
+                peripheral: peripheral id
+        """
         chosen_application = json.loads(self.redis_if.get('chosen_application'))
         for tab in chosen_application['tabs']:
             if tab['tab_id'] == peripheral:
@@ -108,6 +143,11 @@ class ApplicationManager:
         raise ValueError('could not find the periperal %s' % peripheral)
 
     def get_peripheral_proxy_address(self, peripheral):
+        """ Get proxy address for the specified peripheral
+
+            Parameters:
+                peripheral: peripheral id
+        """
         chosen_application = json.loads(self.redis_if.get('chosen_application'))
         for tab in chosen_application['tabs']:
             if tab['tab_id'] == peripheral:
@@ -115,22 +155,46 @@ class ApplicationManager:
             pass
 
     def get_parameters(self):
+        """ Get parameters for the current peripheral
+
+
+        """
         params = json.loads(self.redis_if.get('parameters'))
         return params
 
     def set_parameters(self, param):
+        """ set parameter of the current peripheral
+
+            Parameters:
+                param: dictionary containing name and value of the parameter to set
+        """
         params = json.loads(self.redis_if.get('parameters'))
         params[param['name']] = param['value']
         self.redis_if.set('parameters', json.dumps(params))
 
     def load_bitstream(self, name):
+        """ Load the specified bitstream on the programmable logic
+
+            Parameters:
+                name: name of the bitstream to load
+        """
         self.interface.load_bitstream(name)
 
     def get_timebase_addr(self):
+        """ Get address of the timebase IP in the current application
+
+            Parameters:
+                peripheral: peripheral id
+        """
         chosen_application = json.loads(self.redis_if.get('chosen_application'))
         return int(chosen_application['timebase_address'], 16)
 
     def initialize_registers(self, registers):
+        """ Initializes registers from arguments
+
+            Parameters:
+                registers: List of dictionaries containing the details of the registers to initialize
+        """
         for reg in registers:
             addr = int(reg['address'], 0)
             value = int(reg['value'], 0)
