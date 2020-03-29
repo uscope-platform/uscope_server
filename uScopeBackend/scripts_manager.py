@@ -14,16 +14,21 @@ api = Api(scripts__manager_bp)
 
 
 class Script(Resource):
-    def get(self, name):
+    def get(self, script_id):
         return jsonify(current_app.script_mgr.load_scripts())
 
-    def post(self, name):
+    def post(self, script_id):
         content = request.get_json()
-        current_app.script_mgr.upload_script(name, content)
+        current_app.script_mgr.upload_script(script_id, content)
         return '200'
 
-    def delete(self, name):
-        current_app.script_mgr.delete_script(name)
+    def patch(self, script_id):
+        content = request.get_json()
+        current_app.script_mgr.edit_script(script_id, content)
+        return '200'
+
+    def delete(self, script_id):
+        current_app.script_mgr.delete_script(script_id)
         return '200'
 
 
@@ -33,7 +38,7 @@ class ScriptsHash(Resource):
 
 
 api.add_resource(ScriptsHash, '/hash')
-api.add_resource(Script, '/<string:name>')
+api.add_resource(Script, '/<string:script_id>')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -51,8 +56,11 @@ class ScriptManager:
     def get_hash(self):
         return self.store.get_scripts_hash()
 
-    def upload_script(self, name, content):
-        self.store.add_scripts(name, content)
+    def upload_script(self, script_id, content):
+        self.store.add_scripts(script_id, content)
+
+    def edit_script(self, script_id, content):
+        self.store.add_scripts(script_id, content)
 
     def delete_script(self, script):
         self.store.remove_scripts(script)
