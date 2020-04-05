@@ -1,4 +1,12 @@
 import app_factory
+import os
 
+global child_pid
 
-app_factory.create_app(debug=True)
+app = app_factory.create_app(debug=True)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port='8989', debug=True)
+
+    app.interface.redis_db.kill()
+    del app.interface

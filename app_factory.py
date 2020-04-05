@@ -5,7 +5,25 @@ import logging
 import os
 
 from uCube_interface import uCube_interface
+from uCube_interface import emulated_interface
 from DataStore.data_store import DataStore
+
+class PrefixMiddleware(object):
+
+    def __init__(self, app, prefix=''):
+        self.app = app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+
+        if environ['PATH_INFO'].startswith(self.prefix):
+            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
+            environ['SCRIPT_NAME'] = self.prefix
+            return self.app(environ, start_response)
+        else:
+            start_response('404', [('Content-Type', 'text/plain')])
+            return ["This url does not belong to the app.".encode()]
+
 
 
 def create_app(debug=False):
@@ -20,8 +38,9 @@ def create_app(debug=False):
     logging.getLogger("sqlitedict").setLevel(logging.CRITICAL)
 
     if debug:
+        app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/uscope')
         redis_host = 'localhost'
-        interface = uCube_interface.uCube_interface(redis_host)
+        interface = emulated_interface.EmulatedInterface()
     else:
         redis_host = 'localhost'
         interface = uCube_interface.uCube_interface(redis_host)
@@ -38,6 +57,7 @@ def create_app(debug=False):
         from uScopeBackend.scripts_manager import scripts__manager_bp, ScriptManager
         from uScopeBackend.db_manager import database__manager_bp, DatabaseManager
 
+        app.interface = interface
         app.app_mgr = ApplicationManager(interface, store, redis_host)
         app.plot_mgr = PlotManager(interface, store, redis_host)
         app.register_mgr = RegistersManager(interface, store)
