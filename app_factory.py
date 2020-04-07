@@ -6,7 +6,9 @@ import os
 
 from uCube_interface import uCube_interface
 from uCube_interface import emulated_interface
-from DataStore.data_store import DataStore
+from Store.data_store import DataStore
+from Store.auth_store import AuthStore
+from flask_jwt_extended import JWTManager
 
 class PrefixMiddleware(object):
 
@@ -31,6 +33,8 @@ def create_app(debug=False):
     app = Flask(__name__, instance_relative_config=True)
     app.config['SECRET_KEY'] = 'uScope-CORS-key'
     app.config['CORS_HEADERS'] = 'Content-Type'
+    app.config['JWT_SECRET_KEY'] = 'uScope-JWT-key'  # Change this!
+    jwt = JWTManager(app)
     CORS(app)
 
     logging.getLogger('werkzeug').setLevel(logging.DEBUG)
@@ -45,7 +49,8 @@ def create_app(debug=False):
         redis_host = 'localhost'
         interface = uCube_interface.uCube_interface(redis_host)
 
-    store = DataStore(redis_host)
+    data_store = DataStore(redis_host)
+    auth_store = AuthStore(redis_host)
 
     with app.app_context():
 
@@ -54,22 +59,25 @@ def create_app(debug=False):
         from uScopeBackend.plot_manager import plot_manager_bp, PlotManager
         from uScopeBackend.registers_manager import registers_manager_bp, RegistersManager
         from uScopeBackend.tab_creator_manager import tab_creator_manager_bp,TabCreatorManager
-        from uScopeBackend.scripts_manager import scripts__manager_bp, ScriptManager
-        from uScopeBackend.db_manager import database__manager_bp, DatabaseManager
+        from uScopeBackend.scripts_manager import scripts_manager_bp, ScriptManager
+        from uScopeBackend.db_manager import database_manager_bp, DatabaseManager
+        from uScopeBackend.auth_manager import auth_manager_bp, AuthManager
 
         app.interface = interface
-        app.app_mgr = ApplicationManager(interface, store, redis_host)
-        app.plot_mgr = PlotManager(interface, store, redis_host)
-        app.register_mgr = RegistersManager(interface, store)
-        app.tab_creator_mgr = TabCreatorManager(store)
-        app.script_mgr = ScriptManager(store)
+        app.app_mgr = ApplicationManager(interface, data_store, redis_host)
+        app.plot_mgr = PlotManager(interface, data_store, redis_host)
+        app.register_mgr = RegistersManager(interface, data_store)
+        app.tab_creator_mgr = TabCreatorManager(data_store)
+        app.script_mgr = ScriptManager(data_store)
         app.db_mgr = DatabaseManager('/var/lib/redis/6379/dump.rdb')
+        app.auth_mgr = AuthManager(auth_store)
 
         # Register Blueprints
         app.register_blueprint(application_manager_bp)
         app.register_blueprint(plot_manager_bp)
         app.register_blueprint(tab_creator_manager_bp)
         app.register_blueprint(registers_manager_bp)
-        app.register_blueprint(scripts__manager_bp)
-        app.register_blueprint(database__manager_bp)
+        app.register_blueprint(scripts_manager_bp)
+        app.register_blueprint(database_manager_bp)
+        app.register_blueprint(auth_manager_bp)
     return app

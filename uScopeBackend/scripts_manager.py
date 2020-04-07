@@ -1,38 +1,43 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
-
+from flask_jwt_extended import jwt_required
 
 ############################################################
 #                      BLUEPRINT                           #
 ############################################################
 
 
-scripts__manager_bp = Blueprint('scripts__manager', __name__, url_prefix='/script')
+scripts_manager_bp = Blueprint('scripts__manager', __name__, url_prefix='/script')
 
 
-api = Api(scripts__manager_bp)
+api = Api(scripts_manager_bp)
 
 
 class Script(Resource):
+    @jwt_required
     def get(self, script_id):
         return jsonify(current_app.script_mgr.load_scripts())
 
+    @jwt_required
     def post(self, script_id):
         content = request.get_json()
         current_app.script_mgr.upload_script(script_id, content)
         return '200'
 
+    @jwt_required
     def patch(self, script_id):
         content = request.get_json()
         current_app.script_mgr.edit_script(script_id, content)
         return '200'
 
+    @jwt_required
     def delete(self, script_id):
         current_app.script_mgr.delete_script(script_id)
         return '200'
 
 
 class ScriptsHash(Resource):
+    @jwt_required
     def get(self):
         return current_app.script_mgr.get_hash()
 

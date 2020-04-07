@@ -1,5 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
+from flask_jwt_extended import jwt_required
 import json
 import redis
 
@@ -13,14 +14,18 @@ api = Api(application_manager_bp)
 
 
 class ApplicationSet(Resource):
+    @jwt_required
     def get(self, application_name):
         current_app.plot_mgr.set_application(application_name)
         return jsonify(current_app.app_mgr.set_application(application_name))
 
+
 class ApplicationParameters(Resource):
+    @jwt_required
     def get(self):
         return jsonify(current_app.app_mgr.get_parameters())
 
+    @jwt_required
     def post(self):
         parameters = request.get_json(force=True)
         current_app.app_mgr.set_parameters(parameters['payload'])
@@ -28,23 +33,26 @@ class ApplicationParameters(Resource):
 
 
 class ApplicationsDigest(Resource):
+    @jwt_required
     def get(self):
         return current_app.app_mgr.get_applications_hash()
 
 
 class ApplicationsSpecs(Resource):
+    @jwt_required
     def get(self):
         return jsonify(current_app.app_mgr.get_all_applications())
 
 
 class ApplicationRemove(Resource):
+    @jwt_required
     def get(self, application_name):
         current_app.app_mgr.remove_application(application_name)
         return '200'
 
 
 class ApplicationAdd(Resource):
-
+    @jwt_required
     def post(self):
         parameters = request.get_json(force=True)
         current_app.app_mgr.add_application(parameters)

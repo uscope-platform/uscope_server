@@ -1,5 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
+from flask_jwt_extended import jwt_required
 
 import json
 import numpy as np
@@ -16,11 +17,13 @@ api = Api(plot_manager_bp)
 
 
 class ChannelsSpecs(Resource):
+    @jwt_required
     def get(self):
         return jsonify(current_app.plot_mgr.get_channels_specs())
 
 
 class ChannelParams(Resource):
+    @jwt_required
     def post(self):
         message = request.get_json(force=True)
         current_app.plot_mgr.set_channel_params(message)
@@ -28,16 +31,19 @@ class ChannelParams(Resource):
 
 
 class ChannelsData(Resource):
+    @jwt_required
     def get(self):
         channels = request.args.get('channels')
         return jsonify(current_app.plot_mgr.get_data(channels))
 
 
 class SetupCapture(Resource):
+    @jwt_required
     def get(self):
         data = jsonify(current_app.plot_mgr.get_capture_data())
         return data
 
+    @jwt_required
     def post(self):
         parameters = request.get_json(force=True)
         current_app.plot_mgr.setup_capture(parameters)
