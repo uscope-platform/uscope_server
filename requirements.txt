@@ -1,0 +1,7 @@
+pytest
+redis
+flask
+passlib
+numpy
+sqlitedict
+argon2_cffi

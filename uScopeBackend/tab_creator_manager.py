@@ -17,6 +17,14 @@ tab_creator_manager_bp = Blueprint('tab_creator_manager', __name__, url_prefix='
 api = Api(tab_creator_manager_bp)
 
 
+class EditPeripheral(Resource):
+    @jwt_required
+    def post(self):
+        edit = request.get_json()
+        current_app.tab_creator_mgr.edit_peripheral(edit)
+        return '200'
+
+
 class CreatePeripheral(Resource):
     @jwt_required
     def get(self, peripheral):
@@ -53,6 +61,7 @@ class RemovePeripheral(Resource):
 
 api.add_resource(PeripheralTabImage, '/diagram')
 api.add_resource(CreatePeripheral, '/create_peripheral')
+api.add_resource(EditPeripheral, '/edit_peripheral')
 api.add_resource(RemovePeripheral, '/remove_peripheral/<string:peripheral>')
 
 ############################################################
@@ -85,7 +94,7 @@ class TabCreatorManager:
             Parameters:
                 periph: peripheral to store into the database
            """
-        self.store.add_peripheral(periph['payload'])
+        image_path = ""
         if periph['image']:
             with SqliteDict('.shared_storage.db') as storage:
                 image_path = 'static/Images/' + storage['image_filename']
@@ -93,6 +102,44 @@ class TabCreatorManager:
                     os.remove(image_path)
                 with open(image_path, 'wb') as f:
                     f.write(storage['image_content'])
+        periph['payload'][list(periph['payload'])[0]]['image'] = image_path
+
+        label, periph =periph['payload'].popitem()
+        self.store.add_peripheral(label, periph)
+
+
+
+    def edit_peripheral(self, edit):
+        current_periph = self.store.get_peripherals()[edit["peripheral"]]
+        if edit["action"] == "change_image":
+            with SqliteDict('.shared_storage.db') as storage:
+                image_path = 'static/Images/' + storage['image_filename']
+                if os.path.exists(image_path):
+                    os.remove(image_path)
+                with open(image_path, 'wb') as f:
+                    f.write(storage['image_content'])
+        elif edit["action"] == "edit_version":
+            current_periph['version'] = edit['version']
+        elif edit["action"] == "add_register":
+            current_periph['registers'].append(edit['register'])
+        elif edit["action"] == "edit_register":
+            present = False
+            for idx, val in enumerate(current_periph['registers']):
+                if val['register_name'] == edit['register']:
+                    present = True
+                    break
+            if present:
+                current_periph['registers'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_register":
+            present = False
+            for idx, val in enumerate(current_periph['registers']):
+                if val['register_name'] == edit['register']:
+                    present = True
+                    break
+            if present:
+                del current_periph['registers'][idx]
+        self.store.add_peripheral(edit["peripheral"], current_periph)
+
 
     def remove_peripheral(self, peripheral):
         """Removes a peripheral from the database

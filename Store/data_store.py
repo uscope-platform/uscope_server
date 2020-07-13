@@ -29,11 +29,11 @@ class DataStore:
     def get_peripherals(self):
         return self.load_peripherals()
 
-    def add_peripheral(self, periph: dict):
-        key, value = periph.popitem()
-        self.redis_if.hset('Peripherals', key, json.dumps(value))
+    def add_peripheral(self, key: str, periph: dict):
+        self.redis_if.hset('Peripherals', key, json.dumps(periph))
         hash = self.calc_peripherals_hash()
         self.redis_if.set('Peripherals-hash', hash)
+
 
     def remove_peripheral(self, peripheral):
         self.redis_if.hdel('Peripherals', peripheral)

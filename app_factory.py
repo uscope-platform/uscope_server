@@ -27,7 +27,6 @@ class PrefixMiddleware(object):
             return ["This url does not belong to the app.".encode()]
 
 
-
 def create_app(debug=False):
 
     app = Flask(__name__, instance_relative_config=True)
@@ -65,7 +64,7 @@ def create_app(debug=False):
 
         app.interface = interface
         app.app_mgr = ApplicationManager(interface, data_store, redis_host)
-        app.plot_mgr = PlotManager(interface, data_store, redis_host)
+        app.plot_mgr = PlotManager(interface, data_store, redis_host, debug)
         app.register_mgr = RegistersManager(interface, data_store)
         app.tab_creator_mgr = TabCreatorManager(data_store)
         app.script_mgr = ScriptManager(data_store)

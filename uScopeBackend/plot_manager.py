@@ -33,7 +33,11 @@ class ChannelParams(Resource):
 class ChannelsData(Resource):
     @jwt_required
     def get(self):
-        channels = request.args.get('channels')
+        channels_str = request.args.get('channels')
+        channels_str = channels_str.replace("[", "")
+        channels_str = channels_str.replace("]", "")
+        channels_str = channels_str.split(",")
+        channels = [x == "true" for x in channels_str]
         return jsonify(current_app.plot_mgr.get_data(channels))
 
 
@@ -62,8 +66,9 @@ api.add_resource(ChannelsData, '/channels/data')
 
 class PlotManager:
 
-    def __init__(self, low_level_interface, store, redis_host):
+    def __init__(self, low_level_interface, store, redis_host, debug):
         # TODO: enable dynamic number of channels based on the application channel specs
+        self.debug = debug
         self.channel_data = np.empty((6, 1024))
         self.store = store
 
@@ -87,13 +92,23 @@ class PlotManager:
             Returns:
                 List: Data
            """
-        dts = self.interface.read_data()
-        # TODO: implement channel selection mechanic
-        self.channel_data[0] = np.roll(self.channel_data[0], len(dts))
-        self.channel_data[0][0:len(dts)] = dts[:, 0]
 
-        return {"channel": 0, "data": self.channel_data[0].tolist()}
-        # return {"channel": 0, "data": np.random.rand(1024).tolist()}
+        if not self.debug:
+            dts = self.interface.read_data()
+            # TODO: implement channel selection mechanic
+            self.channel_data[0] = np.roll(self.channel_data[0], len(dts))
+            self.channel_data[0][0:len(dts)] = dts[:, 0]
+
+            return {"channel": 0, "data": self.channel_data[0].tolist()}
+        else:
+            ret_val = list()
+            idx = 0
+            for i in channel:
+                if i:
+                    data = np.random.rand(1024)+5*idx
+                    ret_val.append({"channel": idx, "data": data.tolist()})
+                    idx += 1
+            return ret_val
 
     def get_channels_specs(self):
         """Returns the specifications for the scope channels of the current application
