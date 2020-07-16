@@ -34,7 +34,6 @@ class DataStore:
         hash = self.calc_peripherals_hash()
         self.redis_if.set('Peripherals-hash', hash)
 
-
     def remove_peripheral(self, peripheral):
         self.redis_if.hdel('Peripherals', peripheral)
         hash = self.calc_peripherals_hash()
@@ -42,9 +41,8 @@ class DataStore:
 
     # APPLICATIONS
 
-    def add_application(self, app):
-        key, value = app.popitem()
-        self.redis_if.hset('Applications', key, json.dumps(value))
+    def add_application(self, key: str, app: dict):
+        self.redis_if.hset('Applications', key, json.dumps(app))
         hash = self.calc_applications_hash()
         self.redis_if.set('Applications-hash', hash)
 

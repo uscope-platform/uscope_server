@@ -44,13 +44,6 @@ class ApplicationsSpecs(Resource):
         return jsonify(current_app.app_mgr.get_all_applications())
 
 
-class ApplicationRemove(Resource):
-    @jwt_required
-    def get(self, application_name):
-        current_app.app_mgr.remove_application(application_name)
-        return '200'
-
-
 class ApplicationAdd(Resource):
     @jwt_required
     def post(self):
@@ -59,12 +52,28 @@ class ApplicationAdd(Resource):
         return '200'
 
 
-api.add_resource(ApplicationRemove, '/remove/<string:application_name>')
+class ApplicationEdit(Resource):
+    @jwt_required
+    def post(self):
+        parameters = request.get_json(force=True)
+        current_app.app_mgr.edit_application(parameters)
+        return '200'
+
+
+class ApplicationRemove(Resource):
+    @jwt_required
+    def get(self, application_name):
+        current_app.app_mgr.remove_application(application_name)
+        return '200'
+
+
 api.add_resource(ApplicationsSpecs, '/all/specs')
 api.add_resource(ApplicationSet, '/set/<string:application_name>')
 api.add_resource(ApplicationParameters, '/parameters')
 api.add_resource(ApplicationsDigest, '/digest')
 api.add_resource(ApplicationAdd, '/add')
+api.add_resource(ApplicationEdit, '/edit')
+api.add_resource(ApplicationRemove, '/remove/<string:application_name>')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -84,7 +93,114 @@ class ApplicationManager:
             Parameters:
                 application: application to add
         """
-        self.store.add_application(application)
+        key, val = application.popitem()
+        self.store.add_application(key, val)
+
+    def edit_application(self, edit):
+        current_app = self.store.get_applications()[edit["application"]]
+        if edit["action"] == "add_channel":
+            current_app['channels'].append(edit['channel'])
+        elif edit["action"] == "edit_channel":
+            present = False
+            for idx, val in enumerate(current_app['channels']):
+                if val['name'] == edit['channel']:
+                    present = True
+                    break
+            if present:
+                current_app['channels'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_channel":
+            present = False
+            for idx, val in enumerate(current_app['channels']):
+                if val['name'] == edit['channel']:
+                    present = True
+                    break
+            if present:
+                del current_app['channels'][idx]
+        elif edit["action"] == "add_irv":
+            current_app['initial_registers_values'].append(edit['irv'])
+        elif edit["action"] == "edit_irv":
+            present = False
+            for idx, val in enumerate(current_app['initial_registers_values']):
+                if val['address'] == edit['address']:
+                    present = True
+                    break
+            if present:
+                current_app['initial_registers_values'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_irv":
+            present = False
+            for idx, val in enumerate(current_app['initial_registers_values']):
+                if val['address'] == edit['address']:
+                    present = True
+                    break
+            if present:
+                del current_app['initial_registers_values'][idx]
+        elif edit["action"] == "add_macro":
+            current_app['macro'].append(edit['macro'])
+        elif edit["action"] == "edit_macro":
+            present = False
+            for idx, val in enumerate(current_app['macro']):
+                if val['name'] == edit['name']:
+                    present = True
+                    break
+            if present:
+                current_app['macro'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_macro":
+            present = False
+            for idx, val in enumerate(current_app['macro']):
+                if val['name'] == edit['name']:
+                    present = True
+                    break
+            if present:
+                del current_app['macro'][idx]
+        elif edit["action"] == "add_parameter":
+            current_app['parameters'].append(edit['parameter'])
+        elif edit["action"] == "edit_parameter":
+            present = False
+            for idx, val in enumerate(current_app['parameters']):
+                if val['parameter_id'] == edit['parameter']:
+                    present = True
+                    break
+            if present:
+                current_app['parameters'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_parameter":
+            present = False
+            for idx, val in enumerate(current_app['parameters']):
+                if val['parameter_id'] == edit['parameter']:
+                    present = True
+                    break
+            if present:
+                del current_app['parameters'][idx]
+        elif edit["action"] == "add_peripheral":
+            current_app['tabs'].append(edit['peripheral'])
+        elif edit["action"] == "edit_peripheral":
+            present = False
+            for idx, val in enumerate(current_app['tabs']):
+                if val['name'] == edit['peripheral']:
+                    present = True
+                    break
+            if present:
+                current_app['tabs'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_peripheral":
+            present = False
+            for idx, val in enumerate(current_app['tabs']):
+                if val['name'] == edit['peripheral']:
+                    present = True
+                    break
+            if present:
+                del current_app['tabs'][idx]
+        elif edit["action"] == "add_misc":
+            current_app[edit['field']['name']] = edit['field']['value']
+        elif edit["action"] == "edit_misc":
+            if edit['field']['old_name'] is None:
+                current_app[edit['field']['name']] = edit['field']['value']
+            else:
+                val = current_app[edit['field']['old_name']]
+                del current_app[edit['field']['old_name']]
+                current_app[edit['field']['name']] = val
+        elif edit["action"] == "remove_misc":
+            del current_app[edit['field']['name']]
+
+        self.store.add_application(edit["application"], current_app)
 
     def remove_application(self, application_name):
         """Remove application by name from the database
