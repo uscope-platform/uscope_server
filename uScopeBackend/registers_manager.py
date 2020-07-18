@@ -1,7 +1,7 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
-import time
+import redis, json
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -69,9 +69,10 @@ api.add_resource(PeripheralsDigest, '/digest')
 
 class RegistersManager:
 
-    def __init__(self, interface, store):
+    def __init__(self, interface, store, redis_host):
         self.interface = interface
         self.store = store
+        self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
 
     def get_all_peripherals(self):
         """Returns all the peripherals present in the database
@@ -97,11 +98,21 @@ class RegistersManager:
             Returns:
                 List:list of registers in the peripheral
            """
-        if peripheral_name in self.store.get_peripherals():
-            parameters = self.store.get_peripherals()[peripheral_name]
-        else:
+
+        app = json.loads(self.redis_if.get("chosen_application"))
+        found = False
+        for peripheral in app['peripherals']:
+            if peripheral_name in peripheral['peripheral_id']:
+                found = True
+                parameters = self.store.get_peripherals()[peripheral['spec_id']]
+                base_address = int(peripheral['base_address'], 0)
+
+        if not found:
             raise ValueError("The component register file was not found")
-        base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral_name), 0)
+
+
+
+
         registers_values = {}
         for i in parameters['registers']:
             if ('R' in i['direction'] or 'r' in i['direction']) and not current_app.app_mgr.peripheral_is_proxied(peripheral_name):

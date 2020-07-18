@@ -171,23 +171,23 @@ class ApplicationManager:
             if present:
                 del current_app['parameters'][idx]
         elif edit["action"] == "add_peripheral":
-            current_app['tabs'].append(edit['peripheral'])
+            current_app['peripherals'].append(edit['peripheral'])
         elif edit["action"] == "edit_peripheral":
             present = False
-            for idx, val in enumerate(current_app['tabs']):
+            for idx, val in enumerate(current_app['peripherals']):
                 if val['name'] == edit['peripheral']:
                     present = True
                     break
             if present:
-                current_app['tabs'][idx][edit['field']] = edit['value']
+                current_app['peripherals'][idx][edit['field']] = edit['value']
         elif edit["action"] == "remove_peripheral":
             present = False
-            for idx, val in enumerate(current_app['tabs']):
+            for idx, val in enumerate(current_app['peripherals']):
                 if val['name'] == edit['peripheral']:
                     present = True
                     break
             if present:
-                del current_app['tabs'][idx]
+                del current_app['peripherals'][idx]
         elif edit["action"] == "add_misc":
             current_app[edit['field']['name']] = edit['field']['value']
         elif edit["action"] == "edit_misc":
@@ -214,7 +214,7 @@ class ApplicationManager:
         """Setup and start a capture
 
             Parameters:
-                param: parameters of the capture
+                param: parameters of the capture 
         """
         self.redis_if.set('chosen_application', json.dumps(self.store.get_applications()[application_name]))
         self.redis_if.set('parameters', json.dumps(self.store.get_applications()[application_name]['parameters']))
@@ -246,8 +246,8 @@ class ApplicationManager:
                 peripheral: peripheral id
         """
         chosen_application = json.loads(self.redis_if.get('chosen_application'))
-        for tab in chosen_application['tabs']:
-            if tab['tab_id'] == peripheral:
+        for tab in chosen_application['peripherals']:
+            if tab['peripheral_id'] == peripheral:
                 return tab['base_address']
             pass
 
@@ -260,8 +260,8 @@ class ApplicationManager:
                 peripheral: peripheral id
         """
         chosen_application = json.loads(self.redis_if.get('chosen_application'))
-        for tab in chosen_application['tabs']:
-            if tab['tab_id'] == peripheral:
+        for tab in chosen_application['peripherals']:
+            if tab['peripheral_id'] == peripheral:
                 return tab['proxied']
             pass
         raise ValueError('could not find the periperal %s' % peripheral)
@@ -273,8 +273,8 @@ class ApplicationManager:
                 peripheral: peripheral id
         """
         chosen_application = json.loads(self.redis_if.get('chosen_application'))
-        for tab in chosen_application['tabs']:
-            if tab['tab_id'] == peripheral:
+        for tab in chosen_application['peripherals']:
+            if tab['peripheral_id'] == peripheral:
                 return tab['proxy_address']
             pass
 
