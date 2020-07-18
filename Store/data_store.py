@@ -72,7 +72,10 @@ class DataStore:
 
     # SCRIPTS
     def get_scripts(self):
-        return self.redis_if.hgetall('Scripts')
+        scripts = self.redis_if.hgetall('Scripts')
+        for i in scripts:
+            scripts[i] = json.loads(scripts[i])
+        return scripts
 
     def load_scripts(self):
         scripts = self.redis_if.hgetall('Scripts')

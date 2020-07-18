@@ -57,7 +57,7 @@ class ScriptManager:
         self.store = store
 
     def load_scripts(self):
-        return self.store.load_scripts()
+        return self.store.get_scripts()
 
     def get_hash(self):
         return self.store.get_scripts_hash()
@@ -66,7 +66,7 @@ class ScriptManager:
         self.store.add_scripts(script_id, content)
 
     def edit_script(self, edit):
-        script = json.loads(self.store.get_scripts()[str(edit['script'])])
+        script = self.store.get_scripts()[str(edit['script'])]
         script[edit['field']] = edit['value']
         self.store.add_scripts(str(edit['script']), script)
 
