@@ -71,6 +71,9 @@ class DataStore:
         return json.loads(app)
 
     # SCRIPTS
+    def get_scripts(self):
+        return self.redis_if.hgetall('Scripts')
+
     def load_scripts(self):
         scripts = self.redis_if.hgetall('Scripts')
         scripts_list = []

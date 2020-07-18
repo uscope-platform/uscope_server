@@ -2,6 +2,7 @@ from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 
+import json
 ############################################################
 #                      BLUEPRINT                           #
 ############################################################
@@ -26,8 +27,8 @@ class Script(Resource):
 
     @jwt_required
     def patch(self, script_id):
-        content = request.get_json()
-        current_app.script_mgr.edit_script(script_id, content)
+        edit = request.get_json()
+        current_app.script_mgr.edit_script(edit)
         return '200'
 
     @jwt_required
@@ -64,8 +65,10 @@ class ScriptManager:
     def upload_script(self, script_id, content):
         self.store.add_scripts(script_id, content)
 
-    def edit_script(self, script_id, content):
-        self.store.add_scripts(script_id, content)
+    def edit_script(self, edit):
+        script = json.loads(self.store.get_scripts()[str(edit['script'])])
+        script[edit['field']] = edit['value']
+        self.store.add_scripts(str(edit['script']), script)
 
     def delete_script(self, script):
         self.store.remove_scripts(script)
