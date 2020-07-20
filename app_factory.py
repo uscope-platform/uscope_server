@@ -42,7 +42,7 @@ def create_app(debug=False):
 
     if debug:
         app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/uscope')
-        redis_host = 'localhost'
+        redis_host = '0.0.0.0'
         interface = emulated_interface.EmulatedInterface()
     else:
         redis_host = 'localhost'
