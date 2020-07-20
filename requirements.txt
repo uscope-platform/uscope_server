@@ -5,4 +5,6 @@ passlib
 numpy
 sqlitedict
 flask_cors
+flask_jwt_extended
+flask_restful
 argon2_cffi
