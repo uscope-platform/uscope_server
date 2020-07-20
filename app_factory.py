@@ -45,7 +45,7 @@ def create_app(debug=False):
         redis_host = '0.0.0.0'
         interface = emulated_interface.EmulatedInterface()
     else:
-        redis_host = 'localhost'
+        redis_host = '0.0.0.0'
         interface = uCube_interface.uCube_interface(redis_host)
 
     data_store = DataStore(redis_host)
