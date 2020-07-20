@@ -1,5 +1,4 @@
 import app_factory
-import os
 
 global child_pid
 

@@ -4,4 +4,5 @@ flask
 passlib
 numpy
 sqlitedict
+flask_cors
 argon2_cffi
