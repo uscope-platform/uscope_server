@@ -105,8 +105,9 @@ class PlotManager:
             idx = 0
             for i in channel:
                 if i:
-                    data = np.random.rand(1024)+5*idx
-                    ret_val.append({"channel": idx, "data": data.tolist()})
+                    raw_data = self.interface.read_data()
+                    data = [x+1500*idx for x in raw_data]
+                    ret_val.append({"channel": idx, "data": data})
                     idx += 1
             return ret_val
 

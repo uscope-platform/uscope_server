@@ -2,7 +2,6 @@ import numpy as np
 import redis
 import time
 from subprocess import Popen
-import signal
 
 channel_0_data = np.zeros(50000)
 channel_data_raw = []
