@@ -2,10 +2,8 @@ from flask import Flask
 from flask_cors import CORS
 
 import logging
-import os
 
 from uCube_interface import uCube_interface
-from uCube_interface import emulated_interface
 from Store.data_store import DataStore
 from Store.auth_store import AuthStore
 from flask_jwt_extended import JWTManager
@@ -42,11 +40,9 @@ def create_app(debug=False):
 
     if debug:
         app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/uscope')
-        redis_host = '0.0.0.0'
-        interface = emulated_interface.EmulatedInterface()
-    else:
-        redis_host = '0.0.0.0'
-        interface = uCube_interface.uCube_interface(redis_host)
+
+    redis_host = '0.0.0.0'
+    interface = uCube_interface.uCube_interface("localhost", 6666)
 
     data_store = DataStore(redis_host)
     auth_store = AuthStore(redis_host)

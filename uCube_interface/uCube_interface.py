@@ -1,7 +1,7 @@
 import numpy as np
-import redis
+import socket
+import struct
 import time
-from subprocess import Popen
 
 channel_0_data = np.zeros(50000)
 channel_data_raw = []
@@ -22,50 +22,59 @@ RESP_ERR_BITSTREAM_NOT_FOUND = '2'
 
 
 class uCube_interface:
-    def __init__(self, redis_host):
-        self.redis_if = redis.Redis(host=redis_host, port=6379, db=4)
-        self.redis_response = redis.Redis(host=redis_host, port=6379, db=4).pubsub()
+    def __init__(self, hw_host, hw_port):
+        self.hw_host = hw_host
+        self.hw_port = hw_port
 
-        self.driver = Popen(["/home/root/uScope/driver/build/uscope_driver", ""])
+    def send_command(self, command: str):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((self.hw_host, self.hw_port))
+            s.send(len(command).to_bytes(8, byteorder='little'))
 
-        self.redis_response.subscribe("response")
-        message = self.redis_response.get_message()
-        self.buf = np.memmap('/dev/shm/uscope_mapped_mem', dtype='int32', mode='r', shape=(1024, 1))
+            s.send(command.encode())
+
+            raw_resp_length = s.recv(8)
+            response_length = struct.unpack("<Q", raw_resp_length)[0]
+
+            data = s.recv(response_length).rstrip(b'\x00').decode()
+
+        return data
 
     def read_data(self):
-        self.redis_if.publish("command", f'{C_READ_DATA}')
-        return self.buf
+        command = f'{C_READ_DATA}'
+        response = self.send_command(command)
+        data = struct.unpack("<1024I", response)
+        data = [x for x in data]
+        return data
 
     def read_register(self, address):
-        self.redis_if.publish("command", f'{C_SINGLE_REGISTER_READ} {address}')
-        message = self.redis_response.get_message()
+        command = f'{C_SINGLE_REGISTER_READ} {address}'
+        response = self.send_command(command)
+        #return random.randrange(0, 100)
 
     def write_register(self, address, value):
-        self.redis_if.publish("command", f"{C_SINGLE_REGISTER_WRITE} {address} {value}")
+        command = f'{C_SINGLE_REGISTER_WRITE} {address} {value}'
+        response = self.send_command(command)
 
     def write_proxied_register(self, proxy_address, address, value):
-        self.redis_if.publish("command", f"{C_PROXIED_WRITE} {proxy_address},{address} {value}")
+        command = f'{C_PROXIED_WRITE} {proxy_address},{address} {value}'
+        response = self.send_command(command)
 
     def load_bitstream(self, bitstream):
-        self.redis_if.publish("command", f'{C_LOAD_BITSTREAM} {bitstream}')
+        command = f'{C_LOAD_BITSTREAM} {bitstream}'
+        response = self.send_command(command)
+        return
 
     def setup_capture_mode(self, n_buffers):
-        self.redis_if.publish("command", f'{C_START_CAPTURE} {n_buffers}')
+        command = f'{C_START_CAPTURE} {n_buffers}'
+        response = self.send_command(command)
+        return
 
     def get_capture_data(self):
-        self.redis_if.publish("command", f'{C_CHECK_CAPTURE_PROGRESS}')
-        response = self.wait_for_response(C_CHECK_CAPTURE_PROGRESS.encode())
-        return int(response[2].decode())
-
-    def wait_for_response(self, command):
-        response = None
+        command = f'{C_CHECK_CAPTURE_PROGRESS}'
         while True:
-            message = self.redis_response.get_message()
-            if message is None:
-                continue
-            response = message['data'].split(b' ')
+            response = self.send_command(command).split(b' ')
             if response[0] == command:
                 return response
             else:
                 time.sleep(1e-3)
-        return response
