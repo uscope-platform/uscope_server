@@ -43,9 +43,9 @@ class uCube_interface:
     def read_data(self):
         command = f'{C_READ_DATA}'
         response = self.send_command(command)
-        data = struct.unpack("<1024I", response)
-        data = [x for x in data]
-        return data
+        data_str = response.split(' ', 2)[2]
+        data = data_str.split(', ', )
+        return list(map(int, data))
 
     def read_register(self, address):
         command = f'{C_SINGLE_REGISTER_READ} {address}'
