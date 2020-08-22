@@ -1,12 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
 
-import logging
+import logging, os
 
 from uCube_interface import uCube_interface
 from Store.data_store import DataStore
 from Store.auth_store import AuthStore
 from flask_jwt_extended import JWTManager
+
 
 class PrefixMiddleware(object):
 
@@ -25,7 +26,13 @@ class PrefixMiddleware(object):
             return ["This url does not belong to the app.".encode()]
 
 
-def create_app(debug=False):
+def create_app(debug=True):
+    if os.environ.get('USCOPE_DEPLOYMENT_OPTION') == 'DOCKER':
+        redis_host = 'redis'
+        driver_host = 'driver'
+    else:
+        redis_host = '0.0.0.0'
+        driver_host = '0.0.0.0'
 
     app = Flask(__name__, instance_relative_config=True)
     app.config['SECRET_KEY'] = 'uScope-CORS-key'
@@ -34,15 +41,14 @@ def create_app(debug=False):
     jwt = JWTManager(app)
     CORS(app)
 
-    logging.getLogger('werkzeug').setLevel(logging.DEBUG)
-    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('werkzeug').setLevel(logging.CRITICAL)
+    logging.basicConfig(level=logging.CRITICAL)
     logging.getLogger("sqlitedict").setLevel(logging.CRITICAL)
 
     if debug:
         app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/uscope')
 
-    redis_host = '0.0.0.0'
-    interface = uCube_interface.uCube_interface("localhost", 6666)
+    interface = uCube_interface.uCube_interface(driver_host, 6666)
 
     data_store = DataStore(redis_host)
     auth_store = AuthStore(redis_host)

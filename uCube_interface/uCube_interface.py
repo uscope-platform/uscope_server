@@ -50,7 +50,8 @@ class uCube_interface:
     def read_register(self, address):
         command = f'{C_SINGLE_REGISTER_READ} {address}'
         response = self.send_command(command)
-        #return random.randrange(0, 100)
+        data = int(response.split(' ')[2])
+        return data
 
     def write_register(self, address, value):
         command = f'{C_SINGLE_REGISTER_WRITE} {address} {value}'
