@@ -42,8 +42,15 @@ class ProgramHash(Resource):
         return current_app.programs_mgr.get_hash()
 
 
+class ProgramCompile(Resource):
+    @jwt_required
+    def get(self, program_id):
+        return jsonify(current_app.programs_mgr.compile_program(program_id))
+
+
 api.add_resource(ProgramHash, '/hash')
 api.add_resource(Program, '/<string:program_id>')
+api.add_resource(ProgramCompile, '/compile/<string:program_id>')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -71,3 +78,9 @@ class ProgramsManager:
 
     def remove_program(self, program):
         self.store.remove_program(program)
+
+    def compile_program(self, program_id):
+        program = self.store.get_programs()[program_id]
+        error_codes = [{"status": "passed", "file": "test.s", "error": None},
+                       {"status": "failed", "file": "test2.s", "error": "Program Too big"}]
+        return error_codes
