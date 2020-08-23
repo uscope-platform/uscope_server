@@ -61,6 +61,7 @@ def create_app(debug=True):
         from uScopeBackend.registers_manager import registers_manager_bp, RegistersManager
         from uScopeBackend.tab_creator_manager import tab_creator_manager_bp,TabCreatorManager
         from uScopeBackend.scripts_manager import scripts_manager_bp, ScriptManager
+        from uScopeBackend.programs_manager import programs_manager_bp, ProgramsManager
         from uScopeBackend.db_manager import database_manager_bp, DatabaseManager
         from uScopeBackend.auth_manager import auth_manager_bp, AuthManager
 
@@ -68,6 +69,7 @@ def create_app(debug=True):
         app.app_mgr = ApplicationManager(interface, data_store, redis_host)
         app.plot_mgr = PlotManager(interface, data_store, redis_host, debug)
         app.register_mgr = RegistersManager(interface, data_store,redis_host)
+        app.programs_mgr = ProgramsManager(data_store)
         app.tab_creator_mgr = TabCreatorManager(data_store)
         app.script_mgr = ScriptManager(data_store)
         app.db_mgr = DatabaseManager('/var/lib/redis/6379/dump.rdb')
@@ -78,6 +80,7 @@ def create_app(debug=True):
         app.register_blueprint(plot_manager_bp)
         app.register_blueprint(tab_creator_manager_bp)
         app.register_blueprint(registers_manager_bp)
+        app.register_blueprint(programs_manager_bp)
         app.register_blueprint(scripts_manager_bp)
         app.register_blueprint(database_manager_bp)
         app.register_blueprint(auth_manager_bp)
