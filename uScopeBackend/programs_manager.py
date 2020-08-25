@@ -1,7 +1,7 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
-
+import fCore_compiler
 ############################################################
 #                      BLUEPRINT                           #
 ############################################################
@@ -61,6 +61,7 @@ class ProgramsManager:
 
     def __init__(self, store):
         self.store = store
+        self.bridge = fCore_compiler.CompilerBridge()
 
     def load_programs(self):
         return self.store.get_programs()
@@ -81,6 +82,12 @@ class ProgramsManager:
 
     def compile_program(self, program_id):
         program = self.store.get_programs()[program_id]
-        error_codes = [{"status": "passed", "file": "test.s", "error": None},
-                       {"status": "failed", "file": "test2.s", "error": "Program Too big"}]
+        try:
+           result =self.bridge.compile(program['program_content'])
+        except ValueError as err:
+            error_codes = [{"status": "failed", "file": program['path'], "error": str(err)}]
+            return error_codes
+        program['hex'] = result[0][0:result[1]]
+        self.store.add_program(program_id, program)
+        error_codes = [{"status": "passed", "file": program['path'], "error": None}]
         return error_codes
