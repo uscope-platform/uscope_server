@@ -41,9 +41,9 @@ def create_app(debug=True):
     jwt = JWTManager(app)
     CORS(app)
 
-    logging.getLogger('werkzeug').setLevel(logging.CRITICAL)
-    logging.basicConfig(level=logging.CRITICAL)
-    logging.getLogger("sqlitedict").setLevel(logging.CRITICAL)
+    logging.getLogger('werkzeug').setLevel(logging.WARNING)
+    logging.basicConfig(level=logging.WARNING)
+    logging.getLogger("sqlitedict").setLevel(logging.WARNING)
 
     if debug:
         app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/uscope')

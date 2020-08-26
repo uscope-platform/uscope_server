@@ -103,23 +103,17 @@ class PlotManager:
                 List: Data
            """
 
-        if not self.debug:
-            dts = self.interface.read_data()
-            # TODO: implement channel selection mechanic
-            self.channel_data[0] = np.roll(self.channel_data[0], len(dts))
-            self.channel_data[0][0:len(dts)] = dts[:, 0]
-
-            return {"channel": 0, "data": self.channel_data[0].tolist()}
-        else:
-            ret_val = list()
-            idx = 0
-            for i in self.channel_status:
-                if i:
-                    raw_data = self.interface.read_data()
-                    data = [x+1500*idx for x in raw_data]
-                    ret_val.append({"channel": idx, "data": data})
-                    idx += 1
-            return ret_val
+        ret_val = list()
+        chl_idx = 0
+        buf_idx = 0
+        raw_data = self.interface.read_data()
+        split_data = [raw_data[x:x + 1024] for x in range(0, len(raw_data), 1024)]
+        for i in self.channel_status:
+            if i:
+                ret_val.append({"channel": chl_idx, "data": split_data[buf_idx]})
+                buf_idx += 1
+            chl_idx += 1
+        return ret_val
 
     def get_channels_specs(self):
         """Returns the specifications for the scope channels of the current application

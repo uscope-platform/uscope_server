@@ -30,29 +30,32 @@ class uCube_interface:
 
     def send_command(self, command: str):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            data = 0
             s.connect((self.hw_host, self.hw_port))
             s.send(len(command).to_bytes(8, byteorder='little'))
 
             s.send(command.encode())
 
-            raw_resp_length = s.recv(8)
-            response_length = struct.unpack("<Q", raw_resp_length)[0]
+            raw_status_resp = s.recv(6)
+            status_response = struct.unpack("<3h", raw_status_resp)
 
-            data = s.recv(response_length).rstrip(b'\x00').decode()
+            if status_response[2] == 1:
+                raw_resp_length = s.recv(8)
+                response_length = struct.unpack("<Q", raw_resp_length)[0]
+                raw_data = b''
+                while len(raw_data) != response_length:
+                    raw_data += s.recv(response_length-len(raw_data))
+                data = struct.unpack(f"<{response_length // 4}I", raw_data)
 
         return data
 
     def read_data(self):
         command = f'{C_READ_DATA}'
-        response = self.send_command(command)
-        data_str = response.split(' ', 2)[2]
-        data = data_str.split(', ', )
-        return list(map(int, data))
+        return self.send_command(command)
 
     def read_register(self, address):
         command = f'{C_SINGLE_REGISTER_READ} {address}'
-        response = self.send_command(command)
-        data = int(response.split(' ')[2])
+        data = self.send_command(command)
         return data
 
     def write_register(self, address, value):
