@@ -16,6 +16,8 @@ C_START_CAPTURE = '6'
 C_PROXIED_WRITE = '7'
 C_READ_DATA = '8'
 C_CHECK_CAPTURE_PROGRESS = '9'
+C_ENABLE_CHANNEL = '10'
+C_DISABLE_CHANNEL = '11'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -69,7 +71,6 @@ class uCube_interface:
     def setup_capture_mode(self, n_buffers):
         command = f'{C_START_CAPTURE} {n_buffers}'
         response = self.send_command(command)
-        return
 
     def get_capture_data(self):
         command = f'{C_CHECK_CAPTURE_PROGRESS}'
@@ -79,3 +80,11 @@ class uCube_interface:
                 return response
             else:
                 time.sleep(1e-3)
+
+    def enable_channel(self, channel):
+        command = f'{C_ENABLE_CHANNEL} {channel}'
+        response = self.send_command(command)
+
+    def disable_channel(self, channel):
+        command = f'{C_DISABLE_CHANNEL} {channel}'
+        response = self.send_command(command)

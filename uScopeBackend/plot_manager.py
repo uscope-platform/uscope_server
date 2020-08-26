@@ -33,12 +33,7 @@ class ChannelParams(Resource):
 class ChannelsData(Resource):
     @jwt_required
     def get(self):
-        channels_str = request.args.get('channels')
-        channels_str = channels_str.replace("[", "")
-        channels_str = channels_str.replace("]", "")
-        channels_str = channels_str.split(",")
-        channels = [x == "true" for x in channels_str]
-        return jsonify(current_app.plot_mgr.get_data(channels))
+        return jsonify(current_app.plot_mgr.get_data())
 
 
 class SetupCapture(Resource):
@@ -54,10 +49,24 @@ class SetupCapture(Resource):
         return '200'
 
 
+class EnableChannel(Resource):
+    @jwt_required
+    def get(self, channel_n):
+        return current_app.plot_mgr.enable_channel(channel_n)
+
+
+class DisableChannel(Resource):
+    @jwt_required
+    def get(self, channel_n):
+        return current_app.plot_mgr.disable_channel(channel_n)
+
+
 api.add_resource(SetupCapture, '/capture')
 api.add_resource(ChannelsSpecs, '/channels/specs')
 api.add_resource(ChannelParams, '/channels/params')
 api.add_resource(ChannelsData, '/channels/data')
+api.add_resource(EnableChannel, '/channels/enable/<int:channel_n>')
+api.add_resource(DisableChannel, '/channels/disable/<int:channel_n>')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -67,13 +76,17 @@ api.add_resource(ChannelsData, '/channels/data')
 class PlotManager:
 
     def __init__(self, low_level_interface, store, redis_host, debug):
-        # TODO: enable dynamic number of channels based on the application channel specs
-        self.debug = debug
-        self.channel_data = np.empty((6, 1024))
-        self.store = store
-
         self.interface = low_level_interface
+        self.debug = debug
+        self.store = store
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
+
+        self.channel_status = []
+        channel_specs = json.loads(self.redis_if.get('channel_specs'))
+        for item in channel_specs:
+            self.channel_status.append(item['enabled'])
+
+        self.channel_data = np.empty((len(self.channel_status), 1024))
 
     def set_application(self, name):
         """Set the current application
@@ -84,11 +97,8 @@ class PlotManager:
         self.redis_if.set('channel_parameters', json.dumps(self.store.get_application(name)['parameters']))
         self.redis_if.set('channel_specs', json.dumps(self.store.get_application(name)['channels']))
 
-    def get_data(self, channel):
+    def get_data(self):
         """Get the latest scope data
-
-            Parameters:
-                channel: Channels to get the data for
             Returns:
                 List: Data
            """
@@ -103,7 +113,7 @@ class PlotManager:
         else:
             ret_val = list()
             idx = 0
-            for i in channel:
+            for i in self.channel_status:
                 if i:
                     raw_data = self.interface.read_data()
                     data = [x+1500*idx for x in raw_data]
@@ -162,12 +172,19 @@ class PlotManager:
             Returns:
                 String:Content of the file to upload to the client with the capture data
            """
-        returnval = {}
-        returnval['elapsed'] = self.interface.get_capture_data()
+        returnval = {'elapsed': self.interface.get_capture_data()}
         if returnval['elapsed'] == 0:
             with open('/dev/shm/uscope_capture_writeback', 'r') as f:
                 returnval['data'] = f.read()
         return returnval
 
+    def enable_channel(self, channel_n):
+        self.channel_status[channel_n] = True
+        self.interface.enable_channel(channel_n)
+        return "200"
 
+    def disable_channel(self, channel_n):
+        self.channel_status[channel_n] = False
+        self.interface.disable_channel(channel_n)
+        return "200"
 
