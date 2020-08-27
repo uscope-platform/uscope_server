@@ -28,6 +28,12 @@ class uCube_interface:
         self.hw_host = hw_host
         self.hw_port = hw_port
 
+    def socket_recv(self,socket, n_bytes):
+        raw_data = b''
+        while len(raw_data) != n_bytes:
+            raw_data += socket.recv(n_bytes - len(raw_data))
+        return raw_data
+
     def send_command(self, command: str):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             data = 0
@@ -36,15 +42,14 @@ class uCube_interface:
 
             s.send(command.encode())
 
-            raw_status_resp = s.recv(6)
+            raw_status_resp = self.socket_recv(s, 6)
             status_response = struct.unpack("<3h", raw_status_resp)
 
             if status_response[2] == 1:
-                raw_resp_length = s.recv(8)
+                raw_resp_length = self.socket_recv(s, 8)
                 response_length = struct.unpack("<Q", raw_resp_length)[0]
-                raw_data = b''
-                while len(raw_data) != response_length:
-                    raw_data += s.recv(response_length-len(raw_data))
+
+                raw_data = self.socket_recv(s, response_length)
                 data = struct.unpack(f"<{response_length // 4}I", raw_data)
 
         return data

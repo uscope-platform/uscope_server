@@ -81,12 +81,13 @@ class PlotManager:
         self.store = store
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
 
-        self.channel_status = []
+        status = []
         channel_specs = json.loads(self.redis_if.get('channel_specs'))
         for item in channel_specs:
-            self.channel_status.append(item['enabled'])
+            status.append(item['enabled'])
 
-        self.channel_data = np.empty((len(self.channel_status), 1024))
+        self.redis_if.set('channel_status', json.dumps(status))
+        self.channel_data = np.empty((len(status), 1024))
 
     def set_application(self, name):
         """Set the current application
@@ -102,13 +103,13 @@ class PlotManager:
             Returns:
                 List: Data
            """
-
+        status = json.loads(self.redis_if.get('channel_status'))
         ret_val = list()
         chl_idx = 0
         buf_idx = 0
         raw_data = self.interface.read_data()
         split_data = [raw_data[x:x + 1024] for x in range(0, len(raw_data), 1024)]
-        for i in self.channel_status:
+        for i in status:
             if i:
                 ret_val.append({"channel": chl_idx, "data": split_data[buf_idx]})
                 buf_idx += 1
@@ -173,12 +174,16 @@ class PlotManager:
         return returnval
 
     def enable_channel(self, channel_n):
-        self.channel_status[channel_n] = True
+        status = json.loads(self.redis_if.get('channel_status'))
+        status[channel_n] = True
+        self.redis_if.set('channel_status', json.dumps(status))
         self.interface.enable_channel(channel_n)
         return "200"
 
     def disable_channel(self, channel_n):
-        self.channel_status[channel_n] = False
+        status = json.loads(self.redis_if.get('channel_status'))
+        status[channel_n] = False
+        self.redis_if.set('channel_status', json.dumps(status))
         self.interface.disable_channel(channel_n)
         return "200"
 
