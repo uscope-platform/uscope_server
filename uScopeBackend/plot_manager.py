@@ -5,13 +5,13 @@ from flask_jwt_extended import jwt_required
 import json
 import numpy as np
 import redis
+
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
 
 
 plot_manager_bp = Blueprint('plot_manager', __name__, url_prefix='/plot')
-
 
 api = Api(plot_manager_bp)
 
@@ -49,24 +49,20 @@ class SetupCapture(Resource):
         return '200'
 
 
-class EnableChannel(Resource):
+class ChannelStatus(Resource):
     @jwt_required
-    def get(self, channel_n):
-        return current_app.plot_mgr.enable_channel(channel_n)
-
-
-class DisableChannel(Resource):
-    @jwt_required
-    def get(self, channel_n):
-        return current_app.plot_mgr.disable_channel(channel_n)
+    def post(self):
+        statuses = request.get_json(force=True)
+        return current_app.plot_mgr.set_channel_status(statuses)
 
 
 api.add_resource(SetupCapture, '/capture')
 api.add_resource(ChannelsSpecs, '/channels/specs')
 api.add_resource(ChannelParams, '/channels/params')
 api.add_resource(ChannelsData, '/channels/data')
-api.add_resource(EnableChannel, '/channels/enable/<int:channel_n>')
-api.add_resource(DisableChannel, '/channels/disable/<int:channel_n>')
+api.add_resource(ChannelStatus, '/channels/status')
+
+
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -173,17 +169,12 @@ class PlotManager:
                 returnval['data'] = f.read()
         return returnval
 
-    def enable_channel(self, channel_n):
-        status = json.loads(self.redis_if.get('channel_status'))
-        status[channel_n] = True
-        self.redis_if.set('channel_status', json.dumps(status))
-        self.interface.enable_channel(channel_n)
-        return "200"
+    def set_channel_status(self, status):
+        self.interface.set_channel_status(status)
+        status_list = [False]*len(status)
+        for i in status:
+            status_list[int(i)] = status[i]
+        self.redis_if.set('channel_status', json.dumps(status_list))
 
-    def disable_channel(self, channel_n):
-        status = json.loads(self.redis_if.get('channel_status'))
-        status[channel_n] = False
-        self.redis_if.set('channel_status', json.dumps(status))
-        self.interface.disable_channel(channel_n)
-        return "200"
 
+        return "200"

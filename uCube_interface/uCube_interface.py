@@ -16,8 +16,8 @@ C_START_CAPTURE = '6'
 C_PROXIED_WRITE = '7'
 C_READ_DATA = '8'
 C_CHECK_CAPTURE_PROGRESS = '9'
-C_ENABLE_CHANNEL = '10'
-C_DISABLE_CHANNEL = '11'
+C_SET_CHANNEL_STATUS = '10'
+
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -89,10 +89,13 @@ class uCube_interface:
             else:
                 time.sleep(1e-3)
 
-    def enable_channel(self, channel):
-        command = f'{C_ENABLE_CHANNEL} {channel}'
+    def set_channel_status(self, status):
+        status_string = ""
+        for i in status:
+            if status[i]:
+                status_string += "1,"
+            else:
+                status_string += "0,"
+        command = f'{C_SET_CHANNEL_STATUS} {status_string}'
         response = self.send_command(command)
 
-    def disable_channel(self, channel):
-        command = f'{C_DISABLE_CHANNEL} {channel}'
-        response = self.send_command(command)

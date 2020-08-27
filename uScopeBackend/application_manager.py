@@ -216,12 +216,13 @@ class ApplicationManager:
             Parameters:
                 param: parameters of the capture 
         """
-        self.redis_if.set('chosen_application', json.dumps(self.store.get_applications()[application_name]))
-        self.redis_if.set('parameters', json.dumps(self.store.get_applications()[application_name]['parameters']))
+        chosen_app = self.store.get_applications()[application_name]
+        self.redis_if.set('chosen_application', json.dumps(chosen_app))
+        self.redis_if.set('parameters', json.dumps(chosen_app['parameters']))
 
-        self.load_bitstream(self.store.get_applications()[application_name]['bitstream'])
-        if 'initial_registers_values' in self.store.get_applications()[application_name]:
-            self.initialize_registers(self.store.get_applications()[application_name]['initial_registers_values'])
+        self.load_bitstream(chosen_app['bitstream'])
+        if 'initial_registers_values' in chosen_app:
+            self.initialize_registers(chosen_app['initial_registers_values'])
 
     def get_all_applications(self):
         """ Get all the application specifications
