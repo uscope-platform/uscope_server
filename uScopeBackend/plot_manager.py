@@ -83,7 +83,7 @@ class PlotManager:
             status.append(item['enabled'])
 
         self.redis_if.set('channel_status', json.dumps(status))
-        self.channel_data = np.empty((len(status), 1024))
+        self.channel_data = None
 
     def set_application(self, name):
         """Set the current application
@@ -103,13 +103,17 @@ class PlotManager:
         ret_val = list()
         chl_idx = 0
         buf_idx = 0
-        raw_data = self.interface.read_data()
+        try:
+            raw_data = self.interface.read_data()
+        except RuntimeError:
+            return self.channel_data
         split_data = [raw_data[x:x + 1024] for x in range(0, len(raw_data), 1024)]
         for i in status:
             if i:
                 ret_val.append({"channel": chl_idx, "data": split_data[buf_idx]})
                 buf_idx += 1
             chl_idx += 1
+        self.channel_data = ret_val
         return ret_val
 
     def get_channels_specs(self):
@@ -178,3 +182,4 @@ class PlotManager:
 
 
         return "200"
+

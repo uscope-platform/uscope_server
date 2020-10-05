@@ -21,7 +21,7 @@ C_SET_CHANNEL_STATUS = '10'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
-
+RESP_DATA_NOT_READY = '3'
 
 class uCube_interface:
     def __init__(self, hw_host, hw_port):
@@ -44,14 +44,15 @@ class uCube_interface:
 
             raw_status_resp = self.socket_recv(s, 6)
             status_response = struct.unpack("<3h", raw_status_resp)
-
+            if status_response[1] != 1:
+                if status_response[0] == 8:
+                    raise RuntimeError
             if status_response[2] == 1:
                 raw_resp_length = self.socket_recv(s, 8)
                 response_length = struct.unpack("<Q", raw_resp_length)[0]
 
                 raw_data = self.socket_recv(s, response_length)
-                data = struct.unpack(f"<{response_length // 4}I", raw_data)
-
+                data = struct.unpack(f"<{response_length // 4}i", raw_data)
         return data
 
     def read_data(self):
@@ -98,4 +99,5 @@ class uCube_interface:
                 status_string += "0,"
         command = f'{C_SET_CHANNEL_STATUS} {status_string}'
         response = self.send_command(command)
+
 
