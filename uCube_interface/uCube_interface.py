@@ -17,11 +17,12 @@ C_PROXIED_WRITE = '7'
 C_READ_DATA = '8'
 C_CHECK_CAPTURE_PROGRESS = '9'
 C_SET_CHANNEL_STATUS = '10'
-
+C_APPLY_PROGRAM = '11'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
 RESP_DATA_NOT_READY = '3'
+
 
 class uCube_interface:
     def __init__(self, hw_host, hw_port):
@@ -100,4 +101,12 @@ class uCube_interface:
         command = f'{C_SET_CHANNEL_STATUS} {status_string}'
         response = self.send_command(command)
 
+    def apply_program(self, program, core_address):
+        program_string = ""
+        for i in program['hex']:
+            program_string += str(i) + ','
+
+        command = f'{C_APPLY_PROGRAM} {core_address} {program_string}'
+        
+        response = self.send_command(command)
 

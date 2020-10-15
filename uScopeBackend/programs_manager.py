@@ -36,6 +36,13 @@ class Program(Resource):
         return '200'
 
 
+class ProgramApply(Resource):
+    @jwt_required
+    def post(self, program_id):
+        content = request.get_json()
+        return current_app.programs_mgr.apply_program(program_id, content['core_address'])
+
+
 class ProgramHash(Resource):
     @jwt_required
     def get(self):
@@ -51,6 +58,7 @@ class ProgramCompile(Resource):
 api.add_resource(ProgramHash, '/hash')
 api.add_resource(Program, '/<string:program_id>')
 api.add_resource(ProgramCompile, '/compile/<string:program_id>')
+api.add_resource(ProgramApply, '/Apply/<string:program_id>')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -59,7 +67,8 @@ api.add_resource(ProgramCompile, '/compile/<string:program_id>')
 
 class ProgramsManager:
 
-    def __init__(self, store):
+    def __init__(self, interface, store):
+        self.interface = interface
         self.store = store
         self.bridge = fCore_compiler.CompilerBridge()
 
@@ -83,7 +92,7 @@ class ProgramsManager:
     def compile_program(self, program_id):
         program = self.store.get_programs()[program_id]
         try:
-           result =self.bridge.compile(program['program_content'])
+            result = self.bridge.compile(program['program_content'])
         except ValueError as err:
             error_codes = [{"status": "failed", "file": program['path'], "error": str(err)}]
             return error_codes
@@ -91,3 +100,10 @@ class ProgramsManager:
         self.store.add_program(program_id, program)
         error_codes = [{"status": "passed", "file": program['path'], "error": None}]
         return error_codes
+
+    def apply_program(self, program_id, core_address):
+        print(f'APPLY PROGRAM ID: {program_id} TO CORE AT ADDRESS: {core_address}')
+        program = self.store.get_programs()[program_id]
+        self.interface.apply_program(program, core_address)
+        return '200'
+
