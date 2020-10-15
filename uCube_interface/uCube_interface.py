@@ -107,6 +107,5 @@ class uCube_interface:
             program_string += str(i) + ','
 
         command = f'{C_APPLY_PROGRAM} {core_address} {program_string}'
-        
-        response = self.send_command(command)
 
+        response = self.send_command(command)
