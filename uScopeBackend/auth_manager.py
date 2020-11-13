@@ -58,7 +58,7 @@ class AuthManager:
     def __init__(self, store):
         self.store = store
         self.crypto = CryptContext(schemes=["argon2"])
-        self.token_duration = datetime.now() + timedelta(hours=8)
+        self.token_duration = timedelta(hours=8)
 
     def create_user(self, content):
         user = {'username': content['user'], 'pw_hash': self.crypto.hash(content['password'])}
