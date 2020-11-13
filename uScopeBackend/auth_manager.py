@@ -6,6 +6,7 @@ import secrets
 import hashlib
 import time
 import hmac
+from datetime import datetime, timedelta
 
 ############################################################
 #                      BLUEPRINT                           #
@@ -57,11 +58,10 @@ class AuthManager:
     def __init__(self, store):
         self.store = store
         self.crypto = CryptContext(schemes=["argon2"])
+        self.token_duration = datetime.now() + timedelta(hours=8)
 
     def create_user(self, content):
-        user = {}
-        user['username'] = content['user']
-        user['pw_hash'] = self.crypto.hash(content['password'])
+        user = {'username': content['user'], 'pw_hash': self.crypto.hash(content['password'])}
         self.store.add_user(content['user'], user)
 
     def remove_user(self, content):
@@ -81,7 +81,7 @@ class AuthManager:
                 return '', 401
             validator_hash = hashlib.sha256(token['validator'].encode()).hexdigest()
             if hmac.compare_digest(validator_hash, server_token['validator']):
-                access_token = create_access_token(identity=server_token['username'])
+                access_token = create_access_token(expires_delta=self.token_duration, identity=server_token['username'])
                 return {"access_token": access_token}, 200
             else:
                 return '', 403
@@ -103,7 +103,7 @@ class AuthManager:
             usr_token['selector'] = selector
         pw_hash = self.store.get_password_hash(content['user'])
         if self.crypto.verify(content['password'], pw_hash):
-            access_token = create_access_token(identity=content['user'])
+            access_token = create_access_token(expires_delta=self.token_duration, identity=content['user'])
             return {"access_token": access_token, "login_token": usr_token}, 200
         else:
             return '', 401
