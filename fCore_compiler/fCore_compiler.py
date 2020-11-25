@@ -7,7 +7,7 @@ class CompilerBridge:
             program_content, program_size = has.fCore_has_embeddable_s(file_content)
             return program_content, program_size
         except RuntimeError as error:
-            raise ValueError(str(error).split('runtime_error: ')[1])
+            raise ValueError(str(error))
 
 
 

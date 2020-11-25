@@ -151,8 +151,10 @@ class RegistersManager:
                 registers: List of dictionaries containing the details for a single register write
            """
         for i in registers:
-            self.set_register_value(i['peripheral'], i)
+            self.interface.write_register(i['address'], i['value'])
 
+
+    #TODO: REFACTOR THESE METHODS AWAY, PUSHING THIS LOGIC TO THE CLIENT
     def __set_direct_register_value(self, register, base_address):
         """Writes to a register that is directly accessible through the CPU bus itself
 

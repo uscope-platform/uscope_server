@@ -223,6 +223,11 @@ class ApplicationManager:
         self.load_bitstream(chosen_app['bitstream'])
         if 'initial_registers_values' in chosen_app:
             self.initialize_registers(chosen_app['initial_registers_values'])
+        if 'default_program' in chosen_app:
+            print(chosen_app['default_program'])
+            print(chosen_app['default_core_address'])
+            current_app.programs_mgr.apply_program(chosen_app['default_program'], chosen_app['default_core_address'])
+
 
     def get_all_applications(self):
         """ Get all the application specifications
