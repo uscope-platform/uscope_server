@@ -39,9 +39,14 @@ class uCube_interface:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             data = 0
             s.connect((self.hw_host, self.hw_port))
-            s.send(len(command).to_bytes(8, byteorder='little'))
+            
+            raw_command = command.encode()
 
-            s.send(command.encode())
+            command_length = str(len(raw_command)).zfill(10)
+            
+            s.send(command_length.encode())
+            self.socket_recv(s, 2)
+            s.send(raw_command)
 
             raw_status_resp = self.socket_recv(s, 6)
             status_response = struct.unpack("<3h", raw_status_resp)
@@ -107,5 +112,4 @@ class uCube_interface:
             program_string += str(i) + ','
 
         command = f'{C_APPLY_PROGRAM} {core_address} {program_string}'
-
         response = self.send_command(command)
