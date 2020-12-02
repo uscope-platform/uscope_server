@@ -89,12 +89,7 @@ class uCube_interface:
 
     def get_capture_data(self):
         command = f'{C_CHECK_CAPTURE_PROGRESS}'
-        while True:
-            response = self.send_command(command).split(b' ')
-            if response[0] == command:
-                return response
-            else:
-                time.sleep(1e-3)
+        return self.send_command(command).split(b' ')  
 
     def set_channel_status(self, status):
         status_string = ""
@@ -103,6 +98,7 @@ class uCube_interface:
                 status_string += "1,"
             else:
                 status_string += "0,"
+        status_string = status_string.rstrip(',')
         command = f'{C_SET_CHANNEL_STATUS} {status_string}'
         response = self.send_command(command)
 

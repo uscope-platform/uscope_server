@@ -76,7 +76,7 @@ class PlotManager:
         self.debug = debug
         self.store = store
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
-
+        self.data_points_per_channel = 171
         status = []
         channel_specs = json.loads(self.redis_if.get('channel_specs'))
         for item in channel_specs:
@@ -107,7 +107,8 @@ class PlotManager:
             raw_data = self.interface.read_data()
         except RuntimeError:
             return self.channel_data
-        split_data = [raw_data[x:x + 1024] for x in range(0, len(raw_data), 1024)]
+
+        split_data = [raw_data[x:x + self.data_points_per_channel] for x in range(0, len(raw_data), self.data_points_per_channel)]
         for i in status:
             if i:
                 ret_val.append({"channel": chl_idx, "data": split_data[buf_idx]})
