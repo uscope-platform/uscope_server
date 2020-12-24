@@ -199,6 +199,24 @@ class ApplicationManager:
                 current_app[edit['field']['name']] = val
         elif edit["action"] == "remove_misc":
             del current_app[edit['field']['name']]
+        elif edit["action"] == "add_channel_group":
+            current_app['channel_groups'].append(edit['group'])
+        elif edit["action"] == "edit_channel_group":
+            present = False
+            for idx, val in enumerate(current_app['channel_groups']):
+                if val['group_name'] == edit['group']:
+                    present = True
+                    break
+            if present:
+                current_app['channel_groups'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_channel_group":
+            present = False
+            for idx, val in enumerate(current_app['channels']):
+                if val['group_name'] == edit['group']:
+                    present = True
+                    break
+            if present:
+                del current_app['channel_groups'][idx]
 
         self.store.add_application(edit["application"], current_app)
 
