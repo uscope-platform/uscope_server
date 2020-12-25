@@ -109,8 +109,8 @@ class PlotManager:
         split_data = [raw_data[x:x + self.data_points_per_channel] for x in range(0, len(raw_data), self.data_points_per_channel)]
         for i in status:
             if status[i]:
-                ret_val.append({"channel": int(i)-1, "data": split_data[int(i)-1]})
-        print(ret_val)
+                ret_val.append({"channel": int(i), "data": split_data[int(i)]})
+
         self.channel_data = ret_val
 
         return ret_val
