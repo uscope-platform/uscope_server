@@ -101,20 +101,18 @@ class PlotManager:
            """
         status = json.loads(self.redis_if.get('channel_status'))
         ret_val = list()
-        chl_idx = 0
-        buf_idx = 0
         try:
             raw_data = self.interface.read_data()
         except RuntimeError:
             return self.channel_data
-       
+
         split_data = [raw_data[x:x + self.data_points_per_channel] for x in range(0, len(raw_data), self.data_points_per_channel)]
         for i in status:
-            if i:
-                ret_val.append({"channel": chl_idx, "data": split_data[buf_idx]})
-                buf_idx += 1
-            chl_idx += 1
+            if status[i]:
+                ret_val.append({"channel": int(i)-1, "data": split_data[int(i)-1]})
+        print(ret_val)
         self.channel_data = ret_val
+
         return ret_val
 
     def get_channels_specs(self):
