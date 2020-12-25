@@ -211,7 +211,7 @@ class ApplicationManager:
                 current_app['channel_groups'][idx][edit['field']] = edit['value']
         elif edit["action"] == "remove_channel_group":
             present = False
-            for idx, val in enumerate(current_app['channels']):
+            for idx, val in enumerate(current_app['channel_groups']):
                 if val['group_name'] == edit['group']:
                     present = True
                     break

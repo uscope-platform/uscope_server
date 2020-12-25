@@ -107,6 +107,7 @@ class PlotManager:
             raw_data = self.interface.read_data()
         except RuntimeError:
             return self.channel_data
+       
         split_data = [raw_data[x:x + self.data_points_per_channel] for x in range(0, len(raw_data), self.data_points_per_channel)]
         for i in status:
             if i:
@@ -174,12 +175,6 @@ class PlotManager:
         return returnval
 
     def set_channel_status(self, status):
-        self.interface.set_channel_status(status)
-        status_list = [False]*len(status)
-        for i in status:
-            status_list[int(i)] = status[i]
-        self.redis_if.set('channel_status', json.dumps(status_list))
-
-
+        self.redis_if.set('channel_status', json.dumps(status))
         return "200"
 
