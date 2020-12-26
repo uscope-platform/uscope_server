@@ -16,6 +16,7 @@ C_START_CAPTURE = '6'
 C_PROXIED_WRITE = '7'
 C_READ_DATA = '8'
 C_CHECK_CAPTURE_PROGRESS = '9'
+C_SET_CHANNEL_WIDTHS = '10'
 C_APPLY_PROGRAM = '11'
 
 RESP_OK = '1'
@@ -88,7 +89,15 @@ class uCube_interface:
 
     def get_capture_data(self):
         command = f'{C_CHECK_CAPTURE_PROGRESS}'
-        return self.send_command(command).split(b' ')  
+        return self.send_command(command).split(b' ')
+
+    def set_channel_widths(self, widths):
+
+        widths_string = str(widths[0])
+        for i in widths:
+            widths_string += ',' + str(i)
+        command = f'{C_SET_CHANNEL_WIDTHS} {widths_string}'
+        return self.send_command(command)
 
     def apply_program(self, program, core_address):
         program_string = ""

@@ -56,13 +56,19 @@ class ChannelStatus(Resource):
         return current_app.plot_mgr.set_channel_status(statuses)
 
 
+class ChannelWidths(Resource):
+    @jwt_required
+    def post(self):
+        widths = request.get_json(force=True)
+        return current_app.plot_mgr.set_channel_widths(widths)
+
+
 api.add_resource(SetupCapture, '/capture')
 api.add_resource(ChannelsSpecs, '/channels/specs')
 api.add_resource(ChannelParams, '/channels/params')
 api.add_resource(ChannelsData, '/channels/data')
 api.add_resource(ChannelStatus, '/channels/status')
-
-
+api.add_resource(ChannelWidths, '/channels/widths')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -114,6 +120,9 @@ class PlotManager:
         self.channel_data = ret_val
 
         return ret_val
+
+    def set_channel_widths(self, widths):
+        self.interface.set_channel_widths(widths['widths'])
 
     def get_channels_specs(self):
         """Returns the specifications for the scope channels of the current application
