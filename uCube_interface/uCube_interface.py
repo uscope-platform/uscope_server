@@ -94,7 +94,7 @@ class uCube_interface:
     def set_channel_widths(self, widths):
 
         widths_string = str(widths[0])
-        for i in widths:
+        for i in widths[1:]:
             widths_string += ',' + str(i)
         command = f'{C_SET_CHANNEL_WIDTHS} {widths_string}'
         return self.send_command(command)
