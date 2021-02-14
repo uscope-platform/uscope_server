@@ -14,7 +14,7 @@ api = Api(database_manager_bp)
 
 
 class DatabaseExport(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self):
         database = current_app.db_mgr.db_export()
         response = Response(database, mimetype='application/octet-stream', headers={'Content-Disposition': 'attachment; filename=db_dump.rdb'})
@@ -22,7 +22,7 @@ class DatabaseExport(Resource):
 
 
 class DatabaseImport(Resource):
-    @jwt_required
+    @jwt_required()
     def post(self):
         return current_app.script_mgr.get_hash()
 

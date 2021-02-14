@@ -18,7 +18,7 @@ api = Api(tab_creator_manager_bp)
 
 
 class EditPeripheral(Resource):
-    @jwt_required
+    @jwt_required()
     def post(self):
         edit = request.get_json()
         current_app.tab_creator_mgr.edit_peripheral(edit)
@@ -26,11 +26,11 @@ class EditPeripheral(Resource):
 
 
 class CreatePeripheral(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self, peripheral):
         pass
 
-    @jwt_required
+    @jwt_required()
     def post(self):
         peripheral = request.get_json()
         current_app.tab_creator_mgr.create_peripheral(peripheral)
@@ -38,11 +38,11 @@ class CreatePeripheral(Resource):
 
 
 class PeripheralTabImage(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self, peripheral):
         pass
 
-    @jwt_required
+    @jwt_required()
     def post(self):
         content = request.files['file'].read()
         current_app.tab_creator_mgr.set_image_file(content, request.files['file'].filename)
@@ -50,11 +50,11 @@ class PeripheralTabImage(Resource):
 
 
 class RemovePeripheral(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self, peripheral):
         current_app.tab_creator_mgr.remove_peripheral(peripheral)
 
-    @jwt_required
+    @jwt_required()
     def post(self):
         pass
 

@@ -38,7 +38,7 @@ class User(Resource):
         current_app.auth_mgr.create_user(content)
         return '200'
 
-    @jwt_required
+    @jwt_required()
     def delete(self):
         content = request.get_json()
         return current_app.auth_mgr.remove_user(content)

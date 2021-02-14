@@ -15,11 +15,11 @@ api = Api(registers_manager_bp)
 
 
 class RegisterValue(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self):
         pass
 
-    @jwt_required
+    @jwt_required()
     def post(self, peripheral):
         registers_to_write = request.get_json(force=True)
         current_app.register_mgr.set_register_value(peripheral, registers_to_write['payload'])
@@ -27,29 +27,29 @@ class RegisterValue(Resource):
 
 
 class RegisterDescriptions(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self, peripheral):
         return jsonify(current_app.register_mgr.get_registers_descriptions(peripheral))
 
-    @jwt_required
+    @jwt_required()
     def post(self):
         pass
 
 
 class PeripheralsSpecs(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self):
         return jsonify(current_app.register_mgr.get_all_peripherals())
 
 
 class PeripheralsDigest(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self):
         return current_app.register_mgr.get_peripherals_digest()
 
 
 class RegistersBulkWrite(Resource):
-    @jwt_required
+    @jwt_required()
     def post(self):
         registers_to_write = request.get_json(force=True)
         current_app.register_mgr.bulk_write(registers_to_write['payload'])
