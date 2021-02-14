@@ -1,4 +1,4 @@
-from flask import current_app, Blueprint, jsonify, request
+from flask import current_app, Blueprint, jsonify, request,abort, Response
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 import json
@@ -16,8 +16,11 @@ api = Api(application_manager_bp)
 class ApplicationSet(Resource):
     @jwt_required()
     def get(self, application_name):
-        current_app.plot_mgr.set_application(application_name)
-        return jsonify(current_app.app_mgr.set_application(application_name))
+        try:
+            current_app.plot_mgr.set_application(application_name)
+            return jsonify(current_app.app_mgr.set_application(application_name))
+        except RuntimeError:
+            abort(Response("Bitstream not found",418))
 
 
 class ApplicationParameters(Resource):
@@ -238,8 +241,9 @@ class ApplicationManager:
         chosen_app = self.store.get_applications()[application_name]
         self.redis_if.set('chosen_application', json.dumps(chosen_app))
         self.redis_if.set('parameters', json.dumps(chosen_app['parameters']))
+        if self.load_bitstream(chosen_app['bitstream']) == 2:
+            raise RuntimeError
 
-        self.load_bitstream(chosen_app['bitstream'])
         if 'initial_registers_values' in chosen_app:
             self.initialize_registers(chosen_app['initial_registers_values'])
         if 'default_program' in chosen_app:
@@ -327,7 +331,7 @@ class ApplicationManager:
             Parameters:
                 name: name of the bitstream to load
         """
-        self.interface.load_bitstream(name)
+        return self.interface.load_bitstream(name)
 
     def get_timebase_addr(self):
         """ Get address of the timebase IP in the current application

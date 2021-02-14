@@ -50,16 +50,19 @@ class uCube_interface:
 
             raw_status_resp = self.socket_recv(s, 6)
             status_response = struct.unpack("<3h", raw_status_resp)
+   
             if status_response[1] != 1:
                 if status_response[0] == 8:
                     raise RuntimeError
+                return status_response[1]
             if status_response[2] == 1:
                 raw_resp_length = self.socket_recv(s, 8)
                 response_length = struct.unpack("<Q", raw_resp_length)[0]
 
                 raw_data = self.socket_recv(s, response_length)
                 data = struct.unpack(f"<{response_length // 4}i", raw_data)
-        return data
+                return data
+            return status_response
 
     def read_data(self):
         command = f'{C_READ_DATA}'
@@ -81,7 +84,7 @@ class uCube_interface:
     def load_bitstream(self, bitstream):
         command = f'{C_LOAD_BITSTREAM} {bitstream}'
         response = self.send_command(command)
-        return
+        return response
 
     def setup_capture_mode(self, n_buffers):
         command = f'{C_START_CAPTURE} {n_buffers}'
