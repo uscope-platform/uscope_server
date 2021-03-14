@@ -73,16 +73,16 @@ class ProgramsManager:
         self.bridge = fCore_compiler.CompilerBridge()
 
     def load_programs(self):
-        return self.store.get_programs()
+        return self.store.get_programs_dict()
 
     def get_hash(self):
-        return self.store.get_program_hash()
+        return str(self.store.get_program_hash())
 
     def upload_program(self, program_id, content):
         self.store.add_program(program_id, content)
 
     def edit_program(self, edit):
-        program = self.store.get_programs()[str(edit['program'])]
+        program = self.store.get_program(edit['program'])
         program[edit['field']] = edit['value']
         self.store.add_program(str(edit['program']), program)
 
@@ -90,7 +90,7 @@ class ProgramsManager:
         self.store.remove_program(program)
 
     def compile_program(self, program_id):
-        program = self.store.get_programs()[program_id]
+        program = self.store.get_program(program_id)
         try:
             result = self.bridge.compile(program['program_content'])
         except ValueError as err:
@@ -103,7 +103,7 @@ class ProgramsManager:
 
     def apply_program(self, program_id, core_address):
         print(f'APPLY PROGRAM ID: {program_id} TO CORE AT ADDRESS: {core_address}')
-        program = self.store.get_programs()[program_id]
+        program = self.store.get_program(program_id)
         self.interface.apply_program(program, core_address)
         return '200'
 
