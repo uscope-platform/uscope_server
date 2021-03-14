@@ -1,5 +1,4 @@
 import json
-import hashlib
 import redis
 import time
 import psycopg2
@@ -24,8 +23,8 @@ class DataStore:
         self.db = self.pg_db.cursor()
         time.sleep(0.05)
         # Refresh hashes to include stuff added offline
-        self.redis_if.set('Applications-hash', self.calc_applications_hash())
-        self.redis_if.set('Peripherals-hash', self.calc_peripherals_hash())
+        self.update_version('Applications')
+        self.update_version('Peripherals')
         self.update_version('scripts')
         self.update_version('programs')
 
@@ -57,36 +56,48 @@ class DataStore:
         return peripherals
 
     def get_peripherals_hash(self):
-        return self.redis_if.get('Peripherals-hash')
-
-    def calc_peripherals_hash(self):
-        return hashlib.sha256(
-            json.dumps(self.load_peripherals(), sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        return self.get_version('Peripherals')
 
     def get_peripherals(self):
         return self.load_peripherals()
 
     def add_peripheral(self, key: str, periph: dict):
         self.redis_if.hset('Peripherals', key, json.dumps(periph))
-        hash = self.calc_peripherals_hash()
-        self.redis_if.set('Peripherals-hash', hash)
+        self.update_version('Peripherals')
 
     def remove_peripheral(self, peripheral):
         self.redis_if.hdel('Peripherals', peripheral)
-        hash = self.calc_peripherals_hash()
-        self.redis_if.set('Peripherals-hash', hash)
+        self.update_version('Peripherals')
 
     # APPLICATIONS
 
     def add_application(self, key: str, app: dict):
-        self.redis_if.hset('Applications', key, json.dumps(app))
-        hash = self.calc_applications_hash()
-        self.redis_if.set('Applications-hash', hash)
+        row_data = (app['application_name'], app['bitstream'], app['clock_frequency'], psycopg2.extras.Json(app['channels']),
+                    psycopg2.extras.Json(app['channel_groups']), psycopg2.extras.Json(app['initial_registers_values']),
+                    psycopg2.extras.Json(app['macro']), psycopg2.extras.Json(app['parameters']), psycopg2.extras.Json(app['peripherals']))
+
+        self.db.execute("""INSERT INTO uscope.applications (application_name, bitstream, clock_frequency, channels,
+                                   channel_groups, initial_registers_values, macro, parameters, peripherals) 
+                                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                                                   ON CONFLICT (application_name) DO UPDATE
+                                                       SET application_name = excluded.application_name,
+                                                           bitstream = excluded.bitstream,
+                                                           clock_frequency = excluded.clock_frequency,
+                                                           channels = excluded.channels,
+                                                           channel_groups = excluded.channel_groups,
+                                                           initial_registers_values = excluded.initial_registers_values,
+                                                           macro = excluded.macro,
+                                                           parameters = excluded.parameters,
+                                                           peripherals = excluded.peripherals;
+                                                    """,
+                        row_data)
+        self.pg_db.commit()
+
+        self.update_version('Applications')
 
     def remove_application(self, app):
         self.redis_if.hdel('Applications', app)
-        hash = self.calc_applications_hash()
-        self.redis_if.set('Applications-hash', hash)
+        self.update_version('Applications')
 
     def load_applications(self):
         applications = self.redis_if.hgetall('Applications')
@@ -98,11 +109,7 @@ class DataStore:
         return self.load_applications()
 
     def get_applications_hash(self):
-        return self.redis_if.get('Applications-hash')
-
-    def calc_applications_hash(self):
-        return hashlib.sha256(
-            json.dumps(self.load_applications(), sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        return self.get_version('Applications')
 
     def get_application(self, name):
         app = self.redis_if.hget('Applications', name)
