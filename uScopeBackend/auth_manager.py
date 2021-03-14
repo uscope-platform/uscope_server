@@ -1,4 +1,4 @@
-from flask import current_app, Blueprint, jsonify, request
+from flask import current_app, Blueprint, request
 from flask_restful import Api, Resource
 from passlib.context import CryptContext
 from flask_jwt_extended import create_access_token, jwt_required
@@ -6,7 +6,7 @@ import secrets
 import hashlib
 import time
 import hmac
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 ############################################################
 #                      BLUEPRINT                           #
