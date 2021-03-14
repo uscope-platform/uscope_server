@@ -13,6 +13,10 @@ def program_from_row(row):
                     'hex': row[5]}
 
 
+def script_from_row(row):
+    return {'id': row[0], 'name': row[1], 'path': row[2], 'script_content': row[3], 'triggers': row[4]}
+
+
 class DataStore:
     def __init__(self, redis_host):
         self.redis_if = redis.Redis(host=redis_host, port=6379, db=2, charset="utf-8", decode_responses=True)
@@ -22,11 +26,27 @@ class DataStore:
         # Refresh hashes to include stuff added offline
         self.redis_if.set('Applications-hash', self.calc_applications_hash())
         self.redis_if.set('Peripherals-hash', self.calc_peripherals_hash())
-        self.redis_if.set('Scripts-hash', self.calc_scripts_hash())
-        self.calc_program_hash()
+        self.update_version('scripts')
+        self.update_version('programs')
 
     def __del__(self):
         self.pg_db.close()
+
+    def get_version(self, table):
+        self.db.execute('SELECT version FROM uscope.data_versions WHERE "table" LIKE (%s)', (table,))
+        self.pg_db.commit()
+        return str(self.db.fetchone()[0])
+
+    def update_version(self, table):
+        uid = uuid.uuid4()
+        time = datetime.datetime.now()
+        row_data = (table, uid, time)
+        psycopg2.extras.register_uuid()
+        self.db.execute("""INSERT INTO uscope.data_versions ("table", version, last_modified) VALUES (%s,%s, %s)
+                                   ON CONFLICT ("table") DO UPDATE 
+                                       SET version = excluded.version, 
+                                           last_modified = excluded.last_modified""", row_data)
+        self.pg_db.commit()
 
     # PERIPHERALS
 
@@ -89,35 +109,43 @@ class DataStore:
         return json.loads(app)
 
     # SCRIPTS
-    def get_scripts(self):
-        scripts = self.redis_if.hgetall('Scripts')
-        for i in scripts:
-            scripts[i] = json.loads(scripts[i])
+
+    def get_script(self, id):
+        self.db.execute("SELECT * FROM uscope.scripts WHERE id = %s", (id,))
+        self.pg_db.commit()
+        return script_from_row(self.db.fetchone())
+
+    def get_scripts_dict(self):
+        self.db.execute("SELECT * FROM  uscope.scripts")
+        self.pg_db.commit()
+
+        scripts = {}
+        for row in self.db.fetchall():
+            scripts[row[0]] = script_from_row(row)
+
         return scripts
 
-    def load_scripts(self):
-        scripts = self.redis_if.hgetall('Scripts')
-        scripts_list = []
-        for i in scripts:
-            scripts_list.append(json.loads(scripts[i]))
-        return scripts_list
-
     def add_scripts(self, script_id, script):
-        self.redis_if.hset('Scripts', script_id, json.dumps(script))
-        hash = self.calc_scripts_hash()
-        self.redis_if.set('Scripts-hash', hash)
+        row_data = (script_id, script['name'], script['path'], script['script_content'], script['triggers'])
+        self.db.execute("""INSERT INTO uscope.scripts (id, name, path, content, triggers) VALUES (%s,%s,%s,%s,%s)
+                                   ON CONFLICT (id) DO UPDATE
+                                       SET name = excluded.name,
+                                           path = excluded.path,
+                                           content = excluded.content,
+                                           triggers = excluded.triggers;
+                                    """,
+                        row_data)
+        self.pg_db.commit()
+
+        self.update_version('scripts')
 
     def remove_scripts(self, script):
-        self.redis_if.hdel('Scripts', script)
-        hash = self.calc_applications_hash()
-        self.redis_if.set('Scripts-hash', hash)
+        row_data = (script,)
+        self.db.execute("DELETE FROM uscope.scripts WHERE id = %s", row_data)
+        self.update_version('scripts')
 
     def get_scripts_hash(self):
-        return self.redis_if.get('Scripts-hash')
-
-    def calc_scripts_hash(self):
-        return hashlib.sha256(
-            json.dumps(self.load_scripts(), sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        return self.get_version('scripts')
 
     # PROGRAMS
 
@@ -132,8 +160,7 @@ class DataStore:
 
         pg_programs = {}
         for row in self.db.fetchall():
-            row_dict = program_from_row(row)
-            pg_programs[row[0]] = row_dict
+            pg_programs[row[0]] = program_from_row(row)
 
         return pg_programs
 
@@ -155,27 +182,14 @@ class DataStore:
                         row_data)
         self.pg_db.commit()
 
-        self.calc_program_hash()
+        self.update_version('programs')
 
     def remove_program(self, program):
         row_data = (program,)
         self.db.execute("DELETE FROM uscope.programs WHERE id = %s", row_data)
         self.pg_db.commit()
 
-        self.calc_program_hash()
+        self.update_version('programs')
 
     def get_program_hash(self):
-        self.db.execute('SELECT version FROM uscope.data_versions WHERE "table" LIKE (%s)', ('programs', ))
-        self.pg_db.commit()
-        return self.db.fetchone()[0]
-
-    def calc_program_hash(self):
-        uid = uuid.uuid4()
-        time = datetime.datetime.now()
-        row_data = ('programs', uid, time)
-        psycopg2.extras.register_uuid()
-        self.db.execute("""INSERT INTO uscope.data_versions ("table", version, last_modified) VALUES (%s,%s, %s)
-                           ON CONFLICT ("table") DO UPDATE 
-                               SET version = excluded.version, 
-                                   last_modified = excluded.last_modified""", row_data)
-        self.pg_db.commit()
+        return self.get_version('programs')
