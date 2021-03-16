@@ -80,7 +80,7 @@ class RegistersManager:
             Returns:
                 List:list of peripherals in the database
            """
-        return self.store.get_peripherals()
+        return self.store.get_peripherals_dict()
 
     def get_peripherals_digest(self):
         """Returns an hash of the jsonified peripherals list
@@ -104,7 +104,7 @@ class RegistersManager:
         for peripheral in app['peripherals']:
             if peripheral_name in peripheral['peripheral_id']:
                 found = True
-                parameters = self.store.get_peripherals()[peripheral['spec_id']]
+                parameters = self.store.get_peripheral(peripheral['spec_id'])
                 base_address = int(peripheral['base_address'], 0)
 
         if not found:
@@ -163,7 +163,7 @@ class RegistersManager:
                 base_address: base address of the peripheral to write to
            """
         periph = register['peripheral']
-        peripheral_registers = self.store.get_peripherals()[periph]['registers']
+        peripheral_registers = self.store.get_peripheral(periph)['registers']
         for i in peripheral_registers:
             if i['ID'] == register['name'] or i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)
@@ -180,7 +180,7 @@ class RegistersManager:
                 proxy_addr: base address of the proxy peripheral
            """
         periph = register['peripheral']
-        peripheral_registers = self.store.get_peripherals()[periph]['registers']
+        peripheral_registers = self.store.get_peripheral(periph)['registers']
         for i in peripheral_registers:
             if i['ID'] == register['name'] or i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)

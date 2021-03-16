@@ -35,10 +35,12 @@ def application_from_row(row):
     return app
 
 
-class DataStore:
-    def __init__(self, redis_host):
+def peripheral_from_row(row):
+    return {'peripheral_name': row[0], 'image': row[1], 'version': row[2], 'registers': row[3]}
 
-        self.redis_if = redis.Redis(host=redis_host, port=6379, db=2, charset="utf-8", decode_responses=True)
+class DataStore:
+    def __init__(self):
+
         self.db_engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
         time.sleep(0.05)
 
@@ -82,25 +84,34 @@ class DataStore:
 
     # PERIPHERALS
 
-    def load_peripherals(self):
-        peripherals = self.redis_if.hgetall('Peripherals')
-        for i in peripherals:
-            peripherals[i] = json.loads(peripherals[i])
-        return peripherals
-
     def get_peripherals_hash(self):
         return self.get_version('Peripherals')
 
-    def get_peripherals(self):
-        return self.load_peripherals()
+    def get_peripherals_dict(self):
+        peripherals = self.get_resource_dict("SELECT * FROM uscope.peripherals", peripheral_from_row)
+        return peripherals
 
     def add_peripheral(self, key: str, periph: dict):
-        self.redis_if.hset('Peripherals', key, json.dumps(periph))
+
+        row_data = (periph['peripheral_name'], periph['image'], periph['version'], psycopg2.extras.Json(periph['registers']))
+
+        self.run_query("""INSERT INTO uscope.peripherals (name, image, version, registers) VALUES (%s,%s,%s,%s)
+                                                           ON CONFLICT (name) DO UPDATE
+                                                               SET name = excluded.name,
+                                                                   image = excluded.image,
+                                                                   version = excluded.version,
+                                                                   registers = excluded.registers; 
+                                                            """,
+                       row_data)
         self.update_version('Peripherals')
 
     def remove_peripheral(self, peripheral):
-        self.redis_if.hdel('Peripherals', peripheral)
+        self.run_query("DELETE FROM uscope.peripherals WHERE name LIKE %s", (peripheral,))
         self.update_version('Peripherals')
+
+    def get_peripheral(self, peripheral):
+        row = self.run_select_one("SELECT * FROM uscope.peripherals WHERE name LIKE %s", (peripheral,))
+        return peripheral_from_row(row)
 
     # APPLICATIONS
 

@@ -107,10 +107,8 @@ class TabCreatorManager:
         label, periph =periph['payload'].popitem()
         self.store.add_peripheral(label, periph)
 
-
-
     def edit_peripheral(self, edit):
-        current_periph = self.store.get_peripherals()[edit["peripheral"]]
+        current_periph = self.store.get_peripheral(edit["peripheral"])
         if edit["action"] == "change_image":
             with SqliteDict('.shared_storage.db') as storage:
                 image_path = 'static/Images/' + storage['image_filename']

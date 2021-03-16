@@ -52,7 +52,7 @@ def create_app(debug=True):
 
     interface = uCube_interface.uCube_interface(driver_host, 6666)
 
-    data_store = DataStore(redis_host)
+    data_store = DataStore()
     auth_store = AuthStore()
 
     with app.app_context():
