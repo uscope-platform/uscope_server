@@ -53,22 +53,22 @@ api.add_resource(Script, '/<string:script_id>')
 
 class ScriptManager:
 
-    def __init__(self, store):
-        self.store = store
+    def __init__(self, data_store):
+        self.data_store = data_store
 
     def load_scripts(self):
-        return self.store.get_scripts_dict()
+        return self.data_store.get_scripts_dict()
 
     def get_hash(self):
-        return self.store.get_scripts_hash()
+        return self.data_store.get_scripts_hash()
 
     def upload_script(self, script_id, content):
-        self.store.add_scripts(script_id, content)
+        self.data_store.add_scripts(script_id, content)
 
     def edit_script(self, edit):
-        script = self.store.get_script(edit['script'])
+        script = self.data_store.get_script(edit['script'])
         script[edit['field']] = edit['value']
-        self.store.add_scripts(str(edit['script']), script)
+        self.data_store.add_scripts(str(edit['script']), script)
 
     def delete_script(self, script):
-        self.store.remove_scripts(script)
+        self.data_store.remove_scripts(script)

@@ -71,8 +71,8 @@ api.add_resource(RemovePeripheral, '/remove_peripheral/<string:peripheral>')
 
 class TabCreatorManager:
 
-    def __init__(self, store):
-        self.store = store
+    def __init__(self, data_store):
+        self.data_store = data_store
         self.image_filename = ''
         self.image_content = None
 
@@ -105,10 +105,10 @@ class TabCreatorManager:
         periph['payload'][list(periph['payload'])[0]]['image'] = image_path
 
         label, periph =periph['payload'].popitem()
-        self.store.add_peripheral(label, periph)
+        self.data_store.add_peripheral(label, periph)
 
     def edit_peripheral(self, edit):
-        current_periph = self.store.get_peripheral(edit["peripheral"])
+        current_periph = self.data_store.get_peripheral(edit["peripheral"])
         if edit["action"] == "change_image":
             with SqliteDict('.shared_storage.db') as storage:
                 image_path = 'static/Images/' + storage['image_filename']
@@ -136,7 +136,7 @@ class TabCreatorManager:
                     break
             if present:
                 del current_periph['registers'][idx]
-        self.store.add_peripheral(edit["peripheral"], current_periph)
+        self.data_store.add_peripheral(edit["peripheral"], current_periph)
 
 
     def remove_peripheral(self, peripheral):
@@ -145,4 +145,4 @@ class TabCreatorManager:
             Parameters:
                 peripheral: name of the peripheral to remove
            """
-        self.store.remove_peripheral(peripheral)
+        self.data_store.remove_peripheral(peripheral)

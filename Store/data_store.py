@@ -1,5 +1,3 @@
-import json
-import redis
 import time
 import psycopg2
 import psycopg2.extras
@@ -37,6 +35,7 @@ def application_from_row(row):
 
 def peripheral_from_row(row):
     return {'peripheral_name': row[0], 'image': row[1], 'version': row[2], 'registers': row[3]}
+
 
 class DataStore:
     def __init__(self):

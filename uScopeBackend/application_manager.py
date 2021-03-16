@@ -1,8 +1,6 @@
-from flask import current_app, Blueprint, jsonify, request,abort, Response
+from flask import current_app, Blueprint, jsonify, request, abort, Response
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
-import json
-import redis
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -20,7 +18,7 @@ class ApplicationSet(Resource):
             current_app.plot_mgr.set_application(application_name)
             return jsonify(current_app.app_mgr.set_application(application_name))
         except RuntimeError:
-            abort(Response("Bitstream not found",418))
+            abort(Response("Bitstream not found", 418))
 
 
 class ApplicationGet(Resource):
@@ -92,11 +90,11 @@ api.add_resource(ApplicationRemove, '/remove/<string:application_name>')
 
 
 class ApplicationManager:
-    def __init__(self, interface, store, redis_host):
-        self.store = store
+    def __init__(self, interface, data_store, settings_store):
+        self.data_store = data_store
         self.parameters = {}
         self.interface = interface
-        self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
+        self.settings_store = settings_store
 
     def add_application(self, application):
         """Adds the application from the parameters to the database
@@ -105,10 +103,10 @@ class ApplicationManager:
                 application: application to add
         """
         key, val = application.popitem()
-        self.store.add_application(key, val)
+        self.data_store.add_application(key, val)
 
     def edit_application(self, edit):
-        current_app = self.store.get_application(edit["application"])
+        current_app = self.data_store.get_application(edit["application"])
         if edit["action"] == "add_channel":
             current_app['channels'].append(edit['channel'])
         elif edit["action"] == "edit_channel":
@@ -229,7 +227,7 @@ class ApplicationManager:
             if present:
                 del current_app['channel_groups'][idx]
 
-        self.store.add_application(edit["application"], current_app)
+        self.data_store.add_application(edit["application"], current_app)
 
     def remove_application(self, application_name):
         """Remove application by name from the database
@@ -237,7 +235,7 @@ class ApplicationManager:
             Parameters:
                 application_name: name of the application to remove
         """
-        self.store.remove_application(application_name)
+        self.data_store.remove_application(application_name)
 
     def set_application(self, application_name):
         """Setup and start a capture
@@ -245,9 +243,10 @@ class ApplicationManager:
             Parameters:
                 param: parameters of the capture 
         """
-        chosen_app = self.store.get_application(application_name)
-        self.redis_if.set('chosen_application', json.dumps(chosen_app))
-        self.redis_if.set('parameters', json.dumps(chosen_app['parameters']))
+        chosen_app = self.data_store.get_application(application_name)
+        self.settings_store.set_value('chosen_application', chosen_app)
+        self.settings_store.set_value('parameters', chosen_app['parameters'])
+
         if self.load_bitstream(chosen_app['bitstream']) == 2:
             raise RuntimeError
 
@@ -265,7 +264,7 @@ class ApplicationManager:
             Returns:
                 List: List of single application dictionaries
         """
-        return self.store.get_applications_dict()
+        return self.data_store.get_applications_dict()
 
     def get_applications_hash(self):
         """Get the version hash for the current application database
@@ -273,7 +272,7 @@ class ApplicationManager:
             Returns:
                 String: Hash
         """
-        return self.store.get_applications_hash()
+        return self.data_store.get_applications_hash()
 
     def get_application(self,application_name):
         """Get the version hash for the current application database
@@ -281,7 +280,7 @@ class ApplicationManager:
             Returns:
                 String: Hash
         """
-        return self.store.get_application(application_name)
+        return self.data_store.get_application(application_name)
 
     def get_peripheral_base_address(self, peripheral):
         """ Get base address for the specified peripheral
@@ -289,7 +288,7 @@ class ApplicationManager:
             Parameters:
                 peripheral: peripheral id
         """
-        chosen_application = json.loads(self.redis_if.get('chosen_application'))
+        chosen_application = self.settings_store.get_value('chosen_application')
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['base_address']
@@ -303,7 +302,7 @@ class ApplicationManager:
             Parameters:
                 peripheral: peripheral id
         """
-        chosen_application = json.loads(self.redis_if.get('chosen_application'))
+        chosen_application = self.settings_store.get_value('chosen_application')
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['proxied']
@@ -316,7 +315,7 @@ class ApplicationManager:
             Parameters:
                 peripheral: peripheral id
         """
-        chosen_application = json.loads(self.redis_if.get('chosen_application'))
+        chosen_application = self.settings_store.get_value('chosen_application')
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['proxy_address']
@@ -327,7 +326,7 @@ class ApplicationManager:
 
 
         """
-        params = json.loads(self.redis_if.get('parameters'))
+        params = self.settings_store.get_value('parameters')
         return params
 
     def set_parameters(self, param):
@@ -336,9 +335,9 @@ class ApplicationManager:
             Parameters:
                 param: dictionary containing name and value of the parameter to set
         """
-        params = json.loads(self.redis_if.get('parameters'))
+        params = self.settings_store.get_value('parameters')
         params[param['name']] = param['value']
-        self.redis_if.set('parameters', json.dumps(params))
+        self.settings_store.set_value('parameters', params)
 
     def load_bitstream(self, name):
         """ Load the specified bitstream on the programmable logic
@@ -354,7 +353,7 @@ class ApplicationManager:
             Parameters:
                 peripheral: peripheral id
         """
-        chosen_application = json.loads(self.redis_if.get('chosen_application'))
+        chosen_application = self.settings_store.get_value('chosen_application')
         return int(chosen_application['timebase_address'], 16)
 
     def initialize_registers(self, registers):

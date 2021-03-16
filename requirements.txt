@@ -1,9 +1,10 @@
-pytest
-redis
-flask
-passlib
-numpy
-sqlitedict
+pytest~=5.3.5
+redis~=3.5.0
+flask~=1.0
+passlib~=1.7.2
+numpy~=1.18.1
+sqlitedict~=1.6.0
+sqlalchemy~=1.3.13
 flask_cors
 flask_jwt_extended
 flask_restful

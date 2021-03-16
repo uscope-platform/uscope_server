@@ -8,7 +8,7 @@ import os
 from uCube_interface import uCube_interface
 from Store.data_store import DataStore
 from Store.auth_store import AuthStore
-
+from Store.settings_store import SettingsStore
 
 class PrefixMiddleware(object):
 
@@ -54,6 +54,7 @@ def create_app(debug=True):
 
     data_store = DataStore()
     auth_store = AuthStore()
+    settings_store = SettingsStore()
 
     with app.app_context():
 
@@ -68,9 +69,9 @@ def create_app(debug=True):
         from uScopeBackend.auth_manager import auth_manager_bp, AuthManager
 
         app.interface = interface
-        app.app_mgr = ApplicationManager(interface, data_store, redis_host)
-        app.plot_mgr = PlotManager(interface, data_store, redis_host, debug)
-        app.register_mgr = RegistersManager(interface, data_store, redis_host)
+        app.app_mgr = ApplicationManager(interface, data_store, settings_store)
+        app.plot_mgr = PlotManager(interface, data_store, settings_store, debug)
+        app.register_mgr = RegistersManager(interface, data_store, settings_store)
         app.programs_mgr = ProgramsManager(interface, data_store)
         app.tab_creator_mgr = TabCreatorManager(data_store)
         app.script_mgr = ScriptManager(data_store)

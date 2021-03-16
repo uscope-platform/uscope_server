@@ -67,43 +67,43 @@ api.add_resource(ProgramApply, '/Apply/<string:program_id>')
 
 class ProgramsManager:
 
-    def __init__(self, interface, store):
+    def __init__(self, interface, data_store):
         self.interface = interface
-        self.store = store
+        self.data_store = data_store
         self.bridge = fCore_compiler.CompilerBridge()
 
     def load_programs(self):
-        return self.store.get_programs_dict()
+        return self.data_store.get_programs_dict()
 
     def get_hash(self):
-        return str(self.store.get_program_hash())
+        return str(self.data_store.get_program_hash())
 
     def upload_program(self, program_id, content):
-        self.store.add_program(program_id, content)
+        self.data_store.add_program(program_id, content)
 
     def edit_program(self, edit):
-        program = self.store.get_program(edit['program'])
+        program = self.data_store.get_program(edit['program'])
         program[edit['field']] = edit['value']
-        self.store.add_program(str(edit['program']), program)
+        self.data_store.add_program(str(edit['program']), program)
 
     def remove_program(self, program):
-        self.store.remove_program(program)
+        self.data_store.remove_program(program)
 
     def compile_program(self, program_id):
-        program = self.store.get_program(program_id)
+        program = self.data_store.get_program(program_id)
         try:
             result = self.bridge.compile(program['program_content'])
         except ValueError as err:
             error_codes = [{"status": "failed", "file": program['path'], "error": str(err)}]
             return error_codes
         program['hex'] = result[0][0:result[1]]
-        self.store.add_program(program_id, program)
+        self.data_store.add_program(program_id, program)
         error_codes = [{"status": "passed", "file": program['path'], "error": None}]
         return error_codes
 
     def apply_program(self, program_id, core_address):
         print(f'APPLY PROGRAM ID: {program_id} TO CORE AT ADDRESS: {core_address}')
-        program = self.store.get_program(program_id)
+        program = self.data_store.get_program(program_id)
         self.interface.apply_program(program, core_address)
         return '200'
 

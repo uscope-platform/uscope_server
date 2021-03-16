@@ -1,7 +1,7 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
-import redis, json
+
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -69,10 +69,10 @@ api.add_resource(PeripheralsDigest, '/digest')
 
 class RegistersManager:
 
-    def __init__(self, interface, store, redis_host):
+    def __init__(self, interface, data_store, settings_store):
         self.interface = interface
-        self.store = store
-        self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
+        self.data_store = data_store
+        self.settings_store = settings_store
 
     def get_all_peripherals(self):
         """Returns all the peripherals present in the database
@@ -80,7 +80,7 @@ class RegistersManager:
             Returns:
                 List:list of peripherals in the database
            """
-        return self.store.get_peripherals_dict()
+        return self.data_store.get_peripherals_dict()
 
     def get_peripherals_digest(self):
         """Returns an hash of the jsonified peripherals list
@@ -88,7 +88,7 @@ class RegistersManager:
             Returns:
                 str:Digest of the peripherals present in the database
            """
-        return self.store.get_peripherals_hash()
+        return self.data_store.get_peripherals_hash()
 
     def get_registers_descriptions(self, peripheral_name):
         """Returns the specification for the registers of the specified peripheral
@@ -99,19 +99,16 @@ class RegistersManager:
                 List:list of registers in the peripheral
            """
 
-        app = json.loads(self.redis_if.get("chosen_application"))
+        app = self.settings_store.get_value('chosen_application')
         found = False
         for peripheral in app['peripherals']:
             if peripheral_name in peripheral['peripheral_id']:
                 found = True
-                parameters = self.store.get_peripheral(peripheral['spec_id'])
+                parameters = self.data_store.get_peripheral(peripheral['spec_id'])
                 base_address = int(peripheral['base_address'], 0)
 
         if not found:
             raise ValueError("The component register file was not found")
-
-
-
 
         registers_values = {}
         for i in parameters['registers']:
@@ -153,8 +150,7 @@ class RegistersManager:
         for i in registers:
             self.interface.write_register(i['address'], i['value'])
 
-
-    #TODO: REFACTOR THESE METHODS AWAY, PUSHING THIS LOGIC TO THE CLIENT
+    # TODO: REFACTOR THESE METHODS AWAY, PUSHING THIS LOGIC TO THE CLIENT
     def __set_direct_register_value(self, register, base_address):
         """Writes to a register that is directly accessible through the CPU bus itself
 
@@ -163,7 +159,7 @@ class RegistersManager:
                 base_address: base address of the peripheral to write to
            """
         periph = register['peripheral']
-        peripheral_registers = self.store.get_peripheral(periph)['registers']
+        peripheral_registers = self.data_store.get_peripheral(periph)['registers']
         for i in peripheral_registers:
             if i['ID'] == register['name'] or i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)
@@ -180,7 +176,7 @@ class RegistersManager:
                 proxy_addr: base address of the proxy peripheral
            """
         periph = register['peripheral']
-        peripheral_registers = self.store.get_peripheral(periph)['registers']
+        peripheral_registers = self.data_store.get_peripheral(periph)['registers']
         for i in peripheral_registers:
             if i['ID'] == register['name'] or i['register_name'] == register['name']:
                 address = base_address + int(i['offset'], 0)

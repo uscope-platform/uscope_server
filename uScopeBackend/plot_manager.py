@@ -2,10 +2,6 @@ from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 
-import json
-import numpy as np
-import redis
-
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
@@ -77,18 +73,13 @@ api.add_resource(ChannelWidths, '/channels/widths')
 
 class PlotManager:
 
-    def __init__(self, low_level_interface, store, redis_host, debug):
+    def __init__(self, low_level_interface, data_store, settings_store, debug):
         self.interface = low_level_interface
         self.debug = debug
-        self.store = store
-        self.redis_if = redis.Redis(host=redis_host, port=6379, db=0)
+        self.data_store = data_store
+        self.settings_store = settings_store
         self.data_points_per_channel = 1024
-        status = []
-        channel_specs = json.loads(self.redis_if.get('channel_specs'))
-        for item in channel_specs:
-            status.append(item['enabled'])
 
-        self.redis_if.set('channel_status', json.dumps(status))
         self.channel_data = None
 
     def set_application(self, name):
@@ -97,15 +88,18 @@ class PlotManager:
             Parameters:
                 name: name of the application to set
            """
-        self.redis_if.set('channel_parameters', json.dumps(self.store.get_application(name)['parameters']))
-        self.redis_if.set('channel_specs', json.dumps(self.store.get_application(name)['channels']))
+        self.settings_store.clear_settings()
+        parameters = self.data_store.get_application(name)['parameters']
+        channels = self.data_store.get_application(name)['channels']
+        self.settings_store.set_value('channel_parameters', parameters)
+        self.settings_store.set_value('channel_specs', channels)
 
     def get_data(self):
         """Get the latest scope data
             Returns:
                 List: Data
            """
-        status = json.loads(self.redis_if.get('channel_status'))
+        status = self.settings_store.get_value('channel_status')
         ret_val = list()
         try:
             raw_data = self.interface.read_data()
@@ -130,7 +124,8 @@ class PlotManager:
             Returns:
                 Dict:specifications for the current channel
            """
-        return json.loads(self.redis_if.get('channel_specs'))
+        specs = self.settings_store.get_value('channel_specs')
+        return specs
 
     def get_channel_params(self, name):
         """Returns the specification for the registers of the specified peripheral
@@ -140,7 +135,7 @@ class PlotManager:
             Returns:
                 List:list of registers in the peripheral
            """
-        return json.loads(self.redis_if.get('channel_parameters'))[name]
+        return self.settings_store.get_value('channel_parameters')[name]
 
     def set_channel_params(self, message):
         """Set the value for a channel parameter
@@ -148,8 +143,8 @@ class PlotManager:
             Parameters:
                 message: dictionary with the values for the parameter to set
            """
-        params = json.loads(self.redis_if.get('channel_parameters'))
-        specs = json.loads(self.redis_if.get('channel_specs'))
+        params = self.settings_store.get_value('channel_parameters')
+        specs = self.settings_store.get_value('channel_specs')
 
         if type(message) is list:
             for s in message:
@@ -157,8 +152,8 @@ class PlotManager:
         else:
             params[message['name']] = params[message['value']]
 
-        self.redis_if.set('channel_parameters', json.dumps(params))
-        self.redis_if.set('channel_specs', json.dumps(specs))
+        self.settings_store.set_value('channel_parameters', params)
+        self.settings_store.set_value('channel_specs', specs)
 
     def setup_capture(self, param):
         """Setup and start a capture
@@ -182,6 +177,6 @@ class PlotManager:
         return returnval
 
     def set_channel_status(self, status):
-        self.redis_if.set('channel_status', json.dumps(status))
+        self.settings_store.set_value('channel_status', status)
         return "200"
 

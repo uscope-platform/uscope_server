@@ -55,25 +55,25 @@ api.add_resource(Logout, '/logout')
 
 class AuthManager:
 
-    def __init__(self, store):
-        self.store = store
+    def __init__(self, auth_store):
+        self.auth_store = auth_store
         self.crypto = CryptContext(schemes=["argon2"])
         self.token_duration = timedelta(hours=8)
 
     def create_user(self, content):
         user = {'username': content['user'], 'pw_hash': self.crypto.hash(content['password'])}
-        self.store.add_user(content['user'], user)
+        self.auth_store.add_user(content['user'], user)
 
     def remove_user(self, content):
-        pw_hash = self.store.get_password_hash(content['user'])
+        pw_hash = self.auth_store.get_password_hash(content['user'])
         if self.crypto.verify(content['password'], pw_hash):
-            self.store.remove_user(content['user'])
+            self.auth_store.remove_user(content['user'])
             return '200'
         else:
             return '401'
 
     def _automated_login(self, token):
-        server_token = self.store.get_token(token['selector'])
+        server_token = self.auth_store.get_token(token['selector'])
         if server_token:
             if server_token['expiry'] != token['expiry']:
                 return '', 403
@@ -96,12 +96,12 @@ class AuthManager:
             validator = secrets.token_urlsafe(50)
             usr_token = {'username': content['user'], 'expiry': time.time() + 86400 * 30,
                          'validator': hashlib.sha256(validator.encode()).hexdigest()}
-            self.store.add_token(selector, usr_token)
+            self.auth_store.add_token(selector, usr_token)
             del usr_token['username']
 
             usr_token['validator'] = validator
             usr_token['selector'] = selector
-        pw_hash = self.store.get_password_hash(content['user'])
+        pw_hash = self.auth_store.get_password_hash(content['user'])
         if self.crypto.verify(content['password'], pw_hash):
             access_token = create_access_token(expires_delta=self.token_duration, identity=content['user'])
             return {"access_token": access_token, "login_token": usr_token}, 200
