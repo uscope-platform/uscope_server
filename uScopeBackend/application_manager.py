@@ -23,6 +23,12 @@ class ApplicationSet(Resource):
             abort(Response("Bitstream not found",418))
 
 
+class ApplicationGet(Resource):
+    @jwt_required()
+    def get(self, application_name):
+        return jsonify(current_app.app_mgr.get_application(application_name))
+
+
 class ApplicationParameters(Resource):
     @jwt_required()
     def get(self):
@@ -73,6 +79,7 @@ class ApplicationRemove(Resource):
 
 api.add_resource(ApplicationsSpecs, '/all/specs')
 api.add_resource(ApplicationSet, '/set/<string:application_name>')
+api.add_resource(ApplicationGet, '/get/<string:application_name>')
 api.add_resource(ApplicationParameters, '/parameters')
 api.add_resource(ApplicationsDigest, '/digest')
 api.add_resource(ApplicationAdd, '/add')
@@ -101,7 +108,7 @@ class ApplicationManager:
         self.store.add_application(key, val)
 
     def edit_application(self, edit):
-        current_app = self.store.get_applications()[edit["application"]]
+        current_app = self.store.get_application(edit["application"])
         if edit["action"] == "add_channel":
             current_app['channels'].append(edit['channel'])
         elif edit["action"] == "edit_channel":
@@ -238,7 +245,7 @@ class ApplicationManager:
             Parameters:
                 param: parameters of the capture 
         """
-        chosen_app = self.store.get_applications()[application_name]
+        chosen_app = self.store.get_application(application_name)
         self.redis_if.set('chosen_application', json.dumps(chosen_app))
         self.redis_if.set('parameters', json.dumps(chosen_app['parameters']))
         if self.load_bitstream(chosen_app['bitstream']) == 2:
@@ -258,7 +265,7 @@ class ApplicationManager:
             Returns:
                 List: List of single application dictionaries
         """
-        return self.store.get_applications()
+        return self.store.get_applications_dict()
 
     def get_applications_hash(self):
         """Get the version hash for the current application database
@@ -267,6 +274,14 @@ class ApplicationManager:
                 String: Hash
         """
         return self.store.get_applications_hash()
+
+    def get_application(self,application_name):
+        """Get the version hash for the current application database
+
+            Returns:
+                String: Hash
+        """
+        return self.store.get_application(application_name)
 
     def get_peripheral_base_address(self, peripheral):
         """ Get base address for the specified peripheral

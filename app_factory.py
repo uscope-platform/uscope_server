@@ -1,12 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
-import logging, os
+import logging
+import os
 
 from uCube_interface import uCube_interface
 from Store.data_store import DataStore
 from Store.auth_store import AuthStore
-from flask_jwt_extended import JWTManager
 
 
 class PrefixMiddleware(object):
@@ -38,6 +39,7 @@ def create_app(debug=True):
     app.config['SECRET_KEY'] = 'uScope-CORS-key'
     app.config['CORS_HEADERS'] = 'Content-Type'
     app.config['JWT_SECRET_KEY'] = 'uScope-JWT-key'  # Change this!
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://uscope:test@database/uscope'
     jwt = JWTManager(app)
     CORS(app)
 
