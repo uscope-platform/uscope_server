@@ -23,11 +23,11 @@ def application_from_row(row):
     app['bitstream'] = row[1]
     app['clock_frequency'] = row[2]
     app['channels'] = row[3]
-    app['peripherals'] = row[4]
-    app['parameters'] = row[5]
-    app['initial_registers_values'] = row[6]
-    app['macro'] = row[7]
-    app['channel_groups'] = row[8]
+    app['channel_groups'] = row[4]
+    app['initial_registers_values'] = row[5]
+    app['macro'] = row[6]
+    app['parameters'] = row[7]
+    app['peripherals'] = row[8]
     for i in row[9]:
         app[i] = row[9][i]
     return app
@@ -38,9 +38,12 @@ def peripheral_from_row(row):
 
 
 class DataStore:
-    def __init__(self):
+    def __init__(self, host = None):
+        if host:
+            self.db_engine = create_engine("postgresql+psycopg2://uscope:test@" + host + "/uscope")
+        else:
+            self.db_engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
 
-        self.db_engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
         time.sleep(0.05)
 
         # Refresh hashes to include stuff added offline
