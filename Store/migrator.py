@@ -1,8 +1,8 @@
 import redis
 import json
-import data_store
+import Database
 
-store = data_store.DataStore("172.23.0.2")
+store = Database.DataStore("172.23.0.2")
 redis_if = redis.Redis(host='0.0.0.0', port=6379, db=2, charset="utf-8", decode_responses=True)
 
 applications = redis_if.hgetall('Applications')

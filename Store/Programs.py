@@ -5,8 +5,11 @@ from sqlalchemy.dialects import postgresql
 # declarative base class
 Base = declarative_base()
 
+
 class Programs(Base):
     __tablename__ = 'programs'
+
+    VersionTableName = 'programs'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -18,3 +21,8 @@ class Programs(Base):
     def __repr__(self):
         return "<Program(id='%s', name='%s', content='%s')>" % (
                              self.id, self.name, self.content)
+
+
+def program_from_row(row):
+    return {'id': row.id, 'name': row.name, 'path': row.path, 'program_content': row.content,
+            'program_type': row.type, 'hex': row.hex}

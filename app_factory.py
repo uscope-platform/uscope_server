@@ -6,9 +6,11 @@ import logging
 import os
 
 from uCube_interface import uCube_interface
+from Store.ElementDataStore import ElementsDataStore
 from Store.data_store import DataStore
 from Store.auth_store import AuthStore
 from Store.settings_store import SettingsStore
+
 
 class PrefixMiddleware(object):
 
@@ -52,7 +54,7 @@ def create_app(debug=True):
 
     interface = uCube_interface.uCube_interface(driver_host, 6666)
 
-    data_store = DataStore()
+    data_store = ElementsDataStore()
     auth_store = AuthStore()
     settings_store = SettingsStore()
 
