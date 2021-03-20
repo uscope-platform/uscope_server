@@ -1,6 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 ############################################################
@@ -22,14 +22,16 @@ class RegisterValue(Resource):
     @jwt_required()
     def post(self, peripheral):
         registers_to_write = request.get_json(force=True)
-        current_app.register_mgr.set_register_value(peripheral, registers_to_write['payload'])
+        user = get_jwt_identity()
+        current_app.register_mgr.set_register_value(peripheral, registers_to_write['payload'], user)
         return '200'
 
 
 class RegisterDescriptions(Resource):
     @jwt_required()
     def get(self, peripheral):
-        return jsonify(current_app.register_mgr.get_registers_descriptions(peripheral))
+        user = get_jwt_identity()
+        return jsonify(current_app.register_mgr.get_registers_descriptions(peripheral,user))
 
     @jwt_required()
     def post(self):
@@ -90,16 +92,18 @@ class RegistersManager:
            """
         return self.data_store.get_peripherals_hash()
 
-    def get_registers_descriptions(self, peripheral_name):
+    def get_registers_descriptions(self, peripheral_name, username):
         """Returns the specification for the registers of the specified peripheral
 
             Parameters:
                 peripheral_name: name of the peripheral whose registers need to be returned
+                username: username of the request issuer
             Returns:
                 List:list of registers in the peripheral
+
            """
 
-        app = self.settings_store.get_value('chosen_application')
+        app = self.settings_store.get_value('chosen_application', username)
         found = False
         for peripheral in app['peripherals']:
             if peripheral_name in peripheral['peripheral_id']:
@@ -112,7 +116,8 @@ class RegistersManager:
 
         registers_values = {}
         for i in parameters['registers']:
-            if ('R' in i['direction'] or 'r' in i['direction']) and not current_app.app_mgr.peripheral_is_proxied(peripheral_name):
+            if ('R' in i['direction'] or 'r' in i['direction']) and not current_app.app_mgr.peripheral_is_proxied(
+                    peripheral_name, username):
                 address = base_address + int(i['offset'], 0)
                 if i['register_format'] == 'words':
                     registers_values[i['register_name']] = self.interface.read_register(address)
@@ -127,16 +132,17 @@ class RegistersManager:
     def get_register_value(self, peripheral_name, register_name):
         pass
 
-    def set_register_value(self, peripheral, register):
+    def set_register_value(self, peripheral, register, username):
         """Writes to a specifier register
 
             Parameters:
                 peripheral: name of the peripheral whose registers need to be returned
                 register: dictionary containing the register name and value
+                username: username of the requester
         """
-        base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral), 0)
-        if current_app.app_mgr.peripheral_is_proxied(peripheral):
-            proxy_addr = int(current_app.app_mgr.get_peripheral_proxy_address(peripheral), 0)
+        base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral, username), 0)
+        if current_app.app_mgr.peripheral_is_proxied(peripheral, username):
+            proxy_addr = int(current_app.app_mgr.get_peripheral_proxy_address(peripheral, username), 0)
             self.__set_proxied_register_value(register, base_address, proxy_addr)
         else:
             self.__set_direct_register_value(register, base_address)

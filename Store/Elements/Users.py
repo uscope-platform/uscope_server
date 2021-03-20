@@ -1,9 +1,7 @@
 from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects import postgresql
-
-Base = declarative_base()
-
+from .OrmBase import Base
 
 class Users(Base):
     __tablename__ = 'users'

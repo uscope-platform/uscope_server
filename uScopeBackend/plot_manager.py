@@ -1,6 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -15,21 +15,24 @@ api = Api(plot_manager_bp)
 class ChannelsSpecs(Resource):
     @jwt_required()
     def get(self):
-        return jsonify(current_app.plot_mgr.get_channels_specs())
+        user = get_jwt_identity()
+        return jsonify(current_app.plot_mgr.get_channels_specs(user))
 
 
 class ChannelParams(Resource):
     @jwt_required()
     def post(self):
         message = request.get_json(force=True)
-        current_app.plot_mgr.set_channel_params(message)
+        user = get_jwt_identity()
+        current_app.plot_mgr.set_channel_params(message, user)
         return '200'
 
 
 class ChannelsData(Resource):
     @jwt_required()
     def get(self):
-        return jsonify(current_app.plot_mgr.get_data())
+        user = get_jwt_identity()
+        return jsonify(current_app.plot_mgr.get_data(user))
 
 
 class SetupCapture(Resource):
@@ -49,7 +52,8 @@ class ChannelStatus(Resource):
     @jwt_required()
     def post(self):
         statuses = request.get_json(force=True)
-        return current_app.plot_mgr.set_channel_status(statuses)
+        user = get_jwt_identity()
+        return current_app.plot_mgr.set_channel_status(statuses, user)
 
 
 class ChannelWidths(Resource):
@@ -82,24 +86,27 @@ class PlotManager:
 
         self.channel_data = None
 
-    def set_application(self, name):
+    def set_application(self, name, username):
         """Set the current application
 
             Parameters:
                 name: name of the application to set
+                username: username of the requester
            """
         self.settings_store.clear_settings()
         parameters = self.data_store.get_application(name)['parameters']
         channels = self.data_store.get_application(name)['channels']
-        self.settings_store.set_value('channel_parameters', parameters)
-        self.settings_store.set_value('channel_specs', channels)
+        self.settings_store.set_value('channel_parameters', parameters, username)
+        self.settings_store.set_value('channel_specs', channels, username)
 
-    def get_data(self):
+    def get_data(self, username):
         """Get the latest scope data
+            Parameters:
+                username: username of the requester
             Returns:
                 List: Data
            """
-        status = self.settings_store.get_value('channel_status')
+        status = self.settings_store.get_value('channel_status', username)
         ret_val = list()
         try:
             raw_data = self.interface.read_data()
@@ -118,33 +125,25 @@ class PlotManager:
     def set_channel_widths(self, widths):
         self.interface.set_channel_widths(widths['widths'])
 
-    def get_channels_specs(self):
+    def get_channels_specs(self, username):
         """Returns the specifications for the scope channels of the current application
-
+            Parameter:
+                username: username of the requester
             Returns:
                 Dict:specifications for the current channel
            """
-        specs = self.settings_store.get_value('channel_specs')
+        specs = self.settings_store.get_value('channel_specs', username)
         return specs
 
-    def get_channel_params(self, name):
-        """Returns the specification for the registers of the specified peripheral
-
-            Parameters:
-                peripheral_name: name of the peripheral whose registers need to be returned
-            Returns:
-                List:list of registers in the peripheral
-           """
-        return self.settings_store.get_value('channel_parameters')[name]
-
-    def set_channel_params(self, message):
+    def set_channel_params(self, message, username):
         """Set the value for a channel parameter
 
             Parameters:
                 message: dictionary with the values for the parameter to set
+                username: username of the requester
            """
-        params = self.settings_store.get_value('channel_parameters')
-        specs = self.settings_store.get_value('channel_specs')
+        params = self.settings_store.get_value('channel_parameters', username)
+        specs = self.settings_store.get_value('channel_specs', username)
 
         if type(message) is list:
             for s in message:
@@ -152,8 +151,8 @@ class PlotManager:
         else:
             params[message['name']] = params[message['value']]
 
-        self.settings_store.set_value('channel_parameters', params)
-        self.settings_store.set_value('channel_specs', specs)
+        self.settings_store.set_value('channel_parameters', params, username)
+        self.settings_store.set_value('channel_specs', specs, username)
 
     def setup_capture(self, param):
         """Setup and start a capture
@@ -176,7 +175,7 @@ class PlotManager:
                 returnval['data'] = f.read()
         return returnval
 
-    def set_channel_status(self, status):
-        self.settings_store.set_value('channel_status', status)
+    def set_channel_status(self, status, username):
+        self.settings_store.set_value('channel_status', status, username)
         return "200"
 

@@ -1,14 +1,9 @@
 from sqlalchemy import Column, String
-
+from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
+
 import uuid
 import datetime
-
-from sqlalchemy.orm import declarative_base
-
-
-# declarative base class
-Base = declarative_base()
 
 
 class Versions(Base):

@@ -1,10 +1,9 @@
 from sqlalchemy import Column, String, ForeignKey
-
+from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
-from . import Users
 
 
-class Settings(Users.Base):
+class Settings(Base):
     __tablename__ = 'app_settings'
 
     name = Column(String, primary_key=True)

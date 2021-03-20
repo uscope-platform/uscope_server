@@ -1,9 +1,6 @@
 from sqlalchemy import Column, String, Integer, BigInteger
-from sqlalchemy.orm import declarative_base
+from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
-
-# declarative base class
-Base = declarative_base()
 
 
 class Programs(Base):

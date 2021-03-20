@@ -1,6 +1,7 @@
 from flask import current_app, Blueprint, jsonify, request, abort, Response
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -15,8 +16,9 @@ class ApplicationSet(Resource):
     @jwt_required()
     def get(self, application_name):
         try:
-            current_app.plot_mgr.set_application(application_name)
-            return jsonify(current_app.app_mgr.set_application(application_name))
+            user = get_jwt_identity()
+            current_app.plot_mgr.set_application(application_name, user)
+            return jsonify(current_app.app_mgr.set_application(application_name, user))
         except RuntimeError:
             abort(Response("Bitstream not found", 418))
 
@@ -30,12 +32,14 @@ class ApplicationGet(Resource):
 class ApplicationParameters(Resource):
     @jwt_required()
     def get(self):
-        return jsonify(current_app.app_mgr.get_parameters())
+        user = get_jwt_identity()
+        return jsonify(current_app.app_mgr.get_parameters(user))
 
     @jwt_required()
     def post(self):
         parameters = request.get_json(force=True)
-        current_app.app_mgr.set_parameters(parameters['payload'])
+        user = get_jwt_identity()
+        current_app.app_mgr.set_parameters(parameters['payload'], user)
         return '200'
 
 
@@ -237,15 +241,16 @@ class ApplicationManager:
         """
         self.data_store.remove_application(application_name)
 
-    def set_application(self, application_name):
+    def set_application(self, application_name, username):
         """Setup and start a capture
 
             Parameters:
-                param: parameters of the capture 
+                application_name: name of the application
+                username: username of the requester
         """
         chosen_app = self.data_store.get_application(application_name)
-        self.settings_store.set_value('chosen_application', chosen_app)
-        self.settings_store.set_value('parameters', chosen_app['parameters'])
+        self.settings_store.set_value('chosen_application', chosen_app, username)
+        self.settings_store.set_value('parameters', chosen_app['parameters'], username)
 
         if self.load_bitstream(chosen_app['bitstream']) == 2:
             raise RuntimeError
@@ -282,13 +287,14 @@ class ApplicationManager:
         """
         return self.data_store.get_application(application_name)
 
-    def get_peripheral_base_address(self, peripheral):
+    def get_peripheral_base_address(self, peripheral, username):
         """ Get base address for the specified peripheral
 
             Parameters:
                 peripheral: peripheral id
+                username: username of the requester
         """
-        chosen_application = self.settings_store.get_value('chosen_application')
+        chosen_application = self.settings_store.get_value('chosen_application', username)
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['base_address']
@@ -296,48 +302,53 @@ class ApplicationManager:
 
         raise ValueError('could not find the periperal %s' % peripheral)
 
-    def peripheral_is_proxied(self, peripheral):
+    def peripheral_is_proxied(self, peripheral, username):
         """Find out whether a peripheral is proxied or not
 
             Parameters:
                 peripheral: peripheral id
+                username: username of the requester
         """
-        chosen_application = self.settings_store.get_value('chosen_application')
+        chosen_application = self.settings_store.get_value('chosen_application', username)
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['proxied']
             pass
         raise ValueError('could not find the periperal %s' % peripheral)
 
-    def get_peripheral_proxy_address(self, peripheral):
+    def get_peripheral_proxy_address(self, peripheral, username):
         """ Get proxy address for the specified peripheral
 
             Parameters:
                 peripheral: peripheral id
+                username: username of the requester
         """
-        chosen_application = self.settings_store.get_value('chosen_application')
+        chosen_application = self.settings_store.get_value('chosen_application', username)
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['proxy_address']
             pass
 
-    def get_parameters(self):
+    def get_parameters(self, username):
         """ Get parameters for the current peripheral
 
+            Parameters:
+                username: username of the requester
 
         """
-        params = self.settings_store.get_value('parameters')
+        params = self.settings_store.get_value('parameters', username)
         return params
 
-    def set_parameters(self, param):
+    def set_parameters(self, param, username):
         """ set parameter of the current peripheral
 
             Parameters:
                 param: dictionary containing name and value of the parameter to set
+                username: username of the requester
         """
-        params = self.settings_store.get_value('parameters')
+        params = self.settings_store.get_value('parameters', username)
         params[param['name']] = param['value']
-        self.settings_store.set_value('parameters', params)
+        self.settings_store.set_value('parameters', params, username)
 
     def load_bitstream(self, name):
         """ Load the specified bitstream on the programmable logic
@@ -347,14 +358,6 @@ class ApplicationManager:
         """
         return self.interface.load_bitstream(name)
 
-    def get_timebase_addr(self):
-        """ Get address of the timebase IP in the current application
-
-            Parameters:
-                peripheral: peripheral id
-        """
-        chosen_application = self.settings_store.get_value('chosen_application')
-        return int(chosen_application['timebase_address'], 16)
 
     def initialize_registers(self, registers):
         """ Initializes registers from arguments

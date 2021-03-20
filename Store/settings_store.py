@@ -19,10 +19,14 @@ class SettingsStore:
 
         self.clear_settings()
 
-    def get_value(self, name):
+    def get_value(self, name, username):
+        if not username:
+            raise RuntimeError("The username is needed to retrive a setting")
         return self.settings_db.get_value(name, "filssavi")
 
-    def set_value(self, name, value):
+    def set_value(self, name, value, username):
+        if not username:
+            raise RuntimeError("The username is needed to store a setting")
         self.settings_db.set_value(name, value, "filssavi")
 
     def clear_settings(self):
