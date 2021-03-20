@@ -1,31 +1,29 @@
-import psycopg2.extras
+import uuid
+from sqlalchemy.orm import declarative_base, sessionmaker
+
 from sqlalchemy import create_engine
+from .Elements import Settings
 
 
 class SettingsStore:
-    def __init__(self):
-        self.db_engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
+    def __init__(self, host=None):
+        if host:
+            self.engine = create_engine("postgresql+psycopg2://uscope:test@" + host + "/uscope")
+        else:
+            self.engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
+
+        Base = declarative_base()
+        Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
+        self.settings_db = Settings.SettingsDatabase(self.Session)
+
         self.clear_settings()
 
-    def run_select_one(self, query, data):
-        with self.db_engine.connect() as connection:
-            result = connection.execute(query, data)
-            result = result.fetchone()
-        return result
-
-    def run_query(self, query, data):
-        with self.db_engine.connect() as connection:
-            connection.execute(query, data)
-
     def get_value(self, name):
-        res = self.run_select_one('SELECT value FROM uscope.app_settings WHERE name LIKE (%s)', (name,))
-        return res[0]
+        return self.settings_db.get_value(name, "filssavi")
 
     def set_value(self, name, value):
-        row_data = (name, psycopg2.extras.Json(value))
-        self.run_query("""INSERT INTO uscope.app_settings (name, value) VALUES (%s,%s)
-                                   ON CONFLICT (name) DO UPDATE 
-                                       SET value = excluded.value;""", row_data)
+        self.settings_db.set_value(name, value, "filssavi")
 
     def clear_settings(self):
-        self.run_query('DELETE FROM uscope.app_settings', ())
+        self.settings_db.clear_settings()

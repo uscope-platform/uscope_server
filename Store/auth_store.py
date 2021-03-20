@@ -5,6 +5,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import create_engine
 from .Elements import Users
 
+
 class AuthStore:
     def __init__(self, host=None):
         if host:
