@@ -3,10 +3,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 from sqlalchemy import create_engine
 
-from . import Scripts, Programs, Applications, UserDataElement, Peripherals
-
-# declarative base class
-Base = declarative_base()
+from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElement
 
 
 class ElementsDataStore:
@@ -16,6 +13,8 @@ class ElementsDataStore:
             self.engine = create_engine("postgresql+psycopg2://uscope:test@" + host + "/uscope")
         else:
             self.engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
+
+        Base = declarative_base()
 
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)

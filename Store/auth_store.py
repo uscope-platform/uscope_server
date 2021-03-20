@@ -1,53 +1,44 @@
-import psycopg2
 import datetime as dt
 
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+from sqlalchemy import create_engine
+from .Elements import Users
 
 class AuthStore:
-    def __init__(self):
-        self.pg_db = psycopg2.connect("dbname=uscope user=uscope password=test host=database")
-        self.db = self.pg_db.cursor()
+    def __init__(self, host=None):
+        if host:
+            self.engine = create_engine("postgresql+psycopg2://uscope:test@" + host + "/uscope")
+        else:
+            self.engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
 
-    def __del__(self):
-        self.pg_db.close()
+        Base = declarative_base()
+        Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
+
+        self.auth_db = Users.AuthenticationDatabase(self.Session)
 
     # PERIPHERALS
 
     def add_user(self, username, content):
-        row_data = (content['username'], content['pw_hash'])
-        self.db.execute("INSERT INTO uscope.users (username, pw_hash) VALUES (%s, %s);", row_data)
-        self.pg_db.commit()
+        self.auth_db.add_user(content['username'], content['pw_hash'])
 
     def user_exists(self, username):
-        row_data = (username,)
-        self.db.execute("SELECT COUNT(1) FROM uscope.users WHERE username LIKE (%s) ESCAPE '#';", row_data)
-        return self.db.fetchone()[0] == 1
+        self.auth_db.user_exists(username)
 
     def get_password_hash(self, username):
-        row_data = (username,)
-        self.db.execute("SELECT pw_hash FROM uscope.users WHERE username LIKE (%s) ESCAPE '#';", row_data)
-        pw_hash = self.db.fetchone()[0]
-        self.pg_db.commit()
-        return pw_hash
+        return self.auth_db.get_password_hash(username)
 
     def remove_user(self, username):
-        row_data = (username,)
-        self.db.execute("DELETE FROM uscope.users WHERE username LIKE %s", row_data)
-        self.pg_db.commit()
+        self.auth_db.remove_user(username)
 
     def get_token(self, selector):
-        row_data = (selector,)
-        self.db.execute("SELECT * FROM uscope.login_tokens WHERE selector like %s", row_data)
-        token = self.db.fetchone()
-        self.pg_db.commit()
-        return {'username': token[0], 'expiry': token[1].timestamp(), 'validator': token[2]}
+        token = self.auth_db.get_token(selector)
+        return {'username': token.username, 'expiry': token.expiry.timestamp(), 'validator': token.validator}
 
     def add_token(self, selector, token_obj):
         timestamp = dt.datetime.fromtimestamp(token_obj['expiry'])
-        row_data = (token_obj['username'], timestamp, token_obj['validator'], selector)
-        self.db.execute(
-            "INSERT INTO uscope.login_tokens (username, expiry, validator, selector) VALUES (%s, %s, %s, %s);",
-            row_data)
-        self.pg_db.commit()
+        self.auth_db.add_token(token_obj['username'], timestamp, token_obj['validator'], selector)
 
     def remove_token(self, username):
         pass
