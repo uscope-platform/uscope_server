@@ -67,9 +67,9 @@ api.add_resource(ProgramApply, '/Apply/<string:program_id>')
 
 class ProgramsManager:
 
-    def __init__(self, interface, data_store):
+    def __init__(self, interface, store):
         self.interface = interface
-        self.data_store = data_store
+        self.data_store = store.Elements
         self.bridge = fCore_compiler.CompilerBridge()
 
     def load_programs(self):

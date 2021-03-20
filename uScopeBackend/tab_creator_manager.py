@@ -71,8 +71,8 @@ api.add_resource(RemovePeripheral, '/remove_peripheral/<string:peripheral>')
 
 class TabCreatorManager:
 
-    def __init__(self, data_store):
-        self.data_store = data_store
+    def __init__(self, store):
+        self.data_store = store.Elements
         self.image_filename = ''
         self.image_content = None
 

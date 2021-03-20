@@ -9,7 +9,7 @@ from uCube_interface import uCube_interface
 from Store.ElementDataStore import ElementsDataStore
 from Store.AuthStore import AuthStore
 from Store.SettingsStore import SettingsStore
-
+from Store import Store
 
 class PrefixMiddleware(object):
 
@@ -53,6 +53,7 @@ def create_app(debug=True):
 
     interface = uCube_interface.uCube_interface(driver_host, 6666)
 
+    store = Store()
     data_store = ElementsDataStore()
     auth_store = AuthStore()
     settings_store = SettingsStore()
@@ -70,14 +71,14 @@ def create_app(debug=True):
         from uScopeBackend.auth_manager import auth_manager_bp, AuthManager
 
         app.interface = interface
-        app.app_mgr = ApplicationManager(interface, data_store, settings_store)
-        app.plot_mgr = PlotManager(interface, data_store, settings_store, debug)
-        app.register_mgr = RegistersManager(interface, data_store, settings_store)
-        app.programs_mgr = ProgramsManager(interface, data_store)
-        app.tab_creator_mgr = TabCreatorManager(data_store)
-        app.script_mgr = ScriptManager(data_store)
+        app.app_mgr = ApplicationManager(interface, store)
+        app.plot_mgr = PlotManager(interface, store, debug)
+        app.register_mgr = RegistersManager(interface, store)
+        app.programs_mgr = ProgramsManager(interface, store)
+        app.tab_creator_mgr = TabCreatorManager(store)
+        app.script_mgr = ScriptManager(store)
         app.db_mgr = DatabaseManager('/var/lib/redis/6379/dump.rdb')
-        app.auth_mgr = AuthManager(auth_store)
+        app.auth_mgr = AuthManager(store)
 
         # Register Blueprints
         app.register_blueprint(application_manager_bp)

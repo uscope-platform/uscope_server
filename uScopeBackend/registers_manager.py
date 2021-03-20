@@ -71,10 +71,10 @@ api.add_resource(PeripheralsDigest, '/digest')
 
 class RegistersManager:
 
-    def __init__(self, interface, data_store, settings_store):
+    def __init__(self, interface, store):
         self.interface = interface
-        self.data_store = data_store
-        self.settings_store = settings_store
+        self.data_store = store.Elements
+        self.settings_store = store.Settings
 
     def get_all_peripherals(self):
         """Returns all the peripherals present in the database

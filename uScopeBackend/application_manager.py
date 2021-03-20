@@ -94,11 +94,12 @@ api.add_resource(ApplicationRemove, '/remove/<string:application_name>')
 
 
 class ApplicationManager:
-    def __init__(self, interface, data_store, settings_store):
-        self.data_store = data_store
+    def __init__(self, interface, store):
         self.parameters = {}
+        self.data_store = store.Elements
+        self.settings_store = store.Settings
         self.interface = interface
-        self.settings_store = settings_store
+
 
     def add_application(self, application):
         """Adds the application from the parameters to the database

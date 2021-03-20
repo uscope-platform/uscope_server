@@ -55,8 +55,8 @@ api.add_resource(Logout, '/logout')
 
 class AuthManager:
 
-    def __init__(self, auth_store):
-        self.auth_store = auth_store
+    def __init__(self, store):
+        self.auth_store = store.Auth
         self.crypto = CryptContext(schemes=["argon2"])
         self.token_duration = timedelta(hours=8)
 

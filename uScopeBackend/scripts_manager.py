@@ -53,8 +53,8 @@ api.add_resource(Script, '/<string:script_id>')
 
 class ScriptManager:
 
-    def __init__(self, data_store):
-        self.data_store = data_store
+    def __init__(self, store):
+        self.data_store = store.Elements
 
     def load_scripts(self):
         return self.data_store.get_scripts_dict()
