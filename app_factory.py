@@ -7,8 +7,8 @@ import os
 
 from uCube_interface import uCube_interface
 from Store.ElementDataStore import ElementsDataStore
-from Store.auth_store import AuthStore
-from Store.settings_store import SettingsStore
+from Store.AuthStore import AuthStore
+from Store.SettingsStore import SettingsStore
 
 
 class PrefixMiddleware(object):
