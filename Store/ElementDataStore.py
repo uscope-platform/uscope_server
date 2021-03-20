@@ -110,3 +110,17 @@ class ElementsDataStore:
 
     def get_program_hash(self):
         return str(self.ude.get_version(Programs.Programs))
+
+    def dump(self):
+        dump = {'applications': self.ude.dump(Applications.Applications, Applications.application_from_row),
+                'peripherals': self.ude.dump(Peripherals.Peripherals, Peripherals.peripheral_from_row),
+                'scripts': self.ude.dump(Scripts.Scripts, Scripts.script_from_row),
+                'programs': self.ude.dump(Programs.Programs, Programs.program_from_row)
+                }
+        return dump
+
+    def restore(self, data):
+        self.ude.restore(Applications.Applications, data['applications'],)
+        self.ude.restore(Peripherals.Peripherals, data['peripherals'])
+        self.ude.restore(Scripts.Scripts, data['scripts'])
+        self.ude.restore(Programs.Programs, data['programs'])

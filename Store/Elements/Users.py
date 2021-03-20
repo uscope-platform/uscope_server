@@ -67,3 +67,16 @@ class AuthenticationDatabase:
                 tok = session.query(LoginTokens).filter_by(selector=selector).first()
                 session.expunge(tok)
                 return tok
+
+    def dump(self):
+        with self.Session() as session:
+            with session.begin():
+                result = session.query(Users).all()
+                dump = []
+                for row in result:
+                    dump.append({'username': row.username, 'pw_hash': row.pw_hash})
+        return dump
+
+
+    def restore(self, data):
+        pass

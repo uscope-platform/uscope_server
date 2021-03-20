@@ -41,3 +41,9 @@ class SettingsDatabase:
             with session.begin():
                 session.query(Settings).delete()
 
+    def dump(self):
+        return []
+
+
+    def restore(self,data):
+        pass

@@ -1,7 +1,7 @@
-from flask import current_app, Blueprint, jsonify, request, Response
+from flask import current_app, Blueprint, Response
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
-
+import json
 ############################################################
 #                      BLUEPRINT                           #
 ############################################################
@@ -14,15 +14,16 @@ api = Api(database_manager_bp)
 
 
 class DatabaseExport(Resource):
-    @jwt_required
+    @jwt_required()
     def get(self):
         database = current_app.db_mgr.db_export()
-        response = Response(database, mimetype='application/octet-stream', headers={'Content-Disposition': 'attachment; filename=db_dump.rdb'})
+        response = Response(json.dumps(database), mimetype='application/json',
+                            headers={'Content-Disposition': 'attachment; filename=db_dump.json'})
         return response
 
 
 class DatabaseImport(Resource):
-    @jwt_required
+    @jwt_required()
     def post(self):
         return current_app.script_mgr.get_hash()
 
@@ -37,16 +38,14 @@ api.add_resource(DatabaseExport, '/export')
 
 class DatabaseManager:
 
-    def __init__(self, db_path):
-        self.db_path = db_path
+    def __init__(self, store):
+        self.store = store
 
     def db_export(self):
-        with open(self.db_path, 'rb') as f:
-            file_content = f.read()
-
-        return file_content
+        dump = self.store.dump()
+        return dump
 
     def db_import(self):
-        return self.store.get_scripts_hash()
+        pass
 
 

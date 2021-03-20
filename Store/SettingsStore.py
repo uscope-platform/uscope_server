@@ -30,3 +30,9 @@ class SettingsStore:
 
     def clear_settings(self):
         self.settings_db.clear_settings()
+
+    def dump(self):
+        return self.settings_db.dump()
+
+    def restore(self, data):
+        self.settings_db.restore(data)

@@ -41,5 +41,11 @@ class AuthStore:
         timestamp = dt.datetime.fromtimestamp(token_obj['expiry'])
         self.auth_db.add_token(token_obj['username'], timestamp, token_obj['validator'], selector)
 
+    def dump(self):
+        return self.auth_db.dump()
+
+    def restore(self, data):
+        self.auth_db.restore(data)
+
     def remove_token(self, username):
         pass

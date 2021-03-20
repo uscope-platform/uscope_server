@@ -77,7 +77,7 @@ def create_app(debug=True):
         app.programs_mgr = ProgramsManager(interface, store)
         app.tab_creator_mgr = TabCreatorManager(store)
         app.script_mgr = ScriptManager(store)
-        app.db_mgr = DatabaseManager('/var/lib/redis/6379/dump.rdb')
+        app.db_mgr = DatabaseManager(store)
         app.auth_mgr = AuthManager(store)
 
         # Register Blueprints

@@ -69,3 +69,15 @@ class UserDataElement:
             with session.begin():
                 version = session.query(Versions).filter_by(table=table.VersionTableName).first()
                 return version.version
+
+    def dump(self, table, creator_func):
+        with self.Session() as session:
+            with session.begin():
+                result = session.query(table).all()
+                dump = []
+                for row in result:
+                    dump.append(creator_func(row))
+        return dump
+
+    def restore(self, table, data):
+        pass

@@ -100,7 +100,6 @@ class ApplicationManager:
         self.settings_store = store.Settings
         self.interface = interface
 
-
     def add_application(self, application):
         """Adds the application from the parameters to the database
 
