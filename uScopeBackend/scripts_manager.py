@@ -63,7 +63,7 @@ class ScriptManager:
         return self.data_store.get_scripts_hash()
 
     def upload_script(self, content):
-        self.data_store.add_scripts(content)
+        self.data_store.add_script(content)
 
     def edit_script(self, edit):
         script = self.data_store.get_script(edit['script'])
@@ -71,4 +71,4 @@ class ScriptManager:
         self.data_store.edit_script(script)
 
     def delete_script(self, script):
-        self.data_store.remove_scripts(script)
+        self.data_store.remove_script(script)

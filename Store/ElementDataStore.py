@@ -87,9 +87,14 @@ class ElementsDataStore:
         return self.ude.get_elements_dict(Programs.Programs, Programs.program_from_row, 'id')
 
     def add_program(self, program):
+        if 'hex' in program:
+            hex_field = program['hex']
+        else:
+            hex_field = []
+
         item = Programs.Programs(id=program["id"], name=program['name'],
                                  content=program['program_content'], path=program['path'],
-                                 type=program['program_type'], hex=program['hex'])
+                                 type=program['program_type'], hex=hex_field)
 
         self.ude.add_element(item, Programs.Programs)
 
