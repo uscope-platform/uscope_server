@@ -49,10 +49,12 @@ class ElementsDataStore:
         self.add_application(app)
 
     def get_applications_dict(self):
-        return self.ude.get_elements_dict(Applications.Applications, Applications.application_from_row, 'application_name')
+        return self.ude.get_elements_dict(Applications.Applications, Applications.application_from_row,
+                                          'application_name')
 
     def get_application(self, name):
-        return self.ude.get_element(Applications.Applications, "application_name", name, Applications.application_from_row)
+        return self.ude.get_element(Applications.Applications, "application_name", name,
+                                    Applications.application_from_row)
 
     def remove_application(self, name):
         self.ude.remove_element(Applications.Applications, 'application_name', name)
@@ -142,7 +144,19 @@ class ElementsDataStore:
         return dump
 
     def restore(self, data):
-        self.ude.restore(Applications.Applications, data['applications'],)
-        self.ude.restore(Peripherals.Peripherals, data['peripherals'])
-        self.ude.restore(Scripts.Scripts, data['scripts'])
-        self.ude.restore(Programs.Programs, data['programs'])
+
+        for app in data['applications']:
+            self.remove_application(app['application_name'])
+            self.add_application(app)
+
+        for periph in data['peripherals']:
+            self.remove_peripheral(periph['peripheral_name'])
+            self.add_peripheral(periph)
+
+        for script in data['scripts']:
+            self.remove_script(script['id'])
+            self.add_script(script)
+
+        for prog in data['programs']:
+            self.remove_program(prog['id'])
+            self.add_program(prog)

@@ -1,4 +1,4 @@
-from flask import current_app, Blueprint, Response, send_file
+from flask import current_app, Blueprint, Response, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 import json
@@ -25,7 +25,9 @@ class DatabaseExport(Resource):
 class DatabaseImport(Resource):
     @jwt_required()
     def post(self):
-        return current_app.script_mgr.get_hash()
+        db_file = request.get_json()
+        current_app.db_mgr.db_import(db_file)
+        return '200'
 
 
 api.add_resource(DatabaseImport, '/import')
@@ -45,7 +47,5 @@ class DatabaseManager:
         dump = self.store.dump()
         return dump
 
-    def db_import(self):
-        pass
-
-
+    def db_import(self, database):
+        self.store.restore(database)

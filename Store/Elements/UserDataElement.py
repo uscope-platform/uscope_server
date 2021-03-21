@@ -61,8 +61,12 @@ class UserDataElement:
         with self.Session() as session:
             with session.begin():
                 version = session.query(Versions).filter_by(table=table.VersionTableName).first()
-                version.version = uuid.uuid4()
-                version.last_modified = datetime.datetime.now()
+                if version:
+                    version.version = uuid.uuid4()
+                    version.last_modified = datetime.datetime.now()
+                else:
+                    item = Versions(table=table.VersionTableName, version=uuid.uuid4(), last_modified=datetime.datetime.now())
+                    session.add(item)
 
     def get_version(self, table):
         with self.Session() as session:
@@ -78,6 +82,3 @@ class UserDataElement:
                 for row in result:
                     dump.append(creator_func(row))
         return dump
-
-    def restore(self, table, data):
-        pass

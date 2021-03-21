@@ -138,7 +138,6 @@ class TabCreatorManager:
                 del current_periph['registers'][idx]
         self.data_store.edit_peripheral(current_periph)
 
-
     def remove_peripheral(self, peripheral):
         """Removes a peripheral from the database
 

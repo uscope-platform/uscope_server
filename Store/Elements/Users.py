@@ -86,6 +86,7 @@ class AuthenticationDatabase:
                     dump.append({'username': row.username, 'pw_hash': row.pw_hash})
         return dump
 
-
     def restore(self, data):
-        pass
+        for item in data:
+            if not self.user_exists(item['username']):
+                self.add_user(item['username'], item['pw_hash'])

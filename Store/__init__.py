@@ -14,6 +14,9 @@ class Store:
         return dump
 
     def restore(self, data):
+        print("restoring Users")
         self.Auth.restore(data['auth'])
-        self.Settings.restore(data['settings'])
+        print("restoring Elements")
         self.Elements.restore(data['elements'])
+        print("restoring settings")
+        self.Settings.restore(data['settings'])
