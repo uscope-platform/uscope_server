@@ -22,7 +22,7 @@ class Script(Resource):
     @jwt_required()
     def post(self, script_id):
         content = request.get_json()
-        current_app.script_mgr.upload_script(script_id, content)
+        current_app.script_mgr.upload_script(content)
         return '200'
 
     @jwt_required()
@@ -62,13 +62,13 @@ class ScriptManager:
     def get_hash(self):
         return self.data_store.get_scripts_hash()
 
-    def upload_script(self, script_id, content):
-        self.data_store.add_scripts(script_id, content)
+    def upload_script(self, content):
+        self.data_store.add_scripts(content)
 
     def edit_script(self, edit):
         script = self.data_store.get_script(edit['script'])
         script[edit['field']] = edit['value']
-        self.data_store.add_scripts(str(edit['script']), script)
+        self.data_store.edit_script(script)
 
     def delete_script(self, script):
         self.data_store.remove_scripts(script)

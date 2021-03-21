@@ -105,7 +105,7 @@ class TabCreatorManager:
         periph['payload'][list(periph['payload'])[0]]['image'] = image_path
 
         label, periph =periph['payload'].popitem()
-        self.data_store.add_peripheral(label, periph)
+        self.data_store.add_peripheral(periph)
 
     def edit_peripheral(self, edit):
         current_periph = self.data_store.get_peripheral(edit["peripheral"])
@@ -136,7 +136,7 @@ class TabCreatorManager:
                     break
             if present:
                 del current_periph['registers'][idx]
-        self.data_store.add_peripheral(edit["peripheral"], current_periph)
+        self.data_store.edit_peripheral(current_periph)
 
 
     def remove_peripheral(self, peripheral):

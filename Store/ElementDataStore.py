@@ -1,4 +1,4 @@
-
+import copy
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from sqlalchemy import create_engine
@@ -30,13 +30,23 @@ class ElementsDataStore:
     # APPLICATIONS
 
     def add_application(self, app):
+        misc_app = copy.copy(app)
+
+        entries_to_remove = ('application_name', 'bitstream', 'clock_frequency', 'channels', 'channel_groups',
+                             'initial_registers_values', 'macro', 'parameters', 'peripherals')
+        for k in entries_to_remove:
+            misc_app.pop(k, None)
         item = Applications.Applications(application_name=app["application_name"], bitstream=app['bitstream'],
                                          clock_frequency=app['clock_frequency'], channels=app['channels'],
-                                         channel_groups=app['channel_groups'],
+                                         channel_groups=app['channel_groups'], miscellaneous=misc_app,
                                          initial_registers_values=app['initial_registers_values'], macro=app['macro'],
-                                         parameters=app['parameters'], peripherals=app['peripherals']
-                                         )
+                                         parameters=app['parameters'], peripherals=app['peripherals'])
+
         self.ude.add_element(item, Applications.Applications)
+
+    def edit_application(self, app):
+        self.ude.remove_element(Applications.Applications, 'application_name', app["application_name"])
+        self.add_application(app)
 
     def get_applications_dict(self):
         return self.ude.get_elements_dict(Applications.Applications, Applications.application_from_row, 'application_name')
@@ -60,6 +70,10 @@ class ElementsDataStore:
 
         self.ude.add_element(item, Scripts.Scripts)
 
+    def edit_script(self, script):
+        self.remove_script(script["id"])
+        self.add_script(script)
+
     def remove_script(self, script):
         self.ude.remove_element(Scripts.Scripts, 'id', script)
 
@@ -77,6 +91,10 @@ class ElementsDataStore:
 
         self.ude.add_element(item, Programs.Programs)
 
+    def edit_program(self, program):
+        self.remove_program(program["id"])
+        self.add_program(program)
+
     def remove_program(self, program):
         self.ude.remove_element(Programs.Programs, 'id', program)
 
@@ -93,6 +111,10 @@ class ElementsDataStore:
                                        version=periph['version'], registers=periph['registers'])
 
         self.ude.add_element(item, Peripherals.Peripherals)
+
+    def edit_peripheral(self, periph):
+        self.remove_peripheral(periph["peripheral_name"])
+        self.add_peripheral(periph)
 
     def remove_peripheral(self, peripheral):
         self.ude.remove_element(Peripherals.Peripherals, 'name', peripheral)

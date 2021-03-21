@@ -107,7 +107,7 @@ class ApplicationManager:
                 application: application to add
         """
         key, val = application.popitem()
-        self.data_store.add_application(key, val)
+        self.data_store.add_application(val)
 
     def edit_application(self, edit):
         current_app = self.data_store.get_application(edit["application"])
@@ -231,7 +231,7 @@ class ApplicationManager:
             if present:
                 del current_app['channel_groups'][idx]
 
-        self.data_store.add_application(edit["application"], current_app)
+        self.data_store.edit_application(current_app)
 
     def remove_application(self, application_name):
         """Remove application by name from the database

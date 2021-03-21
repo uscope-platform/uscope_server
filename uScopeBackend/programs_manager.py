@@ -21,7 +21,7 @@ class Program(Resource):
     @jwt_required()
     def post(self, program_id):
         content = request.get_json()
-        current_app.programs_mgr.upload_program(program_id, content)
+        current_app.programs_mgr.upload_program(content)
         return '200'
 
     @jwt_required()
@@ -78,13 +78,13 @@ class ProgramsManager:
     def get_hash(self):
         return str(self.data_store.get_program_hash())
 
-    def upload_program(self, program_id, content):
-        self.data_store.add_program(program_id, content)
+    def upload_program(self, content):
+        self.data_store.add_program(content)
 
     def edit_program(self, edit):
         program = self.data_store.get_program(edit['program'])
         program[edit['field']] = edit['value']
-        self.data_store.add_program(str(edit['program']), program)
+        self.data_store.edit_program(program)
 
     def remove_program(self, program):
         self.data_store.remove_program(program)
