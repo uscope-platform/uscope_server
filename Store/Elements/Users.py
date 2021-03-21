@@ -29,6 +29,15 @@ class AuthenticationDatabase:
     def __init__(self, session):
         self.Session = session
 
+    def get_users_list(self):
+        with self.Session() as session:
+            with session.begin():
+                res = session.query(Users).all()
+                users = []
+                for row in res:
+                    users.append(row.username)
+        return users
+
     def get_password_hash(self, user):
         with self.Session() as session:
             with session.begin():

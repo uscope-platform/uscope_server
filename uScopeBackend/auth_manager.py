@@ -1,7 +1,7 @@
 from flask import current_app, Blueprint, request
 from flask_restful import Api, Resource
 from passlib.context import CryptContext
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import secrets
 import hashlib
 import time
@@ -33,6 +33,11 @@ class Logout(Resource):
 
 class User(Resource):
 
+    @jwt_required()
+    def get(self):
+        user = get_jwt_identity()
+        return current_app.auth_mgr.get_users_list(user)
+
     def post(self):
         content = request.get_json()
         current_app.auth_mgr.create_user(content)
@@ -60,17 +65,17 @@ class AuthManager:
         self.crypto = CryptContext(schemes=["argon2"])
         self.token_duration = timedelta(hours=8)
 
+    def get_users_list(self, username):
+        users = self.auth_store.get_users_list()
+        return users
+
     def create_user(self, content):
         user = {'username': content['user'], 'pw_hash': self.crypto.hash(content['password'])}
         self.auth_store.add_user(content['user'], user)
 
     def remove_user(self, content):
-        pw_hash = self.auth_store.get_password_hash(content['user'])
-        if self.crypto.verify(content['password'], pw_hash):
-            self.auth_store.remove_user(content['user'])
-            return '200'
-        else:
-            return '401'
+        self.auth_store.remove_user(content['user'])
+        return '200'
 
     def _automated_login(self, token):
         server_token = self.auth_store.get_token(token['selector'])

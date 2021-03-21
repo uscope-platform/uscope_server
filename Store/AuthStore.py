@@ -21,6 +21,9 @@ class AuthStore:
 
     # PERIPHERALS
 
+    def get_users_list(self):
+        return self.auth_db.get_users_list()
+
     def add_user(self, username, content):
         self.auth_db.add_user(content['username'], content['pw_hash'])
 
