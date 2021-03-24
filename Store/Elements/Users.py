@@ -3,17 +3,19 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects import postgresql
 from .OrmBase import Base
 
+
 class Users(Base):
     __tablename__ = 'users'
 
     username = Column(String, primary_key=True)
     pw_hash = Column(String)
+    role = Column(String)
     tokens = relationship("LoginTokens")
     settings = relationship("Settings")
 
     def __repr__(self):
-        return "<User(username='%s', pw_hash='%s')>" % (
-                             self.username, self.pw_hash)
+        return "<User(username='%s', role='%s', pw_hash='%s')>" % (
+                             self.username, self.role, self.pw_hash)
 
 
 class LoginTokens(Base):
@@ -49,8 +51,8 @@ class AuthenticationDatabase:
             with session.begin():
                 return session.query(Users).filter_by(username=user).count() == 1
 
-    def add_user(self, user, pw_hash):
-        item = Users(username=user, pw_hash=pw_hash)
+    def add_user(self, user, pw_hash, role):
+        item = Users(username=user, pw_hash=pw_hash, role=role)
         self.add_item(item)
 
     def remove_user(self, user):
@@ -83,10 +85,10 @@ class AuthenticationDatabase:
                 result = session.query(Users).all()
                 dump = []
                 for row in result:
-                    dump.append({'username': row.username, 'pw_hash': row.pw_hash})
+                    dump.append({'username': row.username, 'pw_hash': row.pw_hash, 'role': row.role})
         return dump
 
     def restore(self, data):
         for item in data:
             if not self.user_exists(item['username']):
-                self.add_user(item['username'], item['pw_hash'])
+                self.add_user(item['username'], item['pw_hash'], item['role'])
