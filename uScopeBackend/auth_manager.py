@@ -5,6 +5,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 import secrets
 import hashlib
 import time
+import math
 import hmac
 from datetime import timedelta
 
@@ -79,8 +80,11 @@ class AuthManager:
 
     def _automated_login(self, token):
         server_token = self.auth_store.get_token(token['selector'])
+
         if server_token:
-            if server_token['expiry'] != token['expiry']:
+
+            if not math.isclose(server_token['expiry'], token['expiry'], abs_tol=1e-6):
+                print("ERROR")
                 return '', 403
             if server_token['expiry'] < time.time():
                 return '', 401
