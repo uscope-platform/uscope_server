@@ -25,7 +25,7 @@ class AuthStore:
         return self.auth_db.get_users_list()
 
     def add_user(self, content):
-        self.auth_db.add_user(content['username'], content['pw_hash'])
+        self.auth_db.add_user(content['username'], content['pw_hash'], content['role'])
 
     def user_exists(self, username):
         self.auth_db.user_exists(username)

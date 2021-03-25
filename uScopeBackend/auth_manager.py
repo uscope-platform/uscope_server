@@ -71,7 +71,7 @@ class AuthManager:
         return users
 
     def create_user(self, content):
-        user = {'username': content['user'], 'pw_hash': self.crypto.hash(content['password'])}
+        user = {'username': content['user'], 'pw_hash': self.crypto.hash(content['password']), 'role': content['role']}
         self.auth_store.add_user(user)
 
     def remove_user(self, content):

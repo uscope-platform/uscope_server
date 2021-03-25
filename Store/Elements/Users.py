@@ -37,7 +37,7 @@ class AuthenticationDatabase:
                 res = session.query(Users).all()
                 users = []
                 for row in res:
-                    users.append(row.username)
+                    users.append({'username': row.username, 'role': row.role})
         return users
 
     def get_password_hash(self, user):
