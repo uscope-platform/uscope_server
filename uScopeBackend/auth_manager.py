@@ -50,9 +50,23 @@ class User(Resource):
         return current_app.auth_mgr.remove_user(content)
 
 
+class Onboarding(Resource):
+    def get(self):
+        return {'onboarding_needed': current_app.auth_mgr.get_onboarding_needed()}
+
+    def post(self):
+        content = request.get_json()
+        if current_app.auth_mgr.get_onboarding_needed():
+            current_app.auth_mgr.create_user(content)
+            return '200'
+        else:
+            return '403'
+
+
 api.add_resource(User, '/user')
 api.add_resource(Login, '/login')
 api.add_resource(Logout, '/logout')
+api.add_resource(Onboarding, '/onboarding')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -65,6 +79,12 @@ class AuthManager:
         self.auth_store = store.Auth
         self.crypto = CryptContext(schemes=["argon2"])
         self.token_duration = timedelta(hours=8)
+
+    def get_onboarding_needed(self):
+        users = self.auth_store.get_users_list()
+        return len(users) == 0
+
+
 
     def get_users_list(self, username):
         users = self.auth_store.get_users_list()
