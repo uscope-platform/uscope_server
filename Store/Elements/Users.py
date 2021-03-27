@@ -55,6 +55,12 @@ class AuthenticationDatabase:
         item = Users(username=user, pw_hash=pw_hash, role=role)
         self.add_item(item)
 
+    def get_user(self, username):
+        with self.Session() as session:
+            with session.begin():
+                res = session.query(Users).filter_by(username=username).first()
+                return {"pw_hash": res.pw_hash, "role": res.role}
+
     def remove_user(self, user):
         with self.Session() as session:
             element = session.query(Users).filter_by(username=user).first()

@@ -8,6 +8,7 @@ import time
 import math
 import hmac
 from datetime import timedelta
+from . import role_required
 
 ############################################################
 #                      BLUEPRINT                           #
@@ -28,6 +29,7 @@ class Login(Resource):
 
 
 class Logout(Resource):
+
     def get(self):
         return current_app.auth_mgr.logout()
 
@@ -35,6 +37,7 @@ class Logout(Resource):
 class User(Resource):
 
     @jwt_required()
+    @role_required("admin")
     def get(self):
         user = get_jwt_identity()
         return current_app.auth_mgr.get_users_list(user)
@@ -84,8 +87,6 @@ class AuthManager:
         users = self.auth_store.get_users_list()
         return len(users) == 0
 
-
-
     def get_users_list(self, username):
         users = self.auth_store.get_users_list()
         return users
@@ -100,9 +101,8 @@ class AuthManager:
 
     def _automated_login(self, token):
         server_token = self.auth_store.get_token(token['selector'])
-
         if server_token:
-
+            user = self.auth_store.get_user(server_token['username'])
             if not math.isclose(server_token['expiry'], token['expiry'], abs_tol=1e-6):
                 print("ERROR")
                 return '', 403
@@ -111,7 +111,7 @@ class AuthManager:
             validator_hash = hashlib.sha256(token['validator'].encode()).hexdigest()
             if hmac.compare_digest(validator_hash, server_token['validator']):
                 access_token = create_access_token(expires_delta=self.token_duration, identity=server_token['username'])
-                return {"access_token": access_token}, 200
+                return {"access_token": access_token, "role": user['role']}, 200
             else:
                 return '', 403
 
@@ -130,10 +130,12 @@ class AuthManager:
 
             usr_token['validator'] = validator
             usr_token['selector'] = selector
-        pw_hash = self.auth_store.get_password_hash(content['user'])
-        if self.crypto.verify(content['password'], pw_hash):
+
+        user = self.auth_store.get_user(content['user'])
+
+        if self.crypto.verify(content['password'], user['pw_hash']):
             access_token = create_access_token(expires_delta=self.token_duration, identity=content['user'])
-            return {"access_token": access_token, "login_token": usr_token}, 200
+            return {"access_token": access_token, "login_token": usr_token, "role": user['role']}, 200
         else:
             return '', 401
 

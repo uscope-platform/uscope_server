@@ -33,6 +33,9 @@ class AuthStore:
     def get_password_hash(self, username):
         return self.auth_db.get_password_hash(username)
 
+    def get_user(self, username):
+        return self.auth_db.get_user(username)
+
     def remove_user(self, username):
         self.auth_db.remove_user(username)
 
