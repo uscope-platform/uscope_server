@@ -18,7 +18,7 @@ api = Api(programs_manager_bp)
 
 class Program(Resource):
     @jwt_required()
-    @role_required("user")
+    @role_required("operator")
     def get(self, program_id):
         return jsonify(current_app.programs_mgr.load_programs())
 
@@ -107,7 +107,7 @@ class ProgramsManager:
             error_codes = [{"status": "failed", "file": program['path'], "error": str(err)}]
             return error_codes
         program['hex'] = result[0][0:result[1]]
-        self.data_store.add_program(program_id, program)
+        self.data_store.edit_program(program)
         error_codes = [{"status": "passed", "file": program['path'], "error": None}]
         return error_codes
 
