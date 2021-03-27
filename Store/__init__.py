@@ -4,9 +4,9 @@ from .SettingsStore import SettingsStore
 
 
 class Store:
-    def __init__(self):
+    def __init__(self, clear_settings=True):
         self.Auth = AuthStore()
-        self.Settings = SettingsStore()
+        self.Settings = SettingsStore(clear_settings=clear_settings)
         self.Elements = ElementsDataStore()
 
     def dump(self):

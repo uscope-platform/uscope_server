@@ -5,7 +5,7 @@ from .Elements import Settings
 
 
 class SettingsStore:
-    def __init__(self, host=None):
+    def __init__(self, host=None, clear_settings=True):
         if host:
             self.engine = create_engine("postgresql+psycopg2://uscope:test@" + host + "/uscope")
         else:
@@ -15,20 +15,21 @@ class SettingsStore:
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
         self.settings_db = Settings.SettingsDatabase(self.Session)
-
-        self.clear_settings()
+        if clear_settings:
+            self.clear_settings()
 
     def get_value(self, name, username):
         if not username:
             raise RuntimeError("The username is needed to retrive a setting")
-        return self.settings_db.get_value(name, "filssavi")
+        return self.settings_db.get_value(name, username)
 
     def set_value(self, name, value, username):
         if not username:
             raise RuntimeError("The username is needed to store a setting")
-        self.settings_db.set_value(name, value, "filssavi")
+        self.settings_db.set_value(name, value, username)
 
     def clear_settings(self):
+        print("CLEARED SETTINGS")
         self.settings_db.clear_settings()
 
     def dump(self):
