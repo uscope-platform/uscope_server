@@ -2,6 +2,7 @@ from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from . import role_required
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -16,10 +17,12 @@ api = Api(registers_manager_bp)
 
 class RegisterValue(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self):
         pass
 
     @jwt_required()
+    @role_required("operator")
     def post(self, peripheral):
         registers_to_write = request.get_json(force=True)
         user = get_jwt_identity()
@@ -29,29 +32,34 @@ class RegisterValue(Resource):
 
 class RegisterDescriptions(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self, peripheral):
         user = get_jwt_identity()
         return jsonify(current_app.register_mgr.get_registers_descriptions(peripheral,user))
 
     @jwt_required()
+    @role_required("operator")
     def post(self):
         pass
 
 
 class PeripheralsSpecs(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self):
         return jsonify(current_app.register_mgr.get_all_peripherals())
 
 
 class PeripheralsDigest(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self):
         return current_app.register_mgr.get_peripherals_digest()
 
 
 class RegistersBulkWrite(Resource):
     @jwt_required()
+    @role_required("operator")
     def post(self):
         registers_to_write = request.get_json(force=True)
         current_app.register_mgr.bulk_write(registers_to_write['payload'])

@@ -2,6 +2,9 @@ from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 import fCore_compiler
+
+from . import role_required
+
 ############################################################
 #                      BLUEPRINT                           #
 ############################################################
@@ -15,22 +18,26 @@ api = Api(programs_manager_bp)
 
 class Program(Resource):
     @jwt_required()
+    @role_required("user")
     def get(self, program_id):
         return jsonify(current_app.programs_mgr.load_programs())
 
     @jwt_required()
+    @role_required("user")
     def post(self, program_id):
         content = request.get_json()
         current_app.programs_mgr.upload_program(content)
         return '200'
 
     @jwt_required()
+    @role_required("user")
     def patch(self, program_id):
         edit = request.get_json()
         current_app.programs_mgr.edit_program(edit)
         return '200'
 
     @jwt_required()
+    @role_required("user")
     def delete(self, program_id):
         current_app.programs_mgr.remove_program(program_id)
         return '200'
@@ -38,6 +45,7 @@ class Program(Resource):
 
 class ProgramApply(Resource):
     @jwt_required()
+    @role_required("operator")
     def post(self, program_id):
         content = request.get_json()
         return current_app.programs_mgr.apply_program(program_id, content['core_address'])
@@ -45,12 +53,14 @@ class ProgramApply(Resource):
 
 class ProgramHash(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self):
         return current_app.programs_mgr.get_hash()
 
 
 class ProgramCompile(Resource):
     @jwt_required()
+    @role_required("user")
     def get(self, program_id):
         return jsonify(current_app.programs_mgr.compile_program(program_id))
 

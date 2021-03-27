@@ -2,7 +2,8 @@ from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 
-import json
+from . import role_required
+
 ############################################################
 #                      BLUEPRINT                           #
 ############################################################
@@ -15,23 +16,28 @@ api = Api(scripts_manager_bp)
 
 
 class Script(Resource):
+
     @jwt_required()
+    @role_required("operator")
     def get(self, script_id):
         return jsonify(current_app.script_mgr.load_scripts())
 
     @jwt_required()
+    @role_required("user")
     def post(self, script_id):
         content = request.get_json()
         current_app.script_mgr.upload_script(content)
         return '200'
 
     @jwt_required()
+    @role_required("user")
     def patch(self, script_id):
         edit = request.get_json()
         current_app.script_mgr.edit_script(edit)
         return '200'
 
     @jwt_required()
+    @role_required("user")
     def delete(self, script_id):
         current_app.script_mgr.delete_script(script_id)
         return '200'
@@ -39,6 +45,7 @@ class Script(Resource):
 
 class ScriptsHash(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self):
         return current_app.script_mgr.get_hash()
 

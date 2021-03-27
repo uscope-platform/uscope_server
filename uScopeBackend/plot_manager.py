@@ -2,6 +2,8 @@ from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from . import role_required
+
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
@@ -14,6 +16,7 @@ api = Api(plot_manager_bp)
 
 class ChannelsSpecs(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self):
         user = get_jwt_identity()
         return jsonify(current_app.plot_mgr.get_channels_specs(user))
@@ -21,6 +24,7 @@ class ChannelsSpecs(Resource):
 
 class ChannelParams(Resource):
     @jwt_required()
+    @role_required("operator")
     def post(self):
         message = request.get_json(force=True)
         user = get_jwt_identity()
@@ -30,6 +34,7 @@ class ChannelParams(Resource):
 
 class ChannelsData(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self):
         user = get_jwt_identity()
         return jsonify(current_app.plot_mgr.get_data(user))
@@ -37,11 +42,13 @@ class ChannelsData(Resource):
 
 class SetupCapture(Resource):
     @jwt_required()
+    @role_required("operator")
     def get(self):
         data = jsonify(current_app.plot_mgr.get_capture_data())
         return data
 
     @jwt_required()
+    @role_required("operator")
     def post(self):
         parameters = request.get_json(force=True)
         current_app.plot_mgr.setup_capture(parameters)
@@ -50,6 +57,7 @@ class SetupCapture(Resource):
 
 class ChannelStatus(Resource):
     @jwt_required()
+    @role_required("operator")
     def post(self):
         statuses = request.get_json(force=True)
         user = get_jwt_identity()
@@ -58,6 +66,7 @@ class ChannelStatus(Resource):
 
 class ChannelWidths(Resource):
     @jwt_required()
+    @role_required("operator")
     def post(self):
         widths = request.get_json(force=True)
         return current_app.plot_mgr.set_channel_widths(widths)

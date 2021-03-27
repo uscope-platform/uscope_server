@@ -2,6 +2,9 @@ from flask import current_app, Blueprint, Response, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 import json
+
+from . import role_required
+
 ############################################################
 #                      BLUEPRINT                           #
 ############################################################
@@ -14,7 +17,9 @@ api = Api(database_manager_bp)
 
 
 class DatabaseExport(Resource):
+
     @jwt_required()
+    @role_required("admin")
     def get(self):
         database = current_app.db_mgr.db_export()
         response = Response(json.dumps(database), mimetype='application/json',
@@ -23,7 +28,9 @@ class DatabaseExport(Resource):
 
 
 class DatabaseImport(Resource):
+
     @jwt_required()
+    @role_required("admin")
     def post(self):
         db_file = request.get_json()
         current_app.db_mgr.db_import(db_file)

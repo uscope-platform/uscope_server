@@ -2,6 +2,7 @@ from flask import current_app, Blueprint, request
 from flask_restful import Api, Resource
 from passlib.context import CryptContext
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+
 import secrets
 import hashlib
 import time
@@ -42,12 +43,15 @@ class User(Resource):
         user = get_jwt_identity()
         return current_app.auth_mgr.get_users_list(user)
 
+    @jwt_required()
+    @role_required("admin")
     def post(self):
         content = request.get_json()
         current_app.auth_mgr.create_user(content)
         return '200'
 
     @jwt_required()
+    @role_required("admin")
     def delete(self):
         content = request.get_json()
         return current_app.auth_mgr.remove_user(content)
