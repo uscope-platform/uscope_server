@@ -1,8 +1,6 @@
 pytest~=5.3.5
-redis~=3.5.0
 flask~=1.0
 passlib~=1.7.2
-numpy~=1.18.1
 sqlitedict~=1.6.0
 flask_cors
 flask_jwt_extended

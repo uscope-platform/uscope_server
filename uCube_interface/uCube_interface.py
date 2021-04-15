@@ -1,9 +1,6 @@
-import numpy as np
 import socket
 import struct
-import time
 
-channel_0_data = np.zeros(50000)
 channel_data_raw = []
 
 C_NULL_COMMAND = '0'

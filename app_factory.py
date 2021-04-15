@@ -28,10 +28,8 @@ class PrefixMiddleware(object):
 
 def create_app(debug=True):
     if os.environ.get('USCOPE_DEPLOYMENT_OPTION') == 'DOCKER':
-        redis_host = 'redis'
         driver_host = 'driver'
     else:
-        redis_host = '0.0.0.0'
         driver_host = '0.0.0.0'
 
     app = Flask(__name__, instance_relative_config=True)
