@@ -11,7 +11,6 @@ class Users(Base):
     pw_hash = Column(String)
     role = Column(String)
     tokens = relationship("LoginTokens")
-    settings = relationship("Settings")
 
     def __repr__(self):
         return "<User(username='%s', role='%s', pw_hash='%s')>" % (

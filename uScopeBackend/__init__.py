@@ -9,7 +9,7 @@ def role_required(required_role):
         def wrapper(*args, **kwargs):
             roles_equivalence = {"admin": 1, "user": 2, "operator": 3}
             user = get_jwt_identity()
-            store = Store(clear_settings=False)
+            store = Store(clear_settings=False, update_ude_versions_on_init=False)
             user = store.Auth.get_user(user)
             user_role = roles_equivalence[user['role']]
             max_role = roles_equivalence[required_role]

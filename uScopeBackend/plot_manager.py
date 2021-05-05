@@ -34,7 +34,6 @@ class ChannelParams(Resource):
 
 class ChannelsData(Resource):
     @jwt_required()
-    @role_required("operator")
     def get(self):
         user = get_jwt_identity()
         return jsonify(current_app.plot_mgr.get_data(user))

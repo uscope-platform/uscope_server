@@ -8,7 +8,7 @@ from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElem
 
 class ElementsDataStore:
 
-    def __init__(self, host=None):
+    def __init__(self, host=None, update_ude_versions_on_init=True):
         if host:
             self.engine = create_engine("postgresql+psycopg2://uscope:test@" + host + "/uscope")
         else:
@@ -22,10 +22,11 @@ class ElementsDataStore:
         self.ude = UserDataElement.UserDataElement(self.Session)
 
         # UPDATE VERSIONS
-        self.ude.update_version(Applications.Applications)
-        self.ude.update_version(Scripts.Scripts)
-        self.ude.update_version(Programs.Programs)
-        self.ude.update_version(Peripherals.Peripherals)
+        if update_ude_versions_on_init:
+            self.ude.update_version(Applications.Applications)
+            self.ude.update_version(Scripts.Scripts)
+            self.ude.update_version(Programs.Programs)
+            self.ude.update_version(Peripherals.Peripherals)
 
     # APPLICATIONS
 

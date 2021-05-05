@@ -4,10 +4,10 @@ from .SettingsStore import SettingsStore
 
 
 class Store:
-    def __init__(self, clear_settings=True):
+    def __init__(self, clear_settings=True, update_ude_versions_on_init=True):
         self.Auth = AuthStore()
         self.Settings = SettingsStore(clear_settings=clear_settings)
-        self.Elements = ElementsDataStore()
+        self.Elements = ElementsDataStore(update_ude_versions_on_init=update_ude_versions_on_init)
 
     def dump(self):
         dump = {'auth': self.Auth.dump(), 'elements': self.Elements.dump(), 'settings': self.Settings.dump()}
