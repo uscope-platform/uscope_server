@@ -21,8 +21,8 @@ class Versions(Base):
 
 class UserDataElement:
 
-    def __init__(self, sesssion):
-        self.Session = sesssion
+    def __init__(self, session):
+        self.Session = session
 
     def get_row(self, table, filter_name, filter_value):
         with self.Session() as session:
@@ -35,50 +35,44 @@ class UserDataElement:
             raise KeyError('Element Not Found')
 
     def get_elements_dict(self, table, creator_func, key):
-        with self.Session() as session:
-            with session.begin():
-                result = session.query(table).all()
-                scripts = {}
-                for row in result:
-                    scripts[getattr(row, key)] = creator_func(row)
+        with self.Session.begin() as session:
+            result = session.query(table).all()
+            scripts = {}
+            for row in result:
+                scripts[getattr(row, key)] = creator_func(row)
         return scripts
 
     def add_element(self, item, table):
-        with self.Session() as session:
-            with session.begin():
-                session.add(item)
-                self.update_version(table)
+        with self.Session.begin() as session:
+            session.add(item)
+            self.update_version(table)
 
     def remove_element(self, table, filter_name, filter_value):
         element = self.get_row(table, filter_name, filter_value)
         if element:
-            with self.Session() as session:
-                with session.begin():
-                    session.delete(element)
-                    self.update_version(table)
+            self.update_version(table)
+            with self.Session.begin() as session:
+                session.delete(element)
 
     def update_version(self, table):
-        with self.Session() as session:
-            with session.begin():
-                version = session.query(Versions).filter_by(table=table.VersionTableName).first()
-                if version:
-                    version.version = uuid.uuid4()
-                    version.last_modified = datetime.datetime.now()
-                else:
-                    item = Versions(table=table.VersionTableName, version=uuid.uuid4(), last_modified=datetime.datetime.now())
-                    session.add(item)
+        with self.Session.begin() as session:
+            version = session.query(Versions).filter_by(table=table.VersionTableName).first()
+            if version:
+                version.version = uuid.uuid4()
+                version.last_modified = datetime.datetime.now()
+            else:
+                item = Versions(table=table.VersionTableName, version=uuid.uuid4(), last_modified=datetime.datetime.now())
+                session.add(item)
 
     def get_version(self, table):
-        with self.Session() as session:
-            with session.begin():
-                version = session.query(Versions).filter_by(table=table.VersionTableName).first()
-                return version.version
+        with self.Session.begin() as session:
+            version = session.query(Versions).filter_by(table=table.VersionTableName).first()
+            return version.version
 
     def dump(self, table, creator_func):
-        with self.Session() as session:
-            with session.begin():
-                result = session.query(table).all()
-                dump = []
-                for row in result:
-                    dump.append(creator_func(row))
+        with self.Session.begin() as session:
+            result = session.query(table).all()
+            dump = []
+            for row in result:
+                dump.append(creator_func(row))
         return dump

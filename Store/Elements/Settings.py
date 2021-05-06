@@ -20,30 +20,26 @@ class SettingsDatabase:
         self.Session = session
 
     def get_value(self, name, user):
-        with self.Session() as session:
-            with session.begin():
-                res = session.query(Settings).filter_by(name=name, user=user).first()
-                return res.value
+        with self.Session.begin() as session:
+            res = session.query(Settings).filter_by(name=name, user=user).first()
+            return res.value
 
     def set_value(self, name, value, user):
 
         item = Settings(name=name, value=value, user=user)
-        with self.Session() as session:
-            with session.begin():
-                setting = session.query(Settings).filter_by(name=name, user=user).first()
-                if setting:
-                    setting.value = value
-                else:
-                    session.add(item)
+        with self.Session.begin() as session:
+            setting = session.query(Settings).filter_by(name=name, user=user).first()
+            if setting:
+                setting.value = value
+            else:
+                session.add(item)
 
     def clear_settings(self):
-        with self.Session() as session:
-            with session.begin():
-                session.query(Settings).delete()
+        with self.Session.begin() as session:
+            session.query(Settings).delete()
 
     def dump(self):
         return []
 
-
-    def restore(self,data):
+    def restore(self, data):
         pass
