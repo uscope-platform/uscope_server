@@ -1,8 +1,10 @@
-pytest~=5.3.5
-flask~=1.0
-passlib~=1.7.2
-sqlitedict~=1.6.0
-flask_cors
-flask_jwt_extended
 flask_restful
+flask_cors
+flask
+passlib
 argon2_cffi
+flask_jwt_extended
+sqlitedict
+gunicorn
+sqlalchemy
+redis
