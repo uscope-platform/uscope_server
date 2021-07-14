@@ -13,8 +13,7 @@ class CompilerBridge:
         n = text_file.write(file_content)
         text_file.close()
 
-
-        subprocess.run(['fCore_has', '--json', '--o', fCore_has_output, fCore_has_input])
+        subprocess.run(['fCore_has', '--json', '--o', fCore_has_output, '--f' ,fCore_has_input])
 
         with open(fCore_has_output) as json_file:
             out = json.load(json_file)
