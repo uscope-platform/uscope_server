@@ -3,8 +3,8 @@ import json
 
 
 class SettingsStore:
-    def __init__(self, clear_settings=True):
-        self.redis = redis.Redis(host='redis', port=6379, db=0)
+    def __init__(self, clear_settings=True, host='redis'):
+        self.redis = redis.Redis(host=host, port=6379, db=0)
         if clear_settings:
             self.clear_settings()
 

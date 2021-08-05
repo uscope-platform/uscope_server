@@ -49,7 +49,10 @@ def create_app(debug=True):
 
     interface = uCube_interface.uCube_interface(driver_host, 6666)
 
-    store = Store()
+    if debug:
+        store = Store(host="0.0.0.0")
+    else:
+        store = Store()
 
     with app.app_context():
 

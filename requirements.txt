@@ -8,3 +8,4 @@ sqlitedict
 gunicorn
 sqlalchemy
 redis
+psycopg2
