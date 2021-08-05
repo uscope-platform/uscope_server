@@ -10,7 +10,6 @@ class Programs(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    path = Column(String)
     content = Column(String)
     type = Column(String)
     hex = Column(postgresql.ARRAY(BigInteger))
@@ -21,5 +20,5 @@ class Programs(Base):
 
 
 def program_from_row(row):
-    return {'id': row.id, 'name': row.name, 'path': row.path, 'program_content': row.content,
+    return {'id': row.id, 'name': row.name, 'program_content': row.content,
             'program_type': row.type, 'hex': row.hex}

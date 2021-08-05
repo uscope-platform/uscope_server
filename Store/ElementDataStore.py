@@ -94,8 +94,7 @@ class ElementsDataStore:
             hex_field = []
 
         item = Programs.Programs(id=program["id"], name=program['name'],
-                                 content=program['program_content'], path=program['path'],
-                                 type=program['program_type'], hex=hex_field)
+                                 content=program['program_content'], type=program['program_type'], hex=hex_field)
 
         self.ude.add_element(item, Programs.Programs)
 
