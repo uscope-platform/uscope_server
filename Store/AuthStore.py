@@ -7,11 +7,8 @@ from .Elements import Users
 
 
 class AuthStore:
-    def __init__(self, host=None):
-        if host:
-            self.engine = create_engine("postgresql+psycopg2://uscope:test@" + host + "/uscope")
-        else:
-            self.engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
+    def __init__(self, host):
+        self.engine = create_engine(host)
 
         Base = declarative_base()
         Base.metadata.create_all(self.engine)

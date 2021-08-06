@@ -2,16 +2,23 @@ from .ElementDataStore import ElementsDataStore
 from .AuthStore import AuthStore
 from .SettingsStore import SettingsStore
 
+import os
 
 class Store:
-    def __init__(self, clear_settings=True, update_ude_versions_on_init=True, host=None):
-        self.Auth = AuthStore(host)
-        if host:
-            self.Settings = SettingsStore(clear_settings=clear_settings,host=host)
-        else:
-            self.Settings = SettingsStore(clear_settings=clear_settings)
+    def __init__(self, clear_settings=True, update_ude_versions_on_init=True):
 
-        self.Elements = ElementsDataStore(update_ude_versions_on_init=update_ude_versions_on_init,host=host)
+        debug_config = os.environ.get("DEBUG")
+        if debug_config == "TRUE":
+            redis_host="localhost"
+            pg_host="postgresql+psycopg2://uscope:test@localhost/uscope"
+        else:
+            redis_host="redis"
+            pg_host="postgresql+psycopg2://uscope:test@database/uscope"
+
+        self.Settings = SettingsStore(clear_settings=clear_settings, host=redis_host)
+
+        self.Auth = AuthStore(pg_host)
+        self.Elements = ElementsDataStore(update_ude_versions_on_init=update_ude_versions_on_init,host=pg_host)
 
     def dump(self):
         dump = {'auth': self.Auth.dump(), 'elements': self.Elements.dump(), 'settings': self.Settings.dump()}

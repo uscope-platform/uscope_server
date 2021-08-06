@@ -35,10 +35,12 @@ def create_app(debug=True):
     app = Flask(__name__, instance_relative_config=True)
     app.config['SECRET_KEY'] = 'uScope-CORS-key'
     app.config['CORS_HEADERS'] = 'Content-Type'
-    app.config['JWT_SECRET_KEY'] = 'uScope-JWT-key'  # Change this!
+    app.config['JWT_SECRET_KEY'] = 'uScope-JWT-key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://uscope:test@database/uscope'
     jwt = JWTManager(app)
-    CORS(app)
+
+    if(debug):
+        CORS(app)
 
     logging.getLogger('werkzeug').setLevel(logging.WARNING)
     logging.basicConfig(level=logging.WARNING)
@@ -49,13 +51,9 @@ def create_app(debug=True):
 
     interface = uCube_interface.uCube_interface(driver_host, 6666)
 
-    if debug:
-        store = Store(host="0.0.0.0")
-    else:
-        store = Store()
+    store = Store()
 
     with app.app_context():
-
         # Include our Routes
         from uScopeBackend.application_manager import application_manager_bp, ApplicationManager
         from uScopeBackend.plot_manager import plot_manager_bp, PlotManager
@@ -67,6 +65,7 @@ def create_app(debug=True):
         from uScopeBackend.auth_manager import auth_manager_bp, AuthManager
 
         app.interface = interface
+
         app.app_mgr = ApplicationManager(interface, store)
         app.plot_mgr = PlotManager(interface, store, debug)
         app.register_mgr = RegistersManager(interface, store)
@@ -85,4 +84,5 @@ def create_app(debug=True):
         app.register_blueprint(scripts_manager_bp)
         app.register_blueprint(database_manager_bp)
         app.register_blueprint(auth_manager_bp)
+
     return app

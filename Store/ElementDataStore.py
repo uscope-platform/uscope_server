@@ -8,11 +8,9 @@ from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElem
 
 class ElementsDataStore:
 
-    def __init__(self, host=None, update_ude_versions_on_init=True):
-        if host:
-            self.engine = create_engine("postgresql+psycopg2://uscope:test@" + host + "/uscope")
-        else:
-            self.engine = create_engine("postgresql+psycopg2://uscope:test@database/uscope")
+    def __init__(self, host, update_ude_versions_on_init=True):
+
+        self.engine = create_engine(host)
 
         Base = declarative_base()
 
