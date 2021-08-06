@@ -102,13 +102,13 @@ class ProgramsManager:
     def compile_program(self, program_id):
         program = self.data_store.get_program(program_id)
         try:
-            result = self.bridge.compile(program['program_content'])
+            result = self.bridge.compile(program['program_content'], program['program_type'])
         except ValueError as err:
-            error_codes = [{"status": "failed", "file": program['path'], "error": str(err)}]
+            error_codes = [{"status": "failed", "file": program['name'], "error": str(err)}]
             return error_codes
         program['hex'] = result[0][0:result[1]]
         self.data_store.edit_program(program)
-        error_codes = [{"status": "passed", "file": program['path'], "error": None}]
+        error_codes = [{"status": "passed", "file": program['name'], "error": None}]
         return error_codes
 
     def apply_program(self, program_id, core_address):
