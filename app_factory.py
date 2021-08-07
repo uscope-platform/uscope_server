@@ -63,6 +63,7 @@ def create_app(debug=True):
         from uScopeBackend.programs_manager import programs_manager_bp, ProgramsManager
         from uScopeBackend.db_manager import database_manager_bp, DatabaseManager
         from uScopeBackend.auth_manager import auth_manager_bp, AuthManager
+        from uScopeBackend.bitstream_manager import bitstream_manager_bp, BitstreamManager
 
         app.interface = interface
 
@@ -74,6 +75,7 @@ def create_app(debug=True):
         app.script_mgr = ScriptManager(store)
         app.db_mgr = DatabaseManager(store)
         app.auth_mgr = AuthManager(store)
+        app.bitstream_mgr = BitstreamManager(store, debug)
 
         # Register Blueprints
         app.register_blueprint(application_manager_bp)
@@ -84,5 +86,6 @@ def create_app(debug=True):
         app.register_blueprint(scripts_manager_bp)
         app.register_blueprint(database_manager_bp)
         app.register_blueprint(auth_manager_bp)
+        app.register_blueprint(bitstream_manager_bp)
 
     return app

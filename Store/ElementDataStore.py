@@ -3,7 +3,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 from sqlalchemy import create_engine
 
-from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElement
+from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElement, Bitstreams
 
 
 class ElementsDataStore:
@@ -25,6 +25,7 @@ class ElementsDataStore:
             self.ude.update_version(Scripts.Scripts)
             self.ude.update_version(Programs.Programs)
             self.ude.update_version(Peripherals.Peripherals)
+            self.ude.update_version(Bitstreams.Bitstreams)
 
     # APPLICATIONS
 
@@ -138,11 +139,35 @@ class ElementsDataStore:
     def get_program_hash(self):
         return str(self.ude.get_version(Programs.Programs))
 
+    def get_bitstreams_hash(self):
+        return str(self.ude.get_version(Bitstreams.Bitstreams))
+
+    # BITSTREAMS
+
+    def get_bitstreams_dict(self):
+        return self.ude.get_elements_dict(Bitstreams.Bitstreams, Bitstreams.bitstream_from_row,  'id')
+
+    def get_bitstream(self, id):
+        return self.ude.get_element(Bitstreams.Bitstreams, "id", id, Bitstreams.bitstream_from_row)
+
+    def add_bitstream(self, bitstream: dict):
+        item = Bitstreams.Bitstreams(id=bitstream['id'], path=bitstream['path'])
+        self.ude.add_element(item, Bitstreams.Bitstreams)
+
+    def edit_bitstream(self, bitstream):
+        self.remove_bitstream(bitstream["id"])
+        self.add_bitstream(bitstream)
+
+    def remove_bitstream(self, bitstream_id):
+        self.ude.remove_element(Bitstreams.Bitstreams, 'id', bitstream_id)
+
+
     def dump(self):
         dump = {'applications': self.ude.dump(Applications.Applications, Applications.application_from_row),
                 'peripherals': self.ude.dump(Peripherals.Peripherals, Peripherals.peripheral_from_row),
                 'scripts': self.ude.dump(Scripts.Scripts, Scripts.script_from_row),
-                'programs': self.ude.dump(Programs.Programs, Programs.program_from_row)
+                'programs': self.ude.dump(Programs.Programs, Programs.program_from_row),
+                'bitstreams': self.ude.dump(Bitstreams.Bitstreams, Bitstreams.bitstream_from_row)
                 }
         return dump
 
