@@ -2,6 +2,9 @@ from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+import base64
+import os
+
 from . import role_required
 
 ############################################################
@@ -84,15 +87,33 @@ class BitstreamManager:
         return name
 
     def add_bitstream(self, raw_bitstream_obj:dict):
-        bitstream_path = self.name_to_path(raw_bitstream_obj["bitstream_name"])
+        content = base64.b64decode(raw_bitstream_obj['content'])
+        bitstream_path = self.name_to_path(raw_bitstream_obj["name"])
+
+        if not self.debug:
+            with open(bitstream_path, "wb") as f:
+                f.write(content)
+
         bitstream_obj = {'id':raw_bitstream_obj['id'], 'path':bitstream_path}
         self.data_store.add_bitstream(bitstream_obj)
 
     def edit_bitstream(self, edit_obj):
         field = edit_obj['field']
         bitstream = self.data_store.get_bitstream(edit_obj['id'])
-        if field['name'] == 'bitstream_name':
-            bitstream['path'] = self.name_to_path(field['value'])
+        if field['name'] == 'name':
+            new_path = self.name_to_path(field['value'])
+            if not self.debug:
+                os.replace(bitstream['path'], new_path)
+
+            bitstream['path'] = new_path
+
+        elif field['name'] == 'file_content':
+            content = base64.b64decode(field['value'])
+            if not self.debug:
+                with open(bitstream['path'], "wb") as f:
+                    f.write(content)
+            return
+
         self.data_store.edit_bitstream(bitstream)
 
     def delete_bitstream(self, bitstream_id):
