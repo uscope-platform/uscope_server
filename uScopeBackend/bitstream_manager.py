@@ -69,10 +69,19 @@ class BitstreamManager:
         return self.data_store.get_bitstreams_hash()
 
     def load_bitstreams(self):
-        return self.data_store.get_bitstreams_dict()
+        bitstreams_dict = self.data_store.get_bitstreams_dict()
+        for i in bitstreams_dict:
+            bitstreams_dict[i]['name'] = self.path_to_name(bitstreams_dict[i]['path'])
+            del bitstreams_dict[i]['path']
+        return bitstreams_dict
 
     def name_to_path(self, name:str):
         return  f'/lib/firmware/{name}.bin'
+
+    def path_to_name(self, path:str):
+        name = path.replace('.bin', '')
+        name = name.replace('/lib/firmware/', '')
+        return name
 
     def add_bitstream(self, raw_bitstream_obj:dict):
         bitstream_path = self.name_to_path(raw_bitstream_obj["bitstream_name"])
