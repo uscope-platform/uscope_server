@@ -93,7 +93,7 @@ class BitstreamManager:
         bitstream_path = self.name_to_path(raw_bitstream_obj["name"])
 
         if not self.debug:
-            with open(bitstream_path, "wb") as f:
+            with open(bitstream_path, "wb+") as f:
                 f.write(content)
 
         bitstream_obj = {'id':raw_bitstream_obj['id'], 'path':bitstream_path}
@@ -112,11 +112,13 @@ class BitstreamManager:
         elif field['name'] == 'file_content':
             content = base64.b64decode(field['value'])
             if not self.debug:
-                with open(bitstream['path'], "wb") as f:
+                with open(bitstream['path'], "wb+") as f:
                     f.write(content)
             return
 
         self.data_store.edit_bitstream(bitstream)
 
     def delete_bitstream(self, bitstream_id):
+        bitstream = self.data_store.get_bitstream(bitstream_id)
+        os.remove(bitstream['path'])
         self.data_store.remove_bitstream(bitstream_id)

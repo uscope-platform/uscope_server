@@ -75,5 +75,5 @@ class DatabaseManager:
 
     def restore_bitstreams(self, dump):
         for i in dump:
-            with open(i, mode='wb') as file:
+            with open(i, mode='wb+') as file:
                 file.write(dump[i])
