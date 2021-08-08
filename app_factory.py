@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 import logging
+import toml
 import os
 
 from uCube_interface import uCube_interface
@@ -32,11 +33,9 @@ def create_app(debug=True):
     else:
         driver_host = '0.0.0.0'
 
-    app = Flask(__name__, instance_relative_config=True)
-    app.config['SECRET_KEY'] = 'uScope-CORS-key'
-    app.config['CORS_HEADERS'] = 'Content-Type'
-    app.config['JWT_SECRET_KEY'] = 'uScope-JWT-key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://uscope:test@database/uscope'
+    app = Flask(__name__)
+    app.config.from_file("flask.cfg", load=toml.load)
+
     jwt = JWTManager(app)
 
     if(debug):

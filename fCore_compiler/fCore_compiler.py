@@ -6,9 +6,9 @@ class CompilerBridge:
 
     def compile(self, file_content: str, file_type:str):
         tool = ''
-        if file_type is 'asm':
+        if file_type == 'asm':
             tool = 'fCore_has'
-        elif file_type is 'C':
+        elif file_type == 'C':
             tool = 'fCore_cc'
 
         fCore_has_input = '/tmp/fCore_toolchain_in.c'
