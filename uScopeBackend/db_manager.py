@@ -3,6 +3,7 @@ from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 import json
 import os
+import base64
 
 from . import role_required
 
@@ -69,11 +70,13 @@ class DatabaseManager:
             for i in bitstreams_dict:
                 path = bitstreams_dict[i]['path']
                 with open(path, mode='rb') as file:
-                    bitstreams_dump[path] = file.read()
+                    b64_bytes = base64.b64encode(file.read())
+                    bitstreams_dump[path] = b64_bytes.decode('utf-8')
 
         return bitstreams_dump
 
     def restore_bitstreams(self, dump):
         for i in dump:
             with open(i, mode='wb+') as file:
-                file.write(dump[i])
+                encoded_bytes = dump[i].encode('utf-8')
+                file.write(base64.b64decode(encoded_bytes))
