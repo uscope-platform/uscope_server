@@ -63,7 +63,7 @@ class DatabaseManager:
     def export_bitstreams(self):
         bitstreams_dict = {}
         debug_config = os.environ.get("DEBUG")
-        if debug_config == "TRUE":
+        if debug_config != "TRUE":
             bitstreams_dict = self.store.Elements.get_bitstreams_dict()
             bitstreams_dump = {}
             for i in bitstreams_dict:
@@ -71,7 +71,7 @@ class DatabaseManager:
                 with open(path, mode='rb') as file:
                     bitstreams_dump[path] = file.read()
 
-        return bitstreams_dict
+        return bitstreams_dump
 
     def restore_bitstreams(self, dump):
         for i in dump:
