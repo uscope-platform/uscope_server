@@ -63,8 +63,10 @@ api.add_resource(Bitstream, '/<string:bitstream_id>')
 
 class BitstreamManager:
 
-    def __init__(self, store, debug):
-        self.debug = debug
+    def __init__(self, store):
+        debug_config = os.environ.get("DEBUG")
+        self.debug = debug_config == "TRUE"
+
         self.data_store = store.Elements
         self.settings_store = store.Settings
 

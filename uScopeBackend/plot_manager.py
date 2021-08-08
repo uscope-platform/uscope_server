@@ -85,9 +85,8 @@ api.add_resource(ChannelWidths, '/channels/widths')
 
 class PlotManager:
 
-    def __init__(self, low_level_interface, store, debug):
+    def __init__(self, low_level_interface, store):
         self.interface = low_level_interface
-        self.debug = debug
         self.data_store = store.Elements
         self.settings_store = store.Settings
         self.data_points_per_channel = 1024

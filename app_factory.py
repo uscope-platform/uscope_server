@@ -26,7 +26,7 @@ class PrefixMiddleware(object):
             return ["This url does not belong to the app.".encode()]
 
 
-def create_app(debug=True):
+def create_app():
     if os.environ.get('USCOPE_DEPLOYMENT_OPTION') == 'DOCKER':
         driver_host = 'driver'
     else:
@@ -37,15 +37,15 @@ def create_app(debug=True):
 
     jwt = JWTManager(app)
 
-    if(debug):
+    if os.environ.get("DEBUG") == "TRUE":
         CORS(app)
 
     logging.getLogger('werkzeug').setLevel(logging.WARNING)
     logging.basicConfig(level=logging.WARNING)
     logging.getLogger("sqlitedict").setLevel(logging.WARNING)
 
-    if debug:
-        app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/uscope')
+
+    app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/uscope')
 
     interface = uCube_interface.uCube_interface(driver_host, 6666)
 
@@ -66,14 +66,14 @@ def create_app(debug=True):
         app.interface = interface
 
         app.app_mgr = ApplicationManager(interface, store)
-        app.plot_mgr = PlotManager(interface, store, debug)
+        app.plot_mgr = PlotManager(interface, store)
         app.register_mgr = RegistersManager(interface, store)
         app.programs_mgr = ProgramsManager(interface, store)
         app.tab_creator_mgr = TabCreatorManager(store)
         app.script_mgr = ScriptManager(store)
         app.db_mgr = DatabaseManager(store)
         app.auth_mgr = AuthManager(store)
-        app.bitstream_mgr = BitstreamManager(store, debug)
+        app.bitstream_mgr = BitstreamManager(store)
 
         # Register Blueprints
         app.register_blueprint(application_manager_bp)

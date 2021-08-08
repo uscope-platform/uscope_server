@@ -1,4 +1,4 @@
 from app_factory import create_app
 
-app = create_app(debug=True)
+app = create_app()
 
