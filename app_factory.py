@@ -34,7 +34,7 @@ def create_app(debug=True):
         driver_host = '0.0.0.0'
 
     app = Flask(__name__)
-    app.config.from_file("flask.cfg", load=toml.load)
+    app.config.from_object("server_config")
 
     jwt = JWTManager(app)
 
