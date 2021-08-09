@@ -60,6 +60,7 @@ class UserDataElement:
             if version:
                 version.version = uuid.uuid4()
                 version.last_modified = datetime.datetime.now()
+                session.commit()
             else:
                 item = Versions(table=table.VersionTableName, version=uuid.uuid4(), last_modified=datetime.datetime.now())
                 session.add(item)

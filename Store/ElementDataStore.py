@@ -188,3 +188,7 @@ class ElementsDataStore:
         for prog in data['programs']:
             self.remove_program(prog['id'])
             self.add_program(prog)
+
+        for bitstream in data['bitstreams']:
+            self.remove_bitstream(bitstream['id'])
+            self.add_bitstream(bitstream)
