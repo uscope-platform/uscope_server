@@ -15,10 +15,10 @@ class Store:
             redis_host="redis"
             pg_host="postgresql+psycopg2://uscope:test@database/uscope"
 
-
         self.Settings = SettingsStore(clear_settings=clear_settings, host=redis_host)
+
         pg_available = False
-        pg_start_tries_left = 150
+        pg_start_tries_left = 300
         while not pg_available:
             try:
                 self.Auth = AuthStore(pg_host)
@@ -27,11 +27,9 @@ class Store:
                 if pg_start_tries_left == 0:
                     raise RuntimeError("ERROR: Could not connect to the postgres database")
                 pg_start_tries_left -= 1
-                time.sleep(0.1)
+                time.sleep(0.8)
             else:
                 pg_available = True
-
-
 
     def dump(self):
         dump = {'auth': self.Auth.dump(), 'elements': self.Elements.dump(), 'settings': self.Settings.dump()}
