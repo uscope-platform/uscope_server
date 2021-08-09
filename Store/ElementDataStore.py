@@ -161,7 +161,6 @@ class ElementsDataStore:
     def remove_bitstream(self, bitstream_id):
         self.ude.remove_element(Bitstreams.Bitstreams, 'id', bitstream_id)
 
-
     def dump(self):
         dump = {'applications': self.ude.dump(Applications.Applications, Applications.application_from_row),
                 'peripherals': self.ude.dump(Peripherals.Peripherals, Peripherals.peripheral_from_row),
