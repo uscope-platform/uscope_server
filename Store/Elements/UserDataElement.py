@@ -62,12 +62,7 @@ class UserDataElement:
             session.add(item)
 
     def remove_version(self, table):
-        ver = self.get_version(table)
-        print("--------------------------")
-        print("--------------------------")
-        print(ver)
-        print("--------------------------")
-        print("--------------------------")
+        ver = self.__get_version(table)
         if ver:
             with self.Session.begin() as session:
                 session.delete(ver)
@@ -79,6 +74,11 @@ class UserDataElement:
             self.add_version(table)
         finally:
             version_update_lock.release()
+
+    def __get_version(self, table):
+        with self.Session.begin() as session:
+            version = session.query(Versions).filter_by(table=table.VersionTableName).first()
+            return version
 
     def get_version(self, table):
         with self.Session.begin() as session:
