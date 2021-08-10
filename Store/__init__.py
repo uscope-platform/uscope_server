@@ -4,6 +4,8 @@ from .SettingsStore import SettingsStore
 from sqlalchemy.exc import OperationalError
 import os
 import time
+
+
 class Store:
     def __init__(self, clear_settings=True, update_ude_versions_on_init=True):
 

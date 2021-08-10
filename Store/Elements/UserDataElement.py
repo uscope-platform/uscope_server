@@ -4,7 +4,9 @@ from sqlalchemy.dialects import postgresql
 
 import uuid
 import datetime
+from multiprocessing import Lock
 
+version_update_lock = Lock()
 
 class Versions(Base):
 
@@ -54,14 +56,29 @@ class UserDataElement:
             with self.Session.begin() as session:
                 session.delete(element)
 
-    def update_version(self, table):
-        with self.Session.begin() as session:
-            version = session.query(Versions).filter_by(table=table.VersionTableName).first()
-            if version:
-                session.delete(version)
+    def add_version(self, table):
         with self.Session.begin() as session:
             item = Versions(table=table.VersionTableName, version=uuid.uuid4(), last_modified=datetime.datetime.now())
             session.add(item)
+
+    def remove_version(self, table):
+        ver = self.get_version(table)
+        print("--------------------------")
+        print("--------------------------")
+        print(ver)
+        print("--------------------------")
+        print("--------------------------")
+        if ver:
+            with self.Session.begin() as session:
+                session.delete(ver)
+
+    def update_version(self, table):
+        version_update_lock.acquire()
+        try:
+            self.remove_version(table)
+            self.add_version(table)
+        finally:
+            version_update_lock.release()
 
     def get_version(self, table):
         with self.Session.begin() as session:
