@@ -23,11 +23,20 @@ class SettingsStore:
         if clear_settings:
             self.clear_settings()
 
-    def get_value(self, name, username):
+    def get_per_user_value(self, name, username):
         return json.loads(self.redis.get(name+username))
 
-    def set_value(self, name, value, username):
+    def set_per_user_value(self, name, value, username):
         self.redis.set(name+username, json.dumps(value))
+
+    def get_per_server_value(self,name):
+        return json.loads(self.redis.get(name))
+
+    def set_per_server_value(self, name, value):
+        self.redis.set(name, json.dumps(value))
+
+    def delete_per_server_value(self, name):
+        self.redis.dump(name)
 
     def clear_settings(self):
         print("CLEARED SETTINGS")

@@ -126,7 +126,7 @@ class RegistersManager:
 
            """
 
-        app = self.settings_store.get_value('chosen_application', username)
+        app = self.settings_store.get_per_user_value('chosen_application', username)
         found = False
         for peripheral in app['peripherals']:
             if peripheral_name in peripheral['peripheral_id']:

@@ -276,8 +276,8 @@ class ApplicationManager:
                 username: username of the requester
         """
         chosen_app = self.data_store.get_application(application_name)
-        self.settings_store.set_value('chosen_application', chosen_app, username)
-        self.settings_store.set_value('parameters', chosen_app['parameters'], username)
+        self.settings_store.set_per_user_value('chosen_application', chosen_app, username)
+        self.settings_store.set_per_user_value('parameters', chosen_app['parameters'], username)
 
         if self.load_bitstream(chosen_app['bitstream']) == 2:
             raise RuntimeError
@@ -321,7 +321,7 @@ class ApplicationManager:
                 peripheral: peripheral id
                 username: username of the requester
         """
-        chosen_application = self.settings_store.get_value('chosen_application', username)
+        chosen_application = self.settings_store.get_per_user_value('chosen_application', username)
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['base_address']
@@ -336,7 +336,7 @@ class ApplicationManager:
                 peripheral: peripheral id
                 username: username of the requester
         """
-        chosen_application = self.settings_store.get_value('chosen_application', username)
+        chosen_application = self.settings_store.get_per_user_value('chosen_application', username)
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['proxied']
@@ -350,7 +350,7 @@ class ApplicationManager:
                 peripheral: peripheral id
                 username: username of the requester
         """
-        chosen_application = self.settings_store.get_value('chosen_application', username)
+        chosen_application = self.settings_store.get_per_user_value('chosen_application', username)
         for tab in chosen_application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['proxy_address']
@@ -363,7 +363,7 @@ class ApplicationManager:
                 username: username of the requester
 
         """
-        params = self.settings_store.get_value('parameters', username)
+        params = self.settings_store.get_per_user_value('parameters', username)
         return params
 
     def set_parameters(self, param, username):
@@ -373,9 +373,9 @@ class ApplicationManager:
                 param: dictionary containing name and value of the parameter to set
                 username: username of the requester
         """
-        params = self.settings_store.get_value('parameters', username)
+        params = self.settings_store.get_per_user_value('parameters', username)
         params[param['name']] = param['value']
-        self.settings_store.set_value('parameters', params, username)
+        self.settings_store.set_per_user_value('parameters', params, username)
 
     def load_bitstream(self, name):
         """ Load the specified bitstream on the programmable logic

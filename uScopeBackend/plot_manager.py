@@ -117,8 +117,8 @@ class PlotManager:
         self.settings_store.clear_settings()
         parameters = self.data_store.get_application(name)['parameters']
         channels = self.data_store.get_application(name)['channels']
-        self.settings_store.set_value('channel_parameters', parameters, username)
-        self.settings_store.set_value('channel_specs', channels, username)
+        self.settings_store.set_per_user_value('channel_parameters', parameters, username)
+        self.settings_store.set_per_user_value('channel_specs', channels, username)
 
     def get_data(self, username):
         """Get the latest scope data
@@ -127,7 +127,7 @@ class PlotManager:
             Returns:
                 List: Data
            """
-        status = self.settings_store.get_value('channel_status', username)
+        status = self.settings_store.get_per_user_value('channel_status', username)
         ret_val = list()
         try:
             raw_data = self.interface.read_data()
@@ -153,7 +153,7 @@ class PlotManager:
             Returns:
                 Dict:specifications for the current channel
            """
-        specs = self.settings_store.get_value('channel_specs', username)
+        specs = self.settings_store.get_per_user_value('channel_specs', username)
         return specs
 
     def set_channel_params(self, message, username):
@@ -163,8 +163,8 @@ class PlotManager:
                 message: dictionary with the values for the parameter to set
                 username: username of the requester
            """
-        params = self.settings_store.get_value('channel_parameters', username)
-        specs = self.settings_store.get_value('channel_specs', username)
+        params = self.settings_store.get_per_user_value('channel_parameters', username)
+        specs = self.settings_store.get_per_user_value('channel_specs', username)
 
         if type(message) is list:
             for s in message:
@@ -172,8 +172,8 @@ class PlotManager:
         else:
             params[message['name']] = params[message['value']]
 
-        self.settings_store.set_value('channel_parameters', params, username)
-        self.settings_store.set_value('channel_specs', specs, username)
+        self.settings_store.set_per_user_value('channel_parameters', params, username)
+        self.settings_store.set_per_user_value('channel_specs', specs, username)
 
     def setup_capture(self, param):
         """Setup and start a capture
@@ -197,6 +197,6 @@ class PlotManager:
         return returnval
 
     def set_channel_status(self, status, username):
-        self.settings_store.set_value('channel_status', status, username)
+        self.settings_store.set_per_user_value('channel_status', status, username)
         return "200"
 
