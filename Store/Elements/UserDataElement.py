@@ -58,8 +58,9 @@ class UserDataElement:
 
     def add_version(self, table):
         with self.Session.begin() as session:
-            item = Versions(table=table.VersionTableName, version=uuid.uuid4(), last_modified=datetime.datetime.now())
-            session.add(item)
+            insert_stmt = postgresql.insert(Versions).values(table=table.VersionTableName, )
+            insert_stmt.on_conflict_do_update(index_elements=[table.VersionTableName], set_=dict(version=uuid.uuid4(), last_modified=datetime.datetime.now()))
+            session.execute(insert_stmt)
 
     def remove_version(self, table):
         ver = self.__get_version(table)

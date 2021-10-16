@@ -24,7 +24,7 @@ class Store:
         while not pg_available:
             try:
                 self.Auth = AuthStore(pg_host)
-                self.Elements = ElementsDataStore(update_ude_versions_on_init=update_ude_versions_on_init,host=pg_host)
+                self.Elements = ElementsDataStore(update_ude_versions_on_init=update_ude_versions_on_init, host=pg_host)
             except OperationalError:
                 if pg_start_tries_left == 0:
                     raise RuntimeError("ERROR: Could not connect to the postgres database")
