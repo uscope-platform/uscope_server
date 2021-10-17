@@ -24,10 +24,10 @@ class SettingsStore:
             self.clear_settings()
 
     def get_per_user_value(self, name, username):
-        return json.loads(self.redis.get(name+username))
+        return json.loads(self.redis.get(name+'__'+username))
 
     def set_per_user_value(self, name, value, username):
-        self.redis.set(name+username, json.dumps(value))
+        self.redis.set(name+'__'+username, json.dumps(value))
 
     def get_per_server_value(self, name):
         return json.loads(self.redis.get(name))

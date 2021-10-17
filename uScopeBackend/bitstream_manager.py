@@ -19,6 +19,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 import base64
 import os
+import subprocess
 
 from . import role_required
 
@@ -95,24 +96,17 @@ class BitstreamManager:
             del bitstreams_dict[i]['path']
         return bitstreams_dict
 
-    def name_to_path(self, name:str):
+    def name_to_path(self, name: str):
         return  f'/lib/firmware/{name}.bin'
 
-    def path_to_name(self, path:str):
+    def path_to_name(self, path: str):
         name = path.replace('.bin', '')
         name = name.replace('/lib/firmware/', '')
         return name
 
-    def add_bitstream(self, raw_bitstream_obj:dict):
-        content = base64.b64decode(raw_bitstream_obj['content'])
-        bitstream_path = self.name_to_path(raw_bitstream_obj["name"])
-
-        if not self.debug:
-            with open(bitstream_path, "wb+") as f:
-                f.write(content)
-
-        bitstream_obj = {'id':raw_bitstream_obj['id'], 'path':bitstream_path}
-        self.data_store.add_bitstream(bitstream_obj)
+    def add_bitstream(self, raw_bitstream_obj: dict):
+        print(f"ADD BITSTREAM {raw_bitstream_obj['name']}")
+        self.write_bin_bitstream(raw_bitstream_obj)
 
     def edit_bitstream(self, edit_obj):
         field = edit_obj['field']
@@ -137,3 +131,27 @@ class BitstreamManager:
         bitstream = self.data_store.get_bitstream(bitstream_id)
         os.remove(bitstream['path'])
         self.data_store.remove_bitstream(bitstream_id)
+
+    def write_bin_bitstream(self, bit_file):
+        content = base64.b64decode(bit_file['content'])
+        bitstream_path = self.name_to_path(bit_file["name"])
+
+        bif_content = '''
+        //arch = zynq; split = false; format = BIN
+        all:
+        {
+            /lib/firmware/input.bit
+        }
+        '''
+
+        if not self.debug:
+            input_file_path = '/lib/firmware/input.bit'
+            input_bif_path = '/lib/firmware/input.bif'
+            with open(input_file_path, "wb+") as f:
+                f.write(content)
+            with open(input_bif_path, "w") as f:
+                f.write(bif_content)
+            subprocess.run(["bootgen", "-process_bitstream", "bin", "-arch", "zynq", "-image", "/lib/firmware/input.bif"])
+            os.rename("/lib/firmware/input.bit.bin", bitstream_path)
+            os.remove(input_file_path)
+            os.remove(input_bif_path)
