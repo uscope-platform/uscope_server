@@ -29,7 +29,7 @@ class SettingsStore:
     def set_per_user_value(self, name, value, username):
         self.redis.set(name+username, json.dumps(value))
 
-    def get_per_server_value(self,name):
+    def get_per_server_value(self, name):
         return json.loads(self.redis.get(name))
 
     def set_per_server_value(self, name, value):

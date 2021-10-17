@@ -35,12 +35,11 @@ class ElementsDataStore:
         self.ude = UserDataElement.UserDataElement(self.Session, settings_store)
 
         # UPDATE VERSIONS
-        if update_ude_versions_on_init:
-            self.ude.update_version(Applications.Applications)
-            self.ude.update_version(Scripts.Scripts)
-            self.ude.update_version(Programs.Programs)
-            self.ude.update_version(Peripherals.Peripherals)
-            self.ude.update_version(Bitstreams.Bitstreams)
+        self.ude.update_version(Applications.Applications)
+        self.ude.update_version(Scripts.Scripts)
+        self.ude.update_version(Programs.Programs)
+        self.ude.update_version(Peripherals.Peripherals)
+        self.ude.update_version(Bitstreams.Bitstreams)
 
     # APPLICATIONS
 
