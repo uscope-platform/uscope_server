@@ -279,6 +279,9 @@ class ApplicationManager:
         self.settings_store.set_per_user_value('chosen_application', chosen_app, username)
         self.settings_store.set_per_user_value('parameters', chosen_app['parameters'], username)
 
+        if chosen_app['bitstream'] == "":
+            return
+
         if self.load_bitstream(chosen_app['bitstream']) == 2:
             raise RuntimeError
 
@@ -288,7 +291,6 @@ class ApplicationManager:
             print(chosen_app['default_program'])
             print(chosen_app['default_core_address'])
             current_app.programs_mgr.apply_program(chosen_app['default_program'], chosen_app['default_core_address'])
-
 
     def get_all_applications(self):
         """ Get all the application specifications
