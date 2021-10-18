@@ -22,7 +22,7 @@ import time
 
 
 class Store:
-    def __init__(self, clear_settings=True, update_ude_versions_on_init=True):
+    def __init__(self, clear_settings=True):
 
         debug_config = os.environ.get("DEBUG")
         if debug_config == "TRUE":
@@ -39,9 +39,7 @@ class Store:
         while not pg_available:
             try:
                 self.Auth = AuthStore(pg_host)
-                self.Elements = ElementsDataStore(update_ude_versions_on_init=update_ude_versions_on_init,
-                                                  host=pg_host,
-                                                  settings_store=self.Settings)
+                self.Elements = ElementsDataStore(host=pg_host)
             except OperationalError:
                 if pg_start_tries_left == 0:
                     raise RuntimeError("ERROR: Could not connect to the postgres database")

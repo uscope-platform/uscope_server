@@ -23,7 +23,7 @@ from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElem
 
 class ElementsDataStore:
 
-    def __init__(self, host, settings_store, update_ude_versions_on_init=True):
+    def __init__(self, host):
 
         self.engine = create_engine(host)
 
@@ -32,14 +32,7 @@ class ElementsDataStore:
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
 
-        self.ude = UserDataElement.UserDataElement(self.Session, settings_store)
-
-        # UPDATE VERSIONS
-        self.ude.update_version(Applications.Applications)
-        self.ude.update_version(Scripts.Scripts)
-        self.ude.update_version(Programs.Programs)
-        self.ude.update_version(Peripherals.Peripherals)
-        self.ude.update_version(Bitstreams.Bitstreams)
+        self.ude = UserDataElement.UserDataElement(self.Session)
 
     # APPLICATIONS
 

@@ -13,14 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import uuid
 
+from sqlalchemy import Column, String
+from .OrmBase import Base
+from sqlalchemy.dialects import postgresql
+
+class Versions(Base):
+
+    __tablename__ = 'data_versions'
+
+    table = Column(String, primary_key=True)
+    version = Column(postgresql.UUID(as_uuid=True))
+    last_modified = Column(postgresql.TIMESTAMP)
+
+    def __repr__(self):
+        return "<Version(table='%s', version='%s', last_modified='%s')>" % (
+                             self.table, self.version, self.last_modified)
 
 class UserDataElement:
 
-    def __init__(self, session, settings_store):
+    def __init__(self, session):
         self.Session = session
-        self.settings_store = settings_store
 
     def get_row(self, table, filter_name, filter_value):
         with self.Session() as session:
@@ -43,26 +56,17 @@ class UserDataElement:
     def add_element(self, item, table):
         with self.Session.begin() as session:
             session.add(item)
-            self.update_version(table)
 
     def remove_element(self, table, filter_name, filter_value):
         element = self.get_row(table, filter_name, filter_value)
         if element:
-            self.update_version(table)
             with self.Session.begin() as session:
                 session.delete(element)
 
-    def add_version(self, table):
-        self.settings_store.set_per_server_value(table.VersionTableName+'_version', str(uuid.uuid4()))
-
-    def remove_version(self, table):
-        return self.settings_store.delete_per_server_value(table.VersionTableName + '_version')
-
-    def update_version(self, table):
-        self.settings_store.set_per_server_value(table.VersionTableName + '_version', str(uuid.uuid4()))
-
     def get_version(self, table):
-        return self.settings_store.get_per_server_value(table.VersionTableName+'_version')
+        with self.Session.begin() as session:
+            version = session.query(Versions).filter_by(table=table.VersionTableName).first()
+            return version.version
 
     def dump(self, table, creator_func):
         with self.Session.begin() as session:
