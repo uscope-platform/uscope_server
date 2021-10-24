@@ -73,7 +73,7 @@ class DatabaseManager:
         return dump
 
     def db_import(self, database):
-        self.restore_bitstreams(database['bitstream_contents'])
+        self.restore_bitstreams(database['elements']['bitstream_contents'])
         self.store.restore(database)
 
     def export_bitstreams(self):
