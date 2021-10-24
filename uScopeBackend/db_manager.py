@@ -69,7 +69,7 @@ class DatabaseManager:
 
     def db_export(self):
         dump = self.store.dump()
-        dump['bitstream_contents'] = self.export_bitstreams()
+        dump['elements']['bitstream_contents'] = self.export_bitstreams()
         return dump
 
     def db_import(self, database):
@@ -91,7 +91,7 @@ class DatabaseManager:
         return bitstreams_dump
 
     def restore_bitstreams(self, dump):
-        for i in dump:
-            with open(i, mode='wb+') as file:
-                encoded_bytes = dump[i].encode('utf-8')
-                file.write(base64.b64decode(encoded_bytes))
+            for i in dump:
+                with open(i, mode='wb') as file:
+                    encoded_bytes = dump[i].encode('utf-8')
+                    file.write(base64.b64decode(encoded_bytes))
