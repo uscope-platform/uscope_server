@@ -83,6 +83,11 @@ class BitstreamManager:
         debug_config = os.environ.get("DEBUG")
         self.debug = debug_config == "TRUE"
 
+        if self.debug:
+            self.bitstream_storage_path = "/tmp/firmware"
+        else:
+            self.bitstream_storage_path = "/lib/firmware"
+
         self.data_store = store.Elements
         self.settings_store = store.Settings
 
@@ -97,11 +102,11 @@ class BitstreamManager:
         return bitstreams_dict
 
     def name_to_path(self, name: str):
-        return  f'/lib/firmware/{name}.bin'
+        return  self.bitstream_storage_path + f'/{name}.bin'
 
     def path_to_name(self, path: str):
         name = path.replace('.bin', '')
-        name = name.replace('/lib/firmware/', '')
+        name = name.replace(self.bitstream_storage_path+'/', '')
         return name
 
     def add_bitstream(self, raw_bitstream_obj: dict):
@@ -113,16 +118,16 @@ class BitstreamManager:
         bitstream = self.data_store.get_bitstream(edit_obj['id'])
         if field['name'] == 'name':
             new_path = self.name_to_path(field['value'])
-            if not self.debug:
-                os.replace(bitstream['path'], new_path)
+
+            os.replace(bitstream['path'], new_path)
 
             bitstream['path'] = new_path
 
         elif field['name'] == 'file_content':
             content = base64.b64decode(field['value'])
-            if not self.debug:
-                with open(bitstream['path'], "wb+") as f:
-                    f.write(content)
+            
+            with open(bitstream['path'], "wb+") as f:
+                f.write(content)
             return
 
         self.data_store.edit_bitstream(bitstream)
@@ -140,18 +145,19 @@ class BitstreamManager:
         //arch = zynq; split = false; format = BIN
         all:
         {
-            /lib/firmware/input.bit
+            {{input_dir}}/input.bit
         }
         '''
 
-        if not self.debug:
-            input_file_path = '/lib/firmware/input.bit'
-            input_bif_path = '/lib/firmware/input.bif'
-            with open(input_file_path, "wb+") as f:
-                f.write(content)
-            with open(input_bif_path, "w") as f:
-                f.write(bif_content)
-            subprocess.run(["bootgen", "-process_bitstream", "bin", "-arch", "zynq", "-image", "/lib/firmware/input.bif"])
-            os.rename("/lib/firmware/input.bit.bin", bitstream_path)
-            os.remove(input_file_path)
-            os.remove(input_bif_path)
+        bif_content.replace("{{input_dir}}", self.bitstream_storage_path)
+
+        input_file_path = f'{self.bitstream_storage_path}/input.bit'
+        input_bif_path = f'{self.bitstream_storage_path}/input.bif'
+        with open(input_file_path, "wb+") as f:
+            f.write(content)
+        with open(input_bif_path, "w") as f:
+            f.write(bif_content)
+        subprocess.run(["bootgen", "-process_bitstream", "bin", "-arch", "zynq", "-image", input_bif_path])
+        os.rename(f'{input_file_path}.bin', bitstream_path)
+        os.remove(input_file_path)
+        os.remove(input_bif_path)
