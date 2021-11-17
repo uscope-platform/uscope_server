@@ -88,6 +88,9 @@ class BitstreamManager:
         else:
             self.bitstream_storage_path = "/lib/firmware"
 
+        if not os.path.exists(self.bitstream_storage_path):
+            os.makedirs(self.bitstream_storage_path)
+
         self.data_store = store.Elements
         self.settings_store = store.Settings
 
@@ -111,7 +114,9 @@ class BitstreamManager:
 
     def add_bitstream(self, raw_bitstream_obj: dict):
         print(f"ADD BITSTREAM {raw_bitstream_obj['name']}")
-        self.write_bin_bitstream(raw_bitstream_obj)
+        bitstream_path = self.write_bin_bitstream(raw_bitstream_obj)
+        bitstream_obj = {'id':raw_bitstream_obj['id'], 'path':bitstream_path}
+        self.data_store.add_bitstream(bitstream_obj)
 
     def edit_bitstream(self, edit_obj):
         field = edit_obj['field']
@@ -125,7 +130,7 @@ class BitstreamManager:
 
         elif field['name'] == 'file_content':
             content = base64.b64decode(field['value'])
-            
+
             with open(bitstream['path'], "wb+") as f:
                 f.write(content)
             return
@@ -149,7 +154,7 @@ class BitstreamManager:
         }
         '''
 
-        bif_content.replace("{{input_dir}}", self.bitstream_storage_path)
+        bif_content = bif_content.replace("{{input_dir}}", self.bitstream_storage_path)
 
         input_file_path = f'{self.bitstream_storage_path}/input.bit'
         input_bif_path = f'{self.bitstream_storage_path}/input.bif'
@@ -158,6 +163,8 @@ class BitstreamManager:
         with open(input_bif_path, "w") as f:
             f.write(bif_content)
         subprocess.run(["bootgen", "-process_bitstream", "bin", "-arch", "zynq", "-image", input_bif_path])
-        os.rename(f'{input_file_path}.bin', bitstream_path)
+        processed_file = f'{input_file_path}.bin'
+        os.rename(processed_file, bitstream_path)
         os.remove(input_file_path)
         os.remove(input_bif_path)
+        return bitstream_path

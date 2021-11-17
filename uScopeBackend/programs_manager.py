@@ -117,11 +117,11 @@ class ProgramsManager:
     def compile_program(self, program_id):
         program = self.data_store.get_program(program_id)
         try:
-            result = self.bridge.compile(program['program_content'], program['program_type'])
+            compiled_res, program_size = self.bridge.compile(program['program_content'], program['program_type'])
         except ValueError as err:
             error_codes = [{"status": "failed", "file": program['name'], "error": str(err)}]
             return error_codes
-        program['hex'] = result[0][0:result[1]]
+        program['hex'] = compiled_res
         self.data_store.edit_program(program)
         error_codes = [{"status": "passed", "file": program['name'], "error": None}]
         return error_codes

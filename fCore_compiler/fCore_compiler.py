@@ -29,9 +29,9 @@ class CompilerBridge:
         fCore_has_input = '/tmp/fCore_toolchain_in.c'
         fCore_has_output = '/tmp/output.json'
 
-        text_file = open(fCore_has_input, 'w')
-        n = text_file.write(file_content)
-        text_file.close()
+        with open(fCore_has_input, 'w') as f:
+            f.write(file_content)
+            f.close()
 
         subprocess.run([tool, '--json', '--o', fCore_has_output, '--f', fCore_has_input])
 
