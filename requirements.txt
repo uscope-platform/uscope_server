@@ -4,7 +4,6 @@ flask
 passlib
 argon2_cffi
 flask_jwt_extended
-sqlitedict
 gunicorn
 sqlalchemy
 redis

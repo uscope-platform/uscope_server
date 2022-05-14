@@ -17,9 +17,6 @@ from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 
-from sqlitedict import SqliteDict
-import os
-
 from . import role_required
 
 ############################################################
@@ -97,14 +94,7 @@ class TabCreatorManager:
 
     def edit_peripheral(self, edit):
         current_periph = self.data_store.get_peripheral(edit["peripheral"])
-        if edit["action"] == "change_image":
-            with SqliteDict('.shared_storage.db') as storage:
-                image_path = 'static/Images/' + storage['image_filename']
-                if os.path.exists(image_path):
-                    os.remove(image_path)
-                with open(image_path, 'wb') as f:
-                    f.write(storage['image_content'])
-        elif edit["action"] == "edit_version":
+        if edit["action"] == "edit_version":
             current_periph['version'] = edit['version']
         elif edit["action"] == "add_register":
             current_periph['registers'].append(edit['register'])
