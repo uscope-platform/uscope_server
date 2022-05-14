@@ -114,38 +114,40 @@ class BitstreamManager:
 
     def add_bitstream(self, raw_bitstream_obj: dict):
         print(f"ADD BITSTREAM {raw_bitstream_obj['name']}")
-        bitstream_path = self.write_bin_bitstream(raw_bitstream_obj)
-        bitstream_obj = {'id':raw_bitstream_obj['id'], 'path':bitstream_path}
+        bitstream_path = self.name_to_path(raw_bitstream_obj["name"])
+
+        if not self.debug:
+            self.write_bin_bitstream(raw_bitstream_obj, bitstream_path)
+
+        bitstream_obj = {'id': raw_bitstream_obj['id'], 'path': bitstream_path}
         self.data_store.add_bitstream(bitstream_obj)
 
     def edit_bitstream(self, edit_obj):
         field = edit_obj['field']
         bitstream = self.data_store.get_bitstream(edit_obj['id'])
+
         if field['name'] == 'name':
             new_path = self.name_to_path(field['value'])
-
-            os.replace(bitstream['path'], new_path)
+            if not self.debug:
+                os.replace(bitstream['path'], new_path)
 
             bitstream['path'] = new_path
+            self.data_store.edit_bitstream(bitstream)
 
         elif field['name'] == 'file_content':
             content = base64.b64decode(field['value'])
-
-            with open(bitstream['path'], "wb+") as f:
-                f.write(content)
-            return
-
-        self.data_store.edit_bitstream(bitstream)
+            if not self.debug:
+                with open(bitstream['path'], "wb+") as f:
+                    f.write(content)
 
     def delete_bitstream(self, bitstream_id):
         bitstream = self.data_store.get_bitstream(bitstream_id)
-        os.remove(bitstream['path'])
+        if not self.debug:
+            os.remove(bitstream['path'])
         self.data_store.remove_bitstream(bitstream_id)
 
-    def write_bin_bitstream(self, bit_file):
+    def write_bin_bitstream(self, bit_file, bitstream_path):
         content = base64.b64decode(bit_file['content'])
-        bitstream_path = self.name_to_path(bit_file["name"])
-
         bif_content = '''
         //arch = zynq; split = false; format = BIN
         all:
@@ -167,4 +169,3 @@ class BitstreamManager:
         os.rename(processed_file, bitstream_path)
         os.remove(input_file_path)
         os.remove(input_bif_path)
-        return bitstream_path
