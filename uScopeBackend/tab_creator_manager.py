@@ -56,20 +56,6 @@ class CreatePeripheral(Resource):
         return '200'
 
 
-class PeripheralTabImage(Resource):
-    @jwt_required()
-    @role_required("admin")
-    def get(self, peripheral):
-        pass
-
-    @jwt_required()
-    @role_required("admin")
-    def post(self):
-        content = request.files['file'].read()
-        current_app.tab_creator_mgr.set_image_file(content, request.files['file'].filename)
-        return '200'
-
-
 class RemovePeripheral(Resource):
     @jwt_required()
     @role_required("admin")
@@ -82,7 +68,6 @@ class RemovePeripheral(Resource):
         pass
 
 
-api.add_resource(PeripheralTabImage, '/diagram')
 api.add_resource(CreatePeripheral, '/create_peripheral')
 api.add_resource(EditPeripheral, '/edit_peripheral')
 api.add_resource(RemovePeripheral, '/remove_peripheral/<string:peripheral>')
@@ -99,35 +84,15 @@ class TabCreatorManager:
         self.image_filename = ''
         self.image_content = None
 
-    def set_image_file(self, image_content, name):
-        """Stores the the image file for a peripheral tab
-
-            Parameters:
-                image_content: Content of the image file to store
-                name: Name of the image file to store
-           """
-        with SqliteDict('.shared_storage.db') as storage:
-            storage['image_content'] = image_content
-            storage['image_filename'] = name
-            storage.commit()
-
     def create_peripheral(self, periph):
         """Adds a peripheral to the database
 
             Parameters:
                 periph: peripheral to store into the database
            """
-        image_path = ""
-        if periph['image']:
-            with SqliteDict('.shared_storage.db') as storage:
-                image_path = 'static/Images/' + storage['image_filename']
-                if os.path.exists(image_path):
-                    os.remove(image_path)
-                with open(image_path, 'wb') as f:
-                    f.write(storage['image_content'])
-        periph['payload'][list(periph['payload'])[0]]['image'] = image_path
 
         label, periph =periph['payload'].popitem()
+        periph['image'] = ""
         self.data_store.add_peripheral(periph)
 
     def edit_peripheral(self, edit):
