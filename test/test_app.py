@@ -14,31 +14,43 @@
 # limitations under the License.
 
 import pytest
-
+from flask_jwt_extended import create_access_token
 import app_factory
+from .init_data import test_app,test_users
 
-
+headers = None
 @pytest.fixture
 def client():
-        app = app_factory.create_app(debug=True)
+        app = app_factory.create_app()
+
+        app.store.Elements.add_application(test_app[0])
+        app.store.Elements.add_application(test_app[1])
+
+        app.store.Auth.add_user(test_users[0])
+        app.store.Auth.add_user(test_users[1])
+        app.store.Auth.add_user(test_users[2])
+
+        with app.app_context():
+            access_token = create_access_token('test_admin')
+            global headers
+            headers = {
+                'Authorization': 'Bearer {}'.format(access_token)
+            }
         with app.test_client() as client:
             yield client
 
 
-def test_applist(client):
-    known_good_response = b'["AdcTest"]\n'
-    response = client.get('/application/list')
-    assert known_good_response in response.data
+def test_getApp(client):
 
-def test_appSpecs(client):
-    known_good_response = b'{"channels":[{"enabled":false,"id":1,"max_value":180,"min_value":0,"name":"Current A"},{"enabled":false,"id":2,"max_value":180,"min_value":0,"name":"Current B"},{"enabled":false,"id":3,"max_value":180,"min_value":0,"name":"Current C"},{"enabled":false,"id":4,"max_value":600,"min_value":0,"name":"Voltage A"},{"enabled":false,"id":5,"max_value":600,"min_value":0,"name":"Voltage B"},{"enabled":false,"id":6,"max_value":600,"min_value":0,"name":"Voltage C"}],"parameters":[{"default-unit":"kS/s","description":"","max-limit":400,"min-limit":0.1,"parameter_name":"ADC Samping Speed","value":10},{"default-unit":"kHz","description":"","max-limit":150,"min-limit":1,"parameter_name":"Switching Frequency","value":120},{"default-unit":"","description":"","max-limit":100,"min-limit":0,"parameter_name":"Torque Kp","value":1}],"peripherals":[{"name":"Plot","peripheral_id":"Plot","type":"Scope","user_accessible":true},{"base_address":"0x43c00000","image_src":"assets/Images/ADC_processing.png","name":"ADC processing","peripheral_id":"ADC_processing","type":"Registers","user_accessible":true},{"base_address":"0x43c00100","image_src":"assets/Images/SPI.png","name":"SPI","peripheral_id":"SPI","type":"Registers","user_accessible":true},{"base_address":"0x43c00300","name":"GPIO","peripheral_id":"GPIO","type":"Registers","user_accessible":false},{"base_address":"0x43c00400","name":"enable generator","peripheral_id":"enable_generator","type":"Registers","user_accessible":false},{"name":"Tab creator","peripheral_id":"tab_creator","type":"utility","user_accessible":true}]}\n'
-    response = client.get('/application/specs/AdcTest')
-    assert known_good_response in response.data
 
-def test_appParameters(client):
-    # pre-test setup, select application
-    response = client.get('/application/specs/AdcTest')
-    # test proper
-    known_good_response = b'[{"default-unit":"kS/s","description":"","max-limit":400,"min-limit":0.1,"parameter_name":"ADC Samping Speed","value":10},{"default-unit":"kHz","description":"","max-limit":150,"min-limit":1,"parameter_name":"Switching Frequency","value":120},{"default-unit":"","description":"","max-limit":100,"min-limit":0,"parameter_name":"Torque Kp","value":1}]\n'
-    response = client.get('/application/parameters')
-    assert known_good_response in response.data
+    global headers
+    response = client.get('/uscope/application/get/test_app', headers=headers)
+    assert test_app[0] == response.json
+
+
+def test_getAppsDict(client):
+
+    global headers
+    response = client.get('/uscope/application/all/specs', headers=headers)
+    assert {test_app[0]['application_name']:test_app[0], test_app[1]['application_name']:test_app[1]} == response.json
+

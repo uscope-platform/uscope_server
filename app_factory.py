@@ -20,7 +20,7 @@ import logging
 import os
 
 from uCube_interface import uCube_interface
-from Store import Store
+from Store import Store, MockStore
 
 
 class PrefixMiddleware(object):
@@ -63,7 +63,12 @@ def create_app():
 
     interface = uCube_interface.uCube_interface(driver_host, 6666)
 
-    store = Store()
+    if os.environ.get("TESTING") == "TRUE":
+        store = MockStore()
+    else:
+        store = Store()
+
+    app.store = store
 
     with app.app_context():
         # Include our Routes

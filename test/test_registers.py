@@ -22,7 +22,7 @@ import app_factory
 
 @pytest.fixture
 def client():
-        app = app_factory.create_app(debug=True)
+        app = app_factory.create_app()
         with app.test_client() as client:
             yield client
 

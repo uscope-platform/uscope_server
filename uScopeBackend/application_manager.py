@@ -75,7 +75,6 @@ class ApplicationsSpecs(Resource):
     @jwt_required()
     @role_required("operator")
     def get(self):
-
         return jsonify(current_app.app_mgr.get_all_applications())
 
 

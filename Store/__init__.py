@@ -16,6 +16,8 @@
 from .ElementDataStore import ElementsDataStore
 from .AuthStore import AuthStore
 from .SettingsStore import SettingsStore
+from .MockStore import MockAuthStore, MockSettingsStore, MockElementsAuthStore
+
 from sqlalchemy.exc import OperationalError
 import os
 import time
@@ -26,11 +28,11 @@ class Store:
 
         debug_config = os.environ.get("DEBUG")
         if debug_config == "TRUE":
-            redis_host="localhost"
-            pg_host="postgresql+psycopg2://uscope:test@localhost/uscope"
+            redis_host = "localhost"
+            pg_host = "postgresql+psycopg2://uscope:test@localhost/uscope"
         else:
-            redis_host="redis"
-            pg_host="postgresql+psycopg2://uscope:test@database/uscope"
+            redis_host = "redis"
+            pg_host = "postgresql+psycopg2://uscope:test@database/uscope"
 
         self.Settings = SettingsStore(clear_settings=clear_settings, host=redis_host)
 
@@ -47,6 +49,25 @@ class Store:
                 time.sleep(0.8)
             else:
                 pg_available = True
+
+    def dump(self):
+        dump = {'auth': self.Auth.dump(), 'elements': self.Elements.dump(), 'settings': self.Settings.dump()}
+        return dump
+
+    def restore(self, data):
+        print("restoring Users")
+        self.Auth.restore(data['auth'])
+        print("restoring Elements")
+        self.Elements.restore(data['elements'])
+        print("restoring settings")
+        self.Settings.restore(data['settings'])
+
+
+class MockStore:
+    def __init__(self):
+        self.Settings = MockSettingsStore()
+        self.Auth = MockAuthStore()
+        self.Elements = MockElementsAuthStore()
 
     def dump(self):
         dump = {'auth': self.Auth.dump(), 'elements': self.Elements.dump(), 'settings': self.Settings.dump()}
