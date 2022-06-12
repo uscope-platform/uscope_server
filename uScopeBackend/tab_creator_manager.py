@@ -24,10 +24,10 @@ from . import role_required
 ############################################################
 
 
-tab_creator_manager_bp = Blueprint('tab_creator_manager', __name__, url_prefix='/tab_creator')
+peripheral_manager_bp = Blueprint('tab_creator_manager', __name__, url_prefix='/tab_creator')
 
 
-api = Api(tab_creator_manager_bp)
+api = Api(peripheral_manager_bp)
 
 
 class EditPeripheral(Resource):
@@ -35,7 +35,7 @@ class EditPeripheral(Resource):
     @role_required("admin")
     def post(self):
         edit = request.get_json()
-        current_app.tab_creator_mgr.edit_peripheral(edit)
+        current_app.peripheral_mgr.edit_peripheral(edit)
         return '200'
 
 
@@ -49,7 +49,7 @@ class CreatePeripheral(Resource):
     @role_required("admin")
     def post(self):
         peripheral = request.get_json()
-        current_app.tab_creator_mgr.create_peripheral(peripheral)
+        current_app.peripheral_mgr.create_peripheral(peripheral)
         return '200'
 
 
@@ -57,7 +57,7 @@ class RemovePeripheral(Resource):
     @jwt_required()
     @role_required("admin")
     def get(self, peripheral):
-        current_app.tab_creator_mgr.remove_peripheral(peripheral)
+        current_app.peripheral_mgr.remove_peripheral(peripheral)
 
     @jwt_required()
     @role_required("admin")
@@ -74,7 +74,7 @@ api.add_resource(RemovePeripheral, '/remove_peripheral/<string:peripheral>')
 ############################################################
 
 
-class TabCreatorManager:
+class PeripheralManager:
 
     def __init__(self, store):
         self.data_store = store.Elements

@@ -75,7 +75,7 @@ def create_app():
         from uScopeBackend.application_manager import application_manager_bp, ApplicationManager
         from uScopeBackend.plot_manager import plot_manager_bp, PlotManager
         from uScopeBackend.registers_manager import registers_manager_bp, RegistersManager
-        from uScopeBackend.tab_creator_manager import tab_creator_manager_bp,TabCreatorManager
+        from uScopeBackend.tab_creator_manager import peripheral_manager_bp, PeripheralManager
         from uScopeBackend.scripts_manager import scripts_manager_bp, ScriptManager
         from uScopeBackend.programs_manager import programs_manager_bp, ProgramsManager
         from uScopeBackend.db_manager import database_manager_bp, DatabaseManager
@@ -88,7 +88,7 @@ def create_app():
         app.plot_mgr = PlotManager(interface, store)
         app.register_mgr = RegistersManager(interface, store)
         app.programs_mgr = ProgramsManager(interface, store)
-        app.tab_creator_mgr = TabCreatorManager(store)
+        app.peripheral_mgr = PeripheralManager(store)
         app.script_mgr = ScriptManager(store)
         app.db_mgr = DatabaseManager(store)
         app.auth_mgr = AuthManager(store)
@@ -97,7 +97,7 @@ def create_app():
         # Register Blueprints
         app.register_blueprint(application_manager_bp)
         app.register_blueprint(plot_manager_bp)
-        app.register_blueprint(tab_creator_manager_bp)
+        app.register_blueprint(peripheral_manager_bp)
         app.register_blueprint(registers_manager_bp)
         app.register_blueprint(programs_manager_bp)
         app.register_blueprint(scripts_manager_bp)

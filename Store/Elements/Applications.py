@@ -39,7 +39,7 @@ class Applications(Base):
                              self.application_name, self.bitstream)
 
 
-def application_from_row(row : Applications):
+def application_from_row(row: Applications):
     app = {}
     app['application_name'] = row.application_name
     app['bitstream'] = row.bitstream
