@@ -74,6 +74,16 @@ api.add_resource(RemovePeripheral, '/remove_peripheral/<string:peripheral>')
 ############################################################
 
 
+def get_idx_from_property(reg_list, property, name):
+    present = False
+    idx = 0
+    for idx, val in enumerate(reg_list):
+        if val[property] == name:
+            present = True
+            break
+    return idx, present
+
+
 class PeripheralManager:
 
     def __init__(self, store):
@@ -99,13 +109,15 @@ class PeripheralManager:
         elif edit["action"] == "add_register":
             current_periph['registers'].append(edit['register'])
         elif edit["action"] == "edit_register":
-            present = False
-            for idx, val in enumerate(current_periph['registers']):
-                if val['register_name'] == edit['register']:
-                    present = True
-                    break
+            idx, present = get_idx_from_property(current_periph['registers'], 'register_name', edit['register'])
             if present:
                 current_periph['registers'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "edit_field":
+            reg_idx, present = get_idx_from_property(current_periph['registers'], 'register_name',  edit['register'])
+            fields_list = current_periph['registers'][reg_idx]['fields']
+            field_idx, present = get_idx_from_property(fields_list, 'name', edit['field_name'])
+            if present:
+                current_periph['registers'][reg_idx]['fields'][field_idx][edit['field']] = edit['value']
         elif edit["action"] == "remove_register":
             present = False
             for idx, val in enumerate(current_periph['registers']):

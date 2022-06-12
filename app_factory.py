@@ -75,7 +75,7 @@ def create_app():
         from uScopeBackend.application_manager import application_manager_bp, ApplicationManager
         from uScopeBackend.plot_manager import plot_manager_bp, PlotManager
         from uScopeBackend.registers_manager import registers_manager_bp, RegistersManager
-        from uScopeBackend.tab_creator_manager import peripheral_manager_bp, PeripheralManager
+        from uScopeBackend.peripheral_manager import peripheral_manager_bp, PeripheralManager
         from uScopeBackend.scripts_manager import scripts_manager_bp, ScriptManager
         from uScopeBackend.programs_manager import programs_manager_bp, ProgramsManager
         from uScopeBackend.db_manager import database_manager_bp, DatabaseManager
