@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 
 from flask import current_app, Blueprint, jsonify, request, abort, Response
 from flask_restful import Api, Resource
@@ -396,4 +397,5 @@ class ApplicationManager:
         for reg in registers:
             addr = int(reg['address'], 0)
             value = int(reg['value'], 0)
-            self.interface.write_register(addr, value)
+            write_obj = {'type': 'direct', 'proxy_type': '', 'proxy_address': 0, 'address': addr, 'value': value}
+            self.interface.write_register(json.dumps(write_obj).replace(" ", ""))

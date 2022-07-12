@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
@@ -177,7 +178,7 @@ class RegistersManager:
                 registers: List of dictionaries containing the details for a single register write
            """
         for i in registers:
-            self.interface.write_register(i['address'], i['value'])
+            self.interface.write_register(json.dumps(i).replace(" ", ""))
 
     # TODO: REFACTOR THESE METHODS AWAY, PUSHING THIS LOGIC TO THE CLIENT
     def __set_direct_register_value(self, register, base_address):
@@ -194,7 +195,8 @@ class RegistersManager:
                 address = base_address + int(i['offset'], 0)
                 value = register['value']
                 print(f'DIRECT WRITE: writen: {value} to register at address: {hex(address)}')
-                self.interface.write_register(address, value)
+                write_obj = {'type': 'direct', 'proxy_type': '', 'proxy_address': 0, 'address': address, 'value': value}
+                self.interface.write_register(json.dumps(write_obj).replace(" ", ""))
 
     def __set_proxied_register_value(self, register, base_address, proxy_addr):
         """Writes to a register that is not directly connected to the bus but needs to be spoken with through a proxy peripheral

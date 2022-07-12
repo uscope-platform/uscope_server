@@ -21,7 +21,6 @@ channel_data_raw = []
 C_NULL_COMMAND = '0'
 C_LOAD_BITSTREAM = '1'
 C_SINGLE_REGISTER_WRITE = '2'
-C_BULK_REGISTER_WRITE = '3'
 C_SINGLE_REGISTER_READ = '4'
 C_BULK_REGISTER_READ = '5'
 C_START_CAPTURE = '6'
@@ -85,8 +84,8 @@ class uCube_interface:
         data = self.send_command(command)
         return data
 
-    def write_register(self, address, value):
-        command = f'{C_SINGLE_REGISTER_WRITE} {address} {value}'
+    def write_register(self, write_obj):
+        command = f'{C_SINGLE_REGISTER_WRITE} {write_obj}'
         response = self.send_command(command)
 
     def write_proxied_register(self, proxy_address, address, value):
