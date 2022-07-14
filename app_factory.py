@@ -41,10 +41,7 @@ class PrefixMiddleware(object):
 
 
 def create_app():
-    if os.environ.get('USCOPE_DEPLOYMENT_OPTION') == 'DOCKER':
-        driver_host = 'driver'
-    else:
-        driver_host = '0.0.0.0'
+    driver_host = os.environ.get('DRIVER_HOST')
 
     app = Flask(__name__)
     app.config.from_object("server_config")
