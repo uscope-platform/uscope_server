@@ -26,13 +26,8 @@ import time
 class Store:
     def __init__(self, clear_settings=True):
 
-        debug_config = os.environ.get("DEBUG")
-        if debug_config == "TRUE":
-            redis_host = "localhost"
-            pg_host = "postgresql+psycopg2://uscope:test@localhost/uscope"
-        else:
-            redis_host = "redis"
-            pg_host = "postgresql+psycopg2://uscope:test@database/uscope"
+        pg_host = os.environ.get("DB_HOST")
+        redis_host = os.environ.get("REDIS_HOST")
 
         self.Settings = SettingsStore(clear_settings=clear_settings, host=redis_host)
 
