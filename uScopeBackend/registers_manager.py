@@ -74,6 +74,12 @@ class PeripheralsDigest(Resource):
 
 
 class RegistersBulkWrite(Resource):
+
+    @jwt_required()
+    @role_required("operator")
+    def get(self, address):
+        return current_app.register_mgr.get_register_value(address)
+
     @jwt_required()
     @role_required("operator")
     def post(self):
@@ -82,10 +88,19 @@ class RegistersBulkWrite(Resource):
         return '200'
 
 
+class RegistersRead(Resource):
+
+    @jwt_required()
+    @role_required("operator")
+    def get(self, address):
+        return current_app.register_mgr.get_register_value(address)
+
+
 api.add_resource(RegisterValue, '/<string:peripheral>/value')
 api.add_resource(RegisterDescriptions, '/<string:peripheral>/descriptions')
 api.add_resource(PeripheralsSpecs, '/all_peripheral/descriptions')
 api.add_resource(RegistersBulkWrite, '/bulk_write')
+api.add_resource(RegistersRead, '/direct_read/<string:address>')
 api.add_resource(PeripheralsDigest, '/digest')
 
 ############################################################
@@ -153,8 +168,8 @@ class RegistersManager:
 
         return {'peripheral_name': parameters['peripheral_name'], 'registers': registers_values}
 
-    def get_register_value(self, peripheral_name, register_name):
-        pass
+    def get_register_value(self, address):
+        return {"response": self.interface.read_register(address)}
 
     def set_register_value(self, peripheral, register, username):
         """Writes to a specifier register
