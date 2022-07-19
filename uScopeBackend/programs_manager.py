@@ -128,7 +128,14 @@ class ProgramsManager:
 
     def apply_program(self, program_id, core_address):
         print(f'APPLY PROGRAM ID: {program_id} TO CORE AT ADDRESS: {core_address}')
-        program = self.data_store.get_program(program_id)
+        programs =  self.data_store.get_programs_dict()
+        key = None
+        for key in programs:
+            if program_id == programs[key]['name']:
+                break
+        if not key:
+            raise RuntimeError(f"ERROR: program named {program_id} not found")
+        program = self.data_store.get_program(key)
         self.interface.apply_program(program, core_address)
         return '200'
 

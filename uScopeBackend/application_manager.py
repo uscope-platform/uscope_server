@@ -303,6 +303,10 @@ class ApplicationManager:
         if self.load_bitstream(chosen_app['bitstream']) == 2:
             raise RuntimeError
 
+        for item in chosen_app["soft_cores"]:
+            print(f"APPLY DEFAULT PROGRAM:  CORE={item['id']} ADDRESS={item['address']} PROGRAM={item['default_program']}")
+            current_app.programs_mgr.apply_program(item['default_program'], item['address'])
+
         if 'initial_registers_values' in chosen_app:
             self.initialize_registers(chosen_app['initial_registers_values'])
         if 'default_program' in chosen_app:
