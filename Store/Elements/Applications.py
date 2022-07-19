@@ -33,6 +33,7 @@ class Applications(Base):
     parameters = Column(postgresql.JSONB)
     peripherals = Column(postgresql.JSONB)
     miscellaneous = Column(postgresql.JSONB)
+    soft_cores = Column(postgresql.JSONB)
 
     def __repr__(self):
         return "<Application(application_name='%s', bitstream='%s')>" % (
@@ -40,16 +41,18 @@ class Applications(Base):
 
 
 def application_from_row(row: Applications):
-    app = {}
-    app['application_name'] = row.application_name
-    app['bitstream'] = row.bitstream
-    app['clock_frequency'] = row.clock_frequency
-    app['channels'] = row.channels
-    app['channel_groups'] = row.channel_groups
-    app['initial_registers_values'] = row.initial_registers_values
-    app['macro'] = row.macro
-    app['parameters'] = row.parameters
-    app['peripherals'] = row.peripherals
+    app = {
+        'application_name': row.application_name,
+        'bitstream': row.bitstream,
+        'clock_frequency': row.clock_frequency,
+        'channels': row.channels,
+        'channel_groups': row.channel_groups,
+        'initial_registers_values': row.initial_registers_values,
+        'macro': row.macro,
+        'parameters': row.parameters,
+        'peripherals': row.peripherals,
+        'soft_cores': row.soft_cores
+    }
     for i in row.miscellaneous:
         app[i] = row.miscellaneous[i]
     return app

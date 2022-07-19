@@ -40,14 +40,15 @@ class ElementsDataStore:
         misc_app = copy.copy(app)
 
         entries_to_remove = ('application_name', 'bitstream', 'clock_frequency', 'channels', 'channel_groups',
-                             'initial_registers_values', 'macro', 'parameters', 'peripherals')
+                             'initial_registers_values', 'macro', 'parameters', 'peripherals', 'soft_cores')
         for k in entries_to_remove:
             misc_app.pop(k, None)
         item = Applications.Applications(application_name=app["application_name"], bitstream=app['bitstream'],
                                          clock_frequency=app['clock_frequency'], channels=app['channels'],
                                          channel_groups=app['channel_groups'], miscellaneous=misc_app,
                                          initial_registers_values=app['initial_registers_values'], macro=app['macro'],
-                                         parameters=app['parameters'], peripherals=app['peripherals'])
+                                         parameters=app['parameters'], peripherals=app['peripherals'],
+                                         soft_cores=app['soft_cores'])
 
         self.ude.add_element(item, Applications.Applications)
 

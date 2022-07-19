@@ -257,6 +257,24 @@ class ApplicationManager:
                     break
             if present:
                 del current_app['channel_groups'][idx]
+        elif edit["action"] == "add_soft_core":
+            current_app['soft_cores'].append(edit['soft_core'])
+        elif edit["action"] == "edit_soft_core":
+            present = False
+            for idx, val in enumerate(current_app['soft_cores']):
+                if val['id'] == edit['core']:
+                    present = True
+                    break
+            if present:
+                current_app['soft_cores'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_soft_core":
+            present = False
+            for idx, val in enumerate(current_app['soft_cores']):
+                if val['id'] == edit['core']:
+                    present = True
+                    break
+            if present:
+                del current_app['soft_cores'][idx]
 
         self.data_store.edit_application(current_app)
 
