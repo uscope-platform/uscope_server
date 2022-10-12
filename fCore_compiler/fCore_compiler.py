@@ -49,8 +49,10 @@ class CompilerBridge:
         else:
             program_size = -1
 
-        os.remove(fCore_has_input)
-        os.remove(fCore_has_output)
+        if os.environ.get("KEEP_FCORE_PRODUCTS") != "TRUE":
+            os.remove(fCore_has_input)
+            os.remove(fCore_has_output)
+
         return out['compiled_program'], program_size
 
 if __name__ == '__main__':
