@@ -29,6 +29,7 @@ C_READ_DATA = '8'
 C_CHECK_CAPTURE_PROGRESS = '9'
 C_SET_CHANNEL_WIDTHS = '10'
 C_APPLY_PROGRAM = '11'
+C_SET_SCALING_FACTORS = '12'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -111,6 +112,14 @@ class uCube_interface:
         for i in widths[1:]:
             widths_string += ',' + str(i)
         command = f'{C_SET_CHANNEL_WIDTHS} {widths_string}'
+        return self.send_command(command)
+
+    def set_scaling_factors(self, factors):
+
+        factors_string = str(factors[0])
+        for i in factors[1:]:
+            factors_string += ',' + str(i)
+        command = f'{C_SET_SCALING_FACTORS} {factors_string}'
         return self.send_command(command)
 
     def apply_program(self, program, core_address):

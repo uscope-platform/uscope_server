@@ -85,12 +85,21 @@ class ChannelWidths(Resource):
         return current_app.plot_mgr.set_channel_widths(widths)
 
 
+class ChannelScalingFactors(Resource):
+    @jwt_required()
+    @role_required("operator")
+    def post(self):
+        sfs = request.get_json(force=True)
+        return current_app.plot_mgr.set_scaling_factors(sfs)
+
+
 api.add_resource(SetupCapture, '/capture')
 api.add_resource(ChannelsSpecs, '/channels/specs')
 api.add_resource(ChannelParams, '/channels/params')
 api.add_resource(ChannelsData, '/channels/data')
 api.add_resource(ChannelStatus, '/channels/status')
 api.add_resource(ChannelWidths, '/channels/widths')
+api.add_resource(ChannelScalingFactors, '/channels/scaling_factors')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -145,6 +154,9 @@ class PlotManager:
 
     def set_channel_widths(self, widths):
         self.interface.set_channel_widths(widths['widths'])
+
+    def set_scaling_factors(self, sfs):
+        self.interface.set_scaling_factors(sfs['scaling_factors'])
 
     def get_channels_specs(self, username):
         """Returns the specifications for the scope channels of the current application
