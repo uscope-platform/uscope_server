@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import socket
+import msgpack
 import json
 
 channel_data_raw = []
@@ -63,7 +64,8 @@ class uCube_interface:
             raw_status_resp = self.socket_recv(s, 4)
             response_length = int.from_bytes(raw_status_resp, "big")
             raw_response = self.socket_recv(s, response_length)
-            resp_obj = json.loads(raw_response)
+
+            resp_obj = msgpack.unpackb(raw_response)
             response = resp_obj["body"]
             response_code = response["response_code"]
 
