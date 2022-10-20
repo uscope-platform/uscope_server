@@ -420,4 +420,4 @@ class ApplicationManager:
             addr = int(reg['address'], 0)
             value = int(reg['value'], 0)
             write_obj = {'type': 'direct', 'proxy_type': '', 'proxy_address': 0, 'address': addr, 'value': value}
-            self.interface.write_register(json.dumps(write_obj).replace(" ", ""))
+            self.interface.write_register(write_obj)
