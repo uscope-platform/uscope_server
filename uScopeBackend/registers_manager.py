@@ -31,21 +31,6 @@ registers_manager_bp = Blueprint('regusters_manager', __name__, url_prefix='/reg
 api = Api(registers_manager_bp)
 
 
-class RegisterValue(Resource):
-    @jwt_required()
-    @role_required("operator")
-    def get(self):
-        pass
-
-    @jwt_required()
-    @role_required("operator")
-    def post(self, peripheral):
-        registers_to_write = request.get_json(force=True)
-        user = get_jwt_identity()
-        current_app.register_mgr.set_register_value(peripheral, registers_to_write['payload'], user)
-        return '200'
-
-
 class RegisterDescriptions(Resource):
     @jwt_required()
     @role_required("operator")
@@ -96,7 +81,6 @@ class RegistersRead(Resource):
         return current_app.register_mgr.get_register_value(address)
 
 
-api.add_resource(RegisterValue, '/<string:peripheral>/value')
 api.add_resource(RegisterDescriptions, '/<string:peripheral>/descriptions')
 api.add_resource(PeripheralsSpecs, '/all_peripheral/descriptions')
 api.add_resource(RegistersBulkWrite, '/bulk_write')
@@ -169,22 +153,11 @@ class RegistersManager:
         return {'peripheral_name': parameters['peripheral_name'], 'registers': registers_values}
 
     def get_register_value(self, address):
-        return {"response": self.interface.read_register(address)}
-
-    def set_register_value(self, peripheral, register, username):
-        """Writes to a specifier register
-
-            Parameters:
-                peripheral: name of the peripheral whose registers need to be returned
-                register: dictionary containing the register name and value
-                username: username of the requester
-        """
-        base_address = int(current_app.app_mgr.get_peripheral_base_address(peripheral, username), 0)
-        if current_app.app_mgr.peripheral_is_proxied(peripheral, username):
-            proxy_addr = int(current_app.app_mgr.get_peripheral_proxy_address(peripheral, username), 0)
-            self.__set_proxied_register_value(register, base_address, proxy_addr)
+        if isinstance(address, str):
+            addr = int(address, 0)
         else:
-            self.__set_direct_register_value(register, base_address)
+            addr = address
+        return {"response": self.interface.read_register(addr)}
 
     def bulk_write(self, registers):
         """ Perform a bulk register write operations
@@ -194,51 +167,3 @@ class RegistersManager:
            """
         for i in registers:
             self.interface.write_register(i)
-
-    # TODO: REFACTOR THESE METHODS AWAY, PUSHING THIS LOGIC TO THE CLIENT
-    def __set_direct_register_value(self, register, base_address):
-        """Writes to a register that is directly accessible through the CPU bus itself
-
-            Parameters:
-                register: dictionary containing the details of the register write to perform
-                base_address: base address of the peripheral to write to
-           """
-        periph = register['peripheral']
-        peripheral_registers = self.data_store.get_peripheral(periph)['registers']
-        for i in peripheral_registers:
-            if i['ID'] == register['name'] or i['register_name'] == register['name']:
-                address = base_address + int(i['offset'], 0)
-                value = register['value']
-                print(f'DIRECT WRITE: writen: {value} to register at address: {hex(address)}')
-                write_obj = {'type': 'direct', 'proxy_type': '', 'proxy_address': 0, 'address': address, 'value': value}
-                self.interface.write_register(write_obj)
-
-    def __set_proxied_register_value(self, register, base_address, proxy_addr):
-        """Writes to a register that is not directly connected to the bus but needs to be spoken with through a proxy peripheral
-
-            Parameters:
-                register: dictionary containing the details of the register write to perform
-                base_address: base address of the peripheral to write to
-                proxy_addr: base address of the proxy peripheral
-           """
-        periph = register['peripheral']
-        peripheral_registers = self.data_store.get_peripheral(periph)['registers']
-        for i in peripheral_registers:
-            if i['ID'] == register['name'] or i['register_name'] == register['name']:
-                address = base_address + int(i['offset'], 0)
-                value = register['value']
-                print(f'PROXY WRITE: writen: {value} to register at address: {hex(address)} through proxy at address: {hex(proxy_addr)}')
-                self.interface.write_proxied_register(proxy_addr, address, value)
-
-    def __split_dword(self, val):
-        """Splits a single 32 bit register value to two 16 bit field values
-
-            Parameters:
-                val: register value to be split
-            Returns:
-                Tuple: couple of field values
-
-           """
-        w1 = int(val & 0xffff)
-        w2 = int((val >> 16) & 0xffff)
-        return w1, w2

@@ -24,7 +24,6 @@ C_LOAD_BITSTREAM = 1
 C_SINGLE_REGISTER_WRITE = 2
 C_SINGLE_REGISTER_READ = 4
 C_START_CAPTURE = 6
-C_PROXIED_WRITE = 7
 C_READ_DATA = 8
 C_CHECK_CAPTURE_PROGRESS = 9
 C_SET_CHANNEL_WIDTHS = 10
@@ -48,7 +47,8 @@ class uCube_interface:
         return raw_data
 
     def send_command(self, command_idx: int, arguments):
-        command = json.dumps({"cmd": command_idx, "args": arguments})
+        command_obj = {"cmd": command_idx, "args": arguments}
+        command = json.dumps(command_obj)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             data = 0
             s.connect((self.hw_host, self.hw_port))
@@ -87,10 +87,6 @@ class uCube_interface:
 
     def write_register(self, write_obj):
         response = self.send_command(C_SINGLE_REGISTER_WRITE, write_obj)
-
-    # DEPRECATED
-    def write_proxied_register(self, proxy_address, address, value):
-        response = self.send_command(C_PROXIED_WRITE, [proxy_address, address, value])
 
     def load_bitstream(self, bitstream):
         response = self.send_command(C_LOAD_BITSTREAM, bitstream)
