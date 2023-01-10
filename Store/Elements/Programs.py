@@ -28,7 +28,7 @@ class Programs(Base):
     content = Column(String)
     type = Column(String)
     hex = Column(postgresql.ARRAY(BigInteger))
-
+    build_settings = Column(postgresql.JSONB)
     def __repr__(self):
         return "<Program(id='%s', name='%s', content='%s')>" % (
                              self.id, self.name, self.content)
@@ -36,4 +36,4 @@ class Programs(Base):
 
 def program_from_row(row):
     return {'id': row.id, 'name': row.name, 'program_content': row.content,
-            'program_type': row.type, 'hex': row.hex}
+            'program_type': row.type, 'hex': row.hex, 'build_settings': row.build_settings}
