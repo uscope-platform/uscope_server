@@ -33,7 +33,14 @@ class CompilerBridge:
             f.write(file_content)
             f.close()
 
-        subprocess.run([tool, '--json', '--o', fCore_has_output, '--f', fCore_has_input])
+        result = subprocess.run([tool, '--json', '--o', fCore_has_output, '--f', fCore_has_input],
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        if not os.path.exists(fCore_has_output):
+            if result.stdout:
+                raise ValueError('INTERNAL ERROR:\n' + result.stdout.decode())
+            else:
+                raise ValueError('INTERNAL ERROR: Compiler output not found.')
 
         with open(fCore_has_output) as json_file:
             out = json.load(json_file)
