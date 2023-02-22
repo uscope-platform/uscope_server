@@ -315,7 +315,7 @@ class ApplicationManager:
             current_app.programs_mgr.apply_program(chosen_app['default_program'], chosen_app['default_core_address'])
 
         if "clock_frequency" in chosen_app:
-            self.interface.set_clock_frequency(1, chosen_app["clock_frequency"])
+            self.interface.set_clock_frequency(0, chosen_app["clock_frequency"])
 
     def get_all_applications(self):
         """ Get all the application specifications
