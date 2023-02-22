@@ -314,6 +314,9 @@ class ApplicationManager:
             print(chosen_app['default_core_address'])
             current_app.programs_mgr.apply_program(chosen_app['default_program'], chosen_app['default_core_address'])
 
+        if "clock_frequency" in chosen_app:
+            self.interface.set_clock_frequency(1, chosen_app["clock_frequency"])
+
     def get_all_applications(self):
         """ Get all the application specifications
 
@@ -408,7 +411,6 @@ class ApplicationManager:
                 name: name of the bitstream to load
         """
         return self.interface.load_bitstream(name)
-
 
     def initialize_registers(self, registers):
         """ Initializes registers from arguments

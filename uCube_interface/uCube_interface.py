@@ -22,6 +22,7 @@ channel_data_raw = []
 C_NULL_COMMAND = 0
 C_LOAD_BITSTREAM = 1
 C_SINGLE_REGISTER_WRITE = 2
+C_SET_FREQUENCY = 3
 C_SINGLE_REGISTER_READ = 4
 C_START_CAPTURE = 6
 C_READ_DATA = 8
@@ -90,6 +91,10 @@ class uCube_interface:
 
     def load_bitstream(self, bitstream):
         response = self.send_command(C_LOAD_BITSTREAM, bitstream)
+        return response
+
+    def set_clock_frequency(self, clock, frequency):
+        response = self.send_command(C_SET_FREQUENCY, [clock, frequency])
         return response
 
     # DEPRECATED
