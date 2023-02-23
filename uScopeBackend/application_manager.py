@@ -305,14 +305,10 @@ class ApplicationManager:
 
         for item in chosen_app["soft_cores"]:
             print(f"APPLY DEFAULT PROGRAM:  CORE={item['id']} ADDRESS={item['address']} PROGRAM={item['default_program']}")
-            current_app.programs_mgr.apply_program(item['default_program'], item['address'])
+            current_app.programs_mgr.apply_program(item['default_program'], item['id'], application_name)
 
         if 'initial_registers_values' in chosen_app:
             self.initialize_registers(chosen_app['initial_registers_values'])
-        if 'default_program' in chosen_app:
-            print(chosen_app['default_program'])
-            print(chosen_app['default_core_address'])
-            current_app.programs_mgr.apply_program(chosen_app['default_program'], chosen_app['default_core_address'])
 
         if "clock_frequency" in chosen_app:
             self.interface.set_clock_frequency(0, chosen_app["clock_frequency"])

@@ -63,7 +63,7 @@ class ProgramApply(Resource):
     @role_required("operator")
     def post(self, program_id):
         content = request.get_json()
-        return current_app.programs_mgr.apply_program(program_id, content['core_address'])
+        return current_app.programs_mgr.apply_program(program_id, content['core_id'], content["application"])
 
 
 class ProgramHash(Resource):
@@ -126,9 +126,11 @@ class ProgramsManager:
         error_codes = [{"status": "passed", "file": program['name'], "error": None}]
         return error_codes
 
-    def apply_program(self, program_id, core_address):
-        print(f'APPLY PROGRAM ID: {program_id} TO CORE AT ADDRESS: {core_address}')
-        programs =  self.data_store.get_programs_dict()
+
+    def apply_program(self, program_id, core_id, application_name):
+        print(f'APPLY PROGRAM ID: {program_id} TO CORE: {core_id}')
+        app = self.data_store.get_application(application_name)
+        programs = self.data_store.get_programs_dict()
         key = None
         for key in programs:
             if program_id == programs[key]['name']:
@@ -136,6 +138,19 @@ class ProgramsManager:
         if not key:
             raise RuntimeError(f"ERROR: program named {program_id} not found")
         program = self.data_store.get_program(key)
-        self.interface.apply_program(program, core_address)
+        core = list(filter(lambda x: x["id"] == core_id, app["soft_cores"]))[0]
+        program_hex = program["hex"]
+        if "io" in core:
+            if core["io"]:
+                try:
+                    program_hex, program_size = self.bridge.compile(
+                        program['program_content'],
+                        program['program_type'],
+                        dma_io=core["io"]
+                    )
+                except ValueError as err:
+                    return "501"
+
+        self.interface.apply_program(program_hex, core["address"])
         return '200'
 

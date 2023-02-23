@@ -1,0 +1,13 @@
+{
+    "input_file": "{{input_file}}",
+    "output": {
+      "format":"{{output_format}}",
+      "file": "{{output_file}}"
+    },
+    "force": true,
+    "dma_io": {
+        {%- for item in dma_io %}
+            {{ item }}{% if not loop.last %},{% endif %}
+        {%- endfor %}
+    }
+  }

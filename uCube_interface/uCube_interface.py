@@ -118,4 +118,4 @@ class uCube_interface:
         else:
             addr = core_address
 
-        response = self.send_command(C_APPLY_PROGRAM, {"address": addr, "program": program['hex']})
+        response = self.send_command(C_APPLY_PROGRAM, {"address": addr, "program": program})

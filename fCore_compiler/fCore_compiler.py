@@ -16,15 +16,83 @@
 import json
 import os
 import subprocess
+from jinja2 import Template
 
 class CompilerBridge:
 
-    def compile(self, file_content: str, file_type:str):
-        tool = ''
+    def compile(self, file_content: str, file_type: str, dma_io=None):
+
         if file_type == 'asm':
-            tool = 'fCore_has'
+            return self.compile_asm(file_content, file_type)
         elif file_type == 'C':
-            tool = 'fCore_cc'
+            return self.compile_c(file_content, file_type, dma_io=dma_io)
+
+
+    def compile_c(self, file_content: str, file_type: str, dma_io=None):
+
+        compilation_specs = {
+                "input_file": '/tmp/fCore_toolchain_in.c',
+                "output_format": "json",
+                "output_file": "/tmp/output.json",
+            }
+
+        if dma_io:
+            dma_specs = list()
+            for item in dma_io:
+                addr_list = item["address"].split(",")
+                addr_list = list(map(int, addr_list))
+                if len(addr_list) == 1:
+                    addr_list = int(item["address"])
+                dma_string = {"type": item["type"], "address": addr_list}
+                dma_str = '"' + item["associated_io"] + '"' + " : " + json.dumps(dma_string)
+                dma_specs.append(dma_str)
+            compilation_specs["dma_io"] = dma_specs
+
+        templates_dir = os.environ.get("TEMPLATES_DIR")
+
+        with open(templates_dir + '/compiler_spec.jinja2') as f:
+            tmpl = Template(f.read())
+            spec = tmpl.render(compilation_specs)
+
+        with open("/tmp/cc_specs.json", 'w') as f:
+            f.write(spec)
+            f.close()
+
+        with open("/tmp/fCore_toolchain_in.c", 'w') as f:
+            f.write(file_content)
+            f.close()
+
+        result = subprocess.run(["fCore_cc", "/tmp/cc_specs.json"],
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        if not os.path.exists("/tmp/output.json"):
+            if result.stdout:
+                raise ValueError('INTERNAL ERROR:\n' + result.stdout.decode())
+            else:
+                raise ValueError('INTERNAL ERROR: Compiler output not found.')
+
+        with open("/tmp/output.json") as json_file:
+            out = json.load(json_file)
+
+        if 'error_code' not in out:
+            raise ValueError('INTERNAL ERROR: The fCore_cc compiler returned a malformed message')
+
+        if out['error_code'] != '':
+            raise ValueError(out['error_code'])
+
+        if 'program_size' in out:
+            program_size = out['program_size']
+        else:
+            program_size = -1
+
+        if os.environ.get("KEEP_FCORE_PRODUCTS") != "TRUE":
+            os.remove("/tmp/fCore_toolchain_in.c")
+            os.remove("/tmp/cc_specs.json")
+            os.remove("/tmp/output.json")
+
+        return out['compiled_program'], program_size
+
+    def compile_asm(self, file_content: str, file_type: str):
 
         fCore_has_input = '/tmp/fCore_toolchain_in.c'
         fCore_has_output = '/tmp/output.json'
@@ -33,7 +101,7 @@ class CompilerBridge:
             f.write(file_content)
             f.close()
 
-        result = subprocess.run([tool, '--json', '--o', fCore_has_output, '--f', fCore_has_input],
+        result = subprocess.run(['fCore_has', '--json', '--o', fCore_has_output, '--f', fCore_has_input],
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         if not os.path.exists(fCore_has_output):
