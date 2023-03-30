@@ -30,6 +30,7 @@ C_CHECK_CAPTURE_PROGRESS = 9
 C_SET_CHANNEL_WIDTHS = 10
 C_APPLY_PROGRAM = 11
 C_SET_SCALING_FACTORS = 12
+C_SET_CHANNEL_STATUS = 13
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -110,6 +111,9 @@ class uCube_interface:
 
     def set_scaling_factors(self, factors):
         return self.send_command(C_SET_SCALING_FACTORS, factors)
+
+    def set_channel_status(self, status):
+        return self.send_command(C_SET_CHANNEL_STATUS, status)
 
     def apply_program(self, program, core_address):
 

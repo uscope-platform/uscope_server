@@ -136,21 +136,14 @@ class PlotManager:
             Returns:
                 List: Data
            """
-        status = self.settings_store.get_per_user_value('channel_status', username)
-        ret_val = list()
         try:
             raw_data = self.interface.read_data()
         except RuntimeError:
             return self.channel_data
 
-        split_data = [raw_data[x:x + self.data_points_per_channel] for x in range(0, len(raw_data), self.data_points_per_channel)]
-        for i in status:
-            if status[i]:
-                ret_val.append({"channel": int(i), "data": split_data[int(i)]})
+        self.channel_data = raw_data
 
-        self.channel_data = ret_val
-
-        return ret_val
+        return raw_data
 
     def set_channel_widths(self, widths):
         self.interface.set_channel_widths(widths['widths'])
@@ -209,6 +202,6 @@ class PlotManager:
         return returnval
 
     def set_channel_status(self, status, username):
-        self.settings_store.set_per_user_value('channel_status', status, username)
+        self.interface.set_channel_status(status)
         return "200"
 
