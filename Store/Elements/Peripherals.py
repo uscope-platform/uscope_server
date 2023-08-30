@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Boolean
 from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
 
@@ -27,6 +27,7 @@ class Peripherals(Base):
     image = Column(String)
     version = Column(String)
     registers = Column(postgresql.JSONB)
+    parametric = Column(Boolean)
 
     def __repr__(self):
         return "<Peripheral(name='%s', image='%s', version='%s')>" % (
@@ -34,4 +35,7 @@ class Peripherals(Base):
 
 
 def peripheral_from_row(row):
-    return {'peripheral_name': row.name, 'image': row.image, 'version': row.version, 'registers': row.registers}
+    return {
+        'peripheral_name': row.name, 'image': row.image, 'version': row.version,
+        'parametric': row.parametric, 'registers': row.registers
+            }

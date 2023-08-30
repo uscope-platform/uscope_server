@@ -124,7 +124,7 @@ class ElementsDataStore:
 
     def add_peripheral(self, periph: dict):
         item = Peripherals.Peripherals(name=periph["peripheral_name"], image=periph['image'],
-                                       version=periph['version'], registers=periph['registers'])
+                                       version=periph['version'], registers=periph['registers'], parametric=periph['parametric'])
 
         self.ude.add_element(item, Peripherals.Peripherals)
 

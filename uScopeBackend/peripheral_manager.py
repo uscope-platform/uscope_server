@@ -106,6 +106,8 @@ class PeripheralManager:
         current_periph = self.data_store.get_peripheral(edit["peripheral"])
         if edit["action"] == "edit_version":
             current_periph['version'] = edit['version']
+        elif edit["action"] == "edit_parametric":
+            current_periph['parametric'] = edit['parametric']
         elif edit["action"] == "add_register":
             current_periph['registers'].append(edit['register'])
         elif edit["action"] == "edit_register":
