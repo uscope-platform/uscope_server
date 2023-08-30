@@ -16,7 +16,7 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
-
+from filter_designer import FilterDesigner
 from . import role_required
 
 ############################################################
@@ -58,6 +58,13 @@ class Filter(Resource):
         return '200'
 
 
+class FilterProducer(Resource):
+    @jwt_required()
+    @role_required("user")
+    def get(self, filter_id):
+        return jsonify(current_app.filter_mgr.build_filter(filter_id))
+
+
 class FilterDigest(Resource):
     @jwt_required()
     @role_required("operator")
@@ -67,6 +74,7 @@ class FilterDigest(Resource):
 
 api.add_resource(FilterDigest, '/digest')
 api.add_resource(Filter, '/<string:filter_id>')
+api.add_resource(FilterProducer, '/build/<string:filter_id>')
 
 
 ############################################################
@@ -84,8 +92,7 @@ class FilterManager:
         return self.data_store.get_filters_hash()
 
     def get_filters(self):
-        f = self.data_store.get_filters_dict()
-        return f
+        return self.data_store.get_filters_dict()
 
     def add_filter(self, filter_obj: dict):
         self.data_store.add_filter(filter_obj)
@@ -97,3 +104,13 @@ class FilterManager:
 
     def delete_filter(self, filter_id):
         self.data_store.remove_filter(filter_id)
+
+    def build_filter(self, filter_id):
+        filters = self.data_store.get_filters_dict()
+        filter_parameters = filters[int(filter_id)]["parameters"]
+        try:
+            taps, plot = FilterDesigner.build_filter(filter_parameters)
+            return plot
+        except ValueError:
+            return 500
+
