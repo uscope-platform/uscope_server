@@ -18,7 +18,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 from sqlalchemy import create_engine
 
-from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElement, Bitstreams
+from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElement, Bitstreams, Filters
 
 
 class ElementsDataStore:
@@ -152,6 +152,9 @@ class ElementsDataStore:
     def get_bitstreams_hash(self):
         return str(self.ude.get_version(Bitstreams.Bitstreams))
 
+    def get_filters_hash(self):
+        return str(self.ude.get_version(Filters.Filters))
+
     # BITSTREAMS
 
     def get_bitstreams_dict(self):
@@ -171,12 +174,32 @@ class ElementsDataStore:
     def remove_bitstream(self, bitstream_id):
         self.ude.remove_element(Bitstreams.Bitstreams, 'id', bitstream_id)
 
+    # FILTERS
+    def get_filters_dict(self):
+        return self.ude.get_elements_dict(Filters.Filters, Filters.filter_from_row,  'id')
+
+    def get_filter(self, id):
+        return self.ude.get_element(Filters.Filters, "id", id, Filters.filter_from_row)
+
+    def add_filter(self, flt: dict):
+        item = Filters.Filters(id=flt["id"], name=flt["name"], parameters=flt["parameters"])
+        self.ude.add_element(item, Filters.Filters)
+
+    def edit_filter(self, filter_obj):
+        self.remove_filter(filter_obj["id"])
+        self.add_filter(filter_obj)
+
+    def remove_filter(self, flt_id: dict):
+        self.ude.remove_element(Filters.Filters, 'id', flt_id)
+
+
     def dump(self):
         dump = {'applications': self.ude.dump(Applications.Applications, Applications.application_from_row),
                 'peripherals': self.ude.dump(Peripherals.Peripherals, Peripherals.peripheral_from_row),
                 'scripts': self.ude.dump(Scripts.Scripts, Scripts.script_from_row),
                 'programs': self.ude.dump(Programs.Programs, Programs.program_from_row),
-                'bitstreams': self.ude.dump(Bitstreams.Bitstreams, Bitstreams.bitstream_from_row)
+                'bitstreams': self.ude.dump(Bitstreams.Bitstreams, Bitstreams.bitstream_from_row),
+                'filters': self.ude.dump(Filters.Filters, Filters.filter_from_row)
                 }
         return dump
 
