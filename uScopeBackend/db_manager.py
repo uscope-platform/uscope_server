@@ -19,6 +19,7 @@ from flask_jwt_extended import jwt_required
 import json
 import os
 import base64
+import datetime
 
 from . import role_required
 
@@ -38,8 +39,14 @@ class DatabaseExport(Resource):
     @jwt_required()
     @role_required("admin")
     def get(self):
-        database = current_app.db_mgr.db_export()
-        response = Response(json.dumps(database), mimetype='application/json',
+        database = json.dumps(current_app.db_mgr.db_export())
+
+        dump_name = datetime.datetime.today().strftime('%Y%m%d_%H%M%S')
+
+        with open("/db_backup/"+dump_name+".json", "w") as f:
+            f.write(database)
+            f.flush()
+        response = Response(database, mimetype='application/json',
                             headers={'Content-Disposition': 'attachment; filename=db_dump.json'})
         return response
 

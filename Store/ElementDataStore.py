@@ -202,7 +202,6 @@ class ElementsDataStore:
     def remove_filter(self, flt_id: dict):
         self.ude.remove_element(Filters.Filters, 'id', flt_id)
 
-
     def dump(self):
         dump = {'applications': self.ude.dump(Applications.Applications, Applications.application_from_row),
                 'peripherals': self.ude.dump(Peripherals.Peripherals, Peripherals.peripheral_from_row),
@@ -234,3 +233,7 @@ class ElementsDataStore:
         for bitstream in data['bitstreams']:
             self.remove_bitstream(bitstream['id'])
             self.add_bitstream(bitstream)
+
+        for filter_obj in data['filters']:
+            self.remove_filter(filter_obj['id'])
+            self.add_filter(filter_obj)
