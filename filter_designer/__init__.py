@@ -13,4 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
  
-from .filter_designer import FilterDesigner
+from .filter_designer import FilterDesignEngine

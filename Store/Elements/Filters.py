@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, ARRAY, Float
 from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
 
@@ -26,6 +26,8 @@ class Filters(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     parameters = Column(postgresql.JSONB)
+    ideal_taps = Column(ARRAY(Float))
+    quantized_taps = Column(ARRAY(Integer))
 
     def __repr__(self):
         return "<Filter(id='%s', name='%s')>" % (
@@ -33,4 +35,9 @@ class Filters(Base):
 
 
 def filter_from_row(row):
-    return {'id': row.id, 'name': row.name, 'parameters': row.parameters}
+    return {'id': row.id,
+            'name': row.name,
+            'parameters': row.parameters,
+            'ideal_taps': row.ideal_taps,
+            'quantized_taps': row.quantized_taps
+            }

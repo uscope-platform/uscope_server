@@ -182,7 +182,17 @@ class ElementsDataStore:
         return self.ude.get_element(Filters.Filters, "id", id, Filters.filter_from_row)
 
     def add_filter(self, flt: dict):
-        item = Filters.Filters(id=flt["id"], name=flt["name"], parameters=flt["parameters"])
+        if "ideal_taps" in flt:
+            id_taps = flt["ideal_taps"]
+        else:
+            id_taps = []
+
+        if "quantized_taps" in flt:
+            q_taps = flt["quantized_taps"]
+        else:
+            q_taps = []
+
+        item = Filters.Filters(id=flt["id"], name=flt["name"], parameters=flt["parameters"], ideal_taps=id_taps, quantized_taps=q_taps)
         self.ude.add_element(item, Filters.Filters)
 
     def edit_filter(self, filter_obj):
