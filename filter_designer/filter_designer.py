@@ -15,19 +15,6 @@
 
 import numpy as np
 from scipy import signal
-import matplotlib.pyplot as plt
-
-def plot_response(taps, fs):
-    w, h = signal.freqz(taps, [1], worN=2000, fs=fs)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    ax.set_ylim(-80, 5)
-    ax.grid(True)
-    ax.set_xlabel('Frequency (Hz)')
-    ax.set_ylabel('Gain (dB)')
-    ax.set_title("comparison")
-    plt.show()
 
 
 class FilterDesignEngine:
