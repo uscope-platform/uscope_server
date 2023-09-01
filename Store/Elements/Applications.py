@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, ARRAY
 from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
 
@@ -34,6 +34,9 @@ class Applications(Base):
     peripherals = Column(postgresql.JSONB)
     miscellaneous = Column(postgresql.JSONB)
     soft_cores = Column(postgresql.JSONB)
+    filters = Column(postgresql.JSONB)
+    programs = Column(ARRAY(String))
+    scripts = Column(ARRAY(String))
 
     def __repr__(self):
         return "<Application(application_name='%s', bitstream='%s')>" % (
@@ -51,7 +54,10 @@ def application_from_row(row: Applications):
         'macro': row.macro,
         'parameters': row.parameters,
         'peripherals': row.peripherals,
-        'soft_cores': row.soft_cores
+        'soft_cores': row.soft_cores,
+        'filters': row.filters,
+        'scripts': row.scripts,
+        'programs': row.programs
     }
     for i in row.miscellaneous:
         app[i] = row.miscellaneous[i]

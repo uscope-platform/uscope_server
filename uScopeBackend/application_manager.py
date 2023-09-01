@@ -275,7 +275,34 @@ class ApplicationManager:
                     break
             if present:
                 del current_app['soft_cores'][idx]
-
+        elif edit["action"] == "add_filter":
+            current_app['filters'].append(edit['filter'])
+        elif edit["action"] == "edit_filter":
+            present = False
+            for idx, val in enumerate(current_app['filters']):
+                if val['id'] == edit['filter']:
+                    present = True
+                    break
+            if present:
+                current_app['filters'][idx][edit['field']] = edit['value']
+        elif edit["action"] == "remove_filter":
+            present = False
+            for idx, val in enumerate(current_app['filters']):
+                if val['id'] == edit['filter']:
+                    present = True
+                    break
+            if present:
+                del current_app['filters'][idx]
+        elif edit["action"] == "add_selected_script":
+            current_app["scripts"].append(edit['script'])
+        elif edit["action"] == "remove_selected_script":
+            if edit["script"] in current_app["scripts"]:
+                current_app['scripts'].remove(edit["script"])
+        elif edit["action"] == "add_selected_program":
+            current_app["programs"].append(edit['program'])
+        elif edit["action"] == "remove_selected_program":
+            if edit["program"] in current_app["programs"]:
+                current_app['programs'].remove(edit["program"])
         self.data_store.edit_application(current_app)
 
     def remove_application(self, application_name):
