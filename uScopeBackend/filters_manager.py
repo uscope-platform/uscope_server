@@ -158,3 +158,6 @@ class FilterManager:
             return plot
         except ValueError:
             return 500
+
+    def apply_filter(self, filter_id):
+        pass

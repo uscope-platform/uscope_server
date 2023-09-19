@@ -31,6 +31,7 @@ C_SET_CHANNEL_WIDTHS = 10
 C_APPLY_PROGRAM = 11
 C_SET_SCALING_FACTORS = 12
 C_SET_CHANNEL_STATUS = 13
+C_APPLY_FILTER = 14
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -123,3 +124,11 @@ class uCube_interface:
             addr = core_address
 
         response = self.send_command(C_APPLY_PROGRAM, {"address": addr, "program": program})
+
+    def apply_filter(self, filter_address, taps):
+
+        if isinstance(filter_address, str):
+            addr = int(filter_address, 0)
+        else:
+            addr = filter_address
+        return  self.send_command(C_APPLY_FILTER, {"address":addr, "taps":taps})
