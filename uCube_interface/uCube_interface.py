@@ -32,6 +32,7 @@ C_APPLY_PROGRAM = 11
 C_SET_SCALING_FACTORS = 12
 C_SET_CHANNEL_STATUS = 13
 C_APPLY_FILTER = 14
+C_SET_CHANNEL_SIGNS = 15
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -109,6 +110,9 @@ class uCube_interface:
 
     def set_channel_widths(self, widths):
         return self.send_command(C_SET_CHANNEL_WIDTHS, widths)
+
+    def set_channel_signs(self, signs):
+        self.send_command(C_SET_CHANNEL_SIGNS, signs)
 
     def set_scaling_factors(self, factors):
         return self.send_command(C_SET_SCALING_FACTORS, factors)

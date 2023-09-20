@@ -85,6 +85,15 @@ class ChannelWidths(Resource):
         return current_app.plot_mgr.set_channel_widths(widths)
 
 
+class ChannelSigns(Resource):
+    @jwt_required()
+    @role_required("operator")
+    def post(self):
+        signs = request.get_json(force=True)
+        return current_app.plot_mgr.set_channel_signs(signs)
+
+
+
 class ChannelScalingFactors(Resource):
     @jwt_required()
     @role_required("operator")
@@ -99,6 +108,7 @@ api.add_resource(ChannelParams, '/channels/params')
 api.add_resource(ChannelsData, '/channels/data')
 api.add_resource(ChannelStatus, '/channels/status')
 api.add_resource(ChannelWidths, '/channels/widths')
+api.add_resource(ChannelSigns,  '/channels/signs')
 api.add_resource(ChannelScalingFactors, '/channels/scaling_factors')
 
 ############################################################
@@ -147,6 +157,9 @@ class PlotManager:
 
     def set_channel_widths(self, widths):
         self.interface.set_channel_widths(widths['widths'])
+
+    def set_channel_signs(self, signs):
+        self.interface.set_channel_signs(signs['signed'])
 
     def set_scaling_factors(self, sfs):
         self.interface.set_scaling_factors(sfs['scaling_factors'])
