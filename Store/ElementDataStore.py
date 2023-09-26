@@ -106,7 +106,8 @@ class ElementsDataStore:
         item = Programs.Programs(id=program["id"], name=program['name'],
                                  content=program['program_content'],
                                  type=program['program_type'], hex=hex_field,
-                                 build_settings=program['build_settings'])
+                                 build_settings=program['build_settings'],
+                                 cached_bin_version=program['cached_bin_version'])
 
         self.ude.add_element(item, Programs.Programs)
 

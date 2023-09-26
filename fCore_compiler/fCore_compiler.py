@@ -17,18 +17,23 @@ import json
 import os
 import subprocess
 from jinja2 import Template
+import hashlib
+
+
+class CacheHitException(Exception):
+    pass
 
 class CompilerBridge:
 
-    def compile(self, file_content: str, file_type: str, dma_io=None):
+    def compile(self, file_content: str, file_type: str, dma_io=None, cached_hash = ""):
 
         if file_type == 'asm':
-            return self.compile_asm(file_content, file_type)
+            return self.compile_asm(file_content)
         elif file_type == 'C':
-            return self.compile_c(file_content, file_type, dma_io=dma_io)
+            return self.compile_c(file_content, dma_io=dma_io, cached_hash=cached_hash)
 
 
-    def compile_c(self, file_content: str, file_type: str, dma_io=None):
+    def compile_c(self, file_content: str, dma_io=None, cached_hash = ""):
 
         compilation_specs = {
                 "input_file": '/tmp/fCore_toolchain_in.c',
@@ -54,45 +59,54 @@ class CompilerBridge:
             tmpl = Template(f.read())
             spec = tmpl.render(compilation_specs)
 
-        with open("/tmp/cc_specs.json", 'w') as f:
-            f.write(spec)
-            f.close()
+        design_id = spec + file_content
+        sha = hashlib.sha256()
+        sha.update(design_id.encode())
+        design_hash = sha.hexdigest()
 
-        with open("/tmp/fCore_toolchain_in.c", 'w') as f:
-            f.write(file_content)
-            f.close()
-
-        result = subprocess.run(["fCore_cc", "/tmp/cc_specs.json"],
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-        if not os.path.exists("/tmp/output.json"):
-            if result.stdout:
-                raise ValueError('INTERNAL ERROR:\n' + result.stdout.decode())
-            else:
-                raise ValueError('INTERNAL ERROR: Compiler output not found.')
-
-        with open("/tmp/output.json") as json_file:
-            out = json.load(json_file)
-
-        if 'error_code' not in out:
-            raise ValueError('INTERNAL ERROR: The fCore_cc compiler returned a malformed message')
-
-        if out['error_code'] != '':
-            raise ValueError(out['error_code'])
-
-        if 'program_size' in out:
-            program_size = out['program_size']
+        if design_hash == cached_hash and dma_io is not None:
+            raise CacheHitException("cached")
         else:
-            program_size = -1
+            with open("/tmp/cc_specs.json", 'w') as f:
+                f.write(spec)
+                f.close()
 
-        if os.environ.get("KEEP_FCORE_PRODUCTS") != "TRUE":
-            os.remove("/tmp/fCore_toolchain_in.c")
-            os.remove("/tmp/cc_specs.json")
-            os.remove("/tmp/output.json")
+            with open("/tmp/fCore_toolchain_in.c", 'w') as f:
+                f.write(file_content)
+                f.close()
 
-        return out['compiled_program'], program_size
 
-    def compile_asm(self, file_content: str, file_type: str):
+            result = subprocess.run(["fCore_cc", "/tmp/cc_specs.json"],
+                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+            if not os.path.exists("/tmp/output.json"):
+                if result.stdout:
+                    raise ValueError('INTERNAL ERROR:\n' + result.stdout.decode())
+                else:
+                    raise ValueError('INTERNAL ERROR: Compiler output not found.')
+
+            with open("/tmp/output.json") as json_file:
+                out = json.load(json_file)
+
+            if 'error_code' not in out:
+                raise ValueError('INTERNAL ERROR: The fCore_cc compiler returned a malformed message')
+
+            if out['error_code'] != '':
+                raise ValueError(out['error_code'])
+
+            if 'program_size' in out:
+                program_size = out['program_size']
+            else:
+                program_size = -1
+
+            if os.environ.get("KEEP_FCORE_PRODUCTS") != "TRUE":
+                os.remove("/tmp/fCore_toolchain_in.c")
+                os.remove("/tmp/cc_specs.json")
+                os.remove("/tmp/output.json")
+
+            return out['compiled_program'], program_size, design_hash
+
+    def compile_asm(self, file_content: str):
 
         fCore_has_input = '/tmp/fCore_toolchain_in.c'
         fCore_has_output = '/tmp/output.json'
@@ -128,7 +142,12 @@ class CompilerBridge:
             os.remove(fCore_has_input)
             os.remove(fCore_has_output)
 
-        return out['compiled_program'], program_size
+        return out['compiled_program'], program_size, ""
+
+    def get_cached_binary(self, file_content:str, build_settings:str):
+        hashes = hash(file_content + build_settings)
+
+
 
 if __name__ == '__main__':
     cb = CompilerBridge()

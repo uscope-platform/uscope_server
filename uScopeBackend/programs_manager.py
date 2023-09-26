@@ -117,7 +117,7 @@ class ProgramsManager:
     def compile_program(self, program_id):
         program = self.data_store.get_program(program_id)
         try:
-            compiled_res, program_size = self.bridge.compile(program['program_content'], program['program_type'])
+            compiled_res, program_size, new_hash = self.bridge.compile(program['program_content'], program['program_type'])
         except ValueError as err:
             error_codes = [{"status": "failed", "file": program['name'], "error": str(err)}]
             return error_codes
@@ -143,13 +143,20 @@ class ProgramsManager:
         if "io" in core:
             if core["io"]:
                 try:
-                    program_hex, program_size = self.bridge.compile(
+                    program_hex, program_size, new_hash = self.bridge.compile(
                         program['program_content'],
                         program['program_type'],
-                        dma_io=core["io"]
+                        dma_io=core["io"],
+                        cached_hash=program['cached_bin_version']
                     )
+                    if new_hash != program['cached_bin_version']:
+                        program["hex"] = program_hex
+                        program['cached_bin_version'] = new_hash
+                        self.data_store.edit_program(program)
                 except ValueError as err:
                     return "501"
+                except fCore_compiler.CacheHitException as err:
+                    pass
 
         self.interface.apply_program(program_hex, core["address"])
         return '200'
