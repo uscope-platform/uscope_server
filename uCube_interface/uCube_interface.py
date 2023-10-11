@@ -33,6 +33,7 @@ C_SET_SCALING_FACTORS = 12
 C_SET_CHANNEL_STATUS = 13
 C_APPLY_FILTER = 14
 C_SET_CHANNEL_SIGNS = 15
+C_GET_VERSION = 16
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -135,4 +136,7 @@ class uCube_interface:
             addr = int(filter_address, 0)
         else:
             addr = filter_address
-        return  self.send_command(C_APPLY_FILTER, {"address":addr, "taps":taps})
+        return  self.send_command(C_APPLY_FILTER, {"address": addr, "taps": taps})
+
+    def get_version(self, component):
+        return self.send_command(C_GET_VERSION, component)

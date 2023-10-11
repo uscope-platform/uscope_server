@@ -61,8 +61,16 @@ class DatabaseImport(Resource):
         return '200'
 
 
+class Versions(Resource):
+    @jwt_required()
+    @role_required("operator")
+    def get(self, component):
+        return current_app.db_mgr.get_version(component)
+
+
 api.add_resource(DatabaseImport, '/import')
 api.add_resource(DatabaseExport, '/export')
+api.add_resource(Versions, '/versions/<string:component>')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -71,8 +79,9 @@ api.add_resource(DatabaseExport, '/export')
 
 class DatabaseManager:
 
-    def __init__(self, store):
+    def __init__(self, store, interface):
         self.store = store
+        self.interface = interface
 
     def db_export(self):
         dump = self.store.dump()
@@ -96,6 +105,13 @@ class DatabaseManager:
                     bitstreams_dump[path] = b64_bytes.decode('utf-8')
 
         return bitstreams_dump
+
+    def get_version(self, component):
+        if component in ["driver", "module", "hardware"]:
+            retval = self.interface.get_version(component)
+            return retval
+        else:
+            return os.getenv("VERSION")
 
     def restore_bitstreams(self, dump):
             for i in dump:

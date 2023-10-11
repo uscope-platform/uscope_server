@@ -27,7 +27,6 @@ from . import role_required
 
 registers_manager_bp = Blueprint('regusters_manager', __name__, url_prefix='/registers')
 
-
 api = Api(registers_manager_bp)
 
 
@@ -36,7 +35,7 @@ class RegisterDescriptions(Resource):
     @role_required("operator")
     def get(self, peripheral):
         user = get_jwt_identity()
-        return jsonify(current_app.register_mgr.get_registers_descriptions(peripheral,user))
+        return jsonify(current_app.register_mgr.get_registers_descriptions(peripheral, user))
 
     @jwt_required()
     @role_required("operator")
@@ -86,6 +85,7 @@ api.add_resource(PeripheralsSpecs, '/all_peripheral/descriptions')
 api.add_resource(RegistersBulkWrite, '/bulk_write')
 api.add_resource(RegistersRead, '/direct_read/<string:address>')
 api.add_resource(PeripheralsDigest, '/digest')
+
 
 ############################################################
 #                      IMPLEMENTATION                      #

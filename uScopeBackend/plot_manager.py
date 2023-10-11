@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
@@ -91,7 +92,6 @@ class ChannelSigns(Resource):
     def post(self):
         signs = request.get_json(force=True)
         return current_app.plot_mgr.set_channel_signs(signs)
-
 
 
 class ChannelScalingFactors(Resource):

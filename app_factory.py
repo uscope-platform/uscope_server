@@ -88,7 +88,7 @@ def create_app():
         app.programs_mgr = ProgramsManager(interface, store)
         app.peripheral_mgr = PeripheralManager(store)
         app.script_mgr = ScriptManager(store)
-        app.db_mgr = DatabaseManager(store)
+        app.db_mgr = DatabaseManager(store, interface)
         app.auth_mgr = AuthManager(store)
         app.bitstream_mgr = BitstreamManager(store)
         app.filter_mgr = FilterManager(store)
