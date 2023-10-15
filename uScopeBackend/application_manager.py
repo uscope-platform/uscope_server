@@ -33,11 +33,11 @@ api = Api(application_manager_bp)
 class ApplicationSet(Resource):
     @jwt_required()
     @role_required("operator")
-    def get(self, application_name):
+    def get(self, application_id):
         try:
             user = get_jwt_identity()
-            current_app.plot_mgr.set_application(application_name, user)
-            return jsonify(current_app.app_mgr.set_application(application_name, user))
+            current_app.plot_mgr.set_application(application_id, user)
+            return jsonify(current_app.app_mgr.set_application(application_id, user))
         except RuntimeError:
             abort(Response("Bitstream not found", 418))
 
@@ -107,7 +107,7 @@ class ApplicationRemove(Resource):
 
 
 api.add_resource(ApplicationsSpecs, '/all/specs')
-api.add_resource(ApplicationSet, '/set/<string:application_name>')
+api.add_resource(ApplicationSet, '/set/<string:application_id>')
 api.add_resource(ApplicationGet, '/get/<string:application_name>')
 api.add_resource(ApplicationParameters, '/parameters')
 api.add_resource(ApplicationsDigest, '/digest')
@@ -356,13 +356,13 @@ class ApplicationManager:
         """
         return self.data_store.get_applications_hash()
 
-    def get_application(self,application_name):
+    def get_application(self, application_id):
         """Get the version hash for the current application database
 
             Returns:
                 String: Hash
         """
-        return self.data_store.get_application(application_name)
+        return self.data_store.get_application(application_id)
 
     def get_peripheral_base_address(self, peripheral, username):
         """ Get base address for the specified peripheral

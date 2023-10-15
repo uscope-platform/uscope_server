@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, String, ARRAY
+from sqlalchemy import Column, String, ARRAY, Integer
 from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
 
@@ -23,7 +23,8 @@ class Applications(Base):
 
     VersionTableName = 'Applications'
 
-    application_name = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    application_name = Column(String)
     bitstream = Column(String)
     clock_frequency = Column(String)
     channels = Column(postgresql.JSONB)
@@ -39,12 +40,12 @@ class Applications(Base):
     scripts = Column(ARRAY(String))
 
     def __repr__(self):
-        return "<Application(application_name='%s', bitstream='%s')>" % (
-                             self.application_name, self.bitstream)
+        return "<Application(id='%s' application_name='%s', bitstream='%s')>" % ( self.id, self.application_name, self.bitstream)
 
 
 def application_from_row(row: Applications):
     app = {
+        'id': row.id,
         'application_name': row.application_name,
         'bitstream': row.bitstream,
         'clock_frequency': row.clock_frequency,

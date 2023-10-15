@@ -18,7 +18,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 from sqlalchemy import create_engine
 
-from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElement, Bitstreams, Filters
+from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElement, Bitstreams, Filters, Emulator
 
 
 class ElementsDataStore:
@@ -27,12 +27,27 @@ class ElementsDataStore:
 
         self.engine = create_engine(host)
 
+        self.table_add_id("applications")
+        self.table_add_id("peripherals")
+
         Base = declarative_base()
 
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
 
         self.ude = UserDataElement.UserDataElement(self.Session)
+
+    def table_add_id(self, table):
+        test_query = "SELECT column_name FROM information_schema.columns WHERE table_name='{table_name}' and column_name='id';".format(
+            table_name=table)
+        add_column_query = "ALTER TABLE {table_name} ADD COLUMN id SERIAL;".format(table_name=table)
+        drop_key = "alter table {table_name} drop constraint {table_name}_pk;".format(table_name=table)
+        add_key = "alter table {table_name} add constraint {table_name}_pk primary key (id);".format(table_name=table)
+        with self.engine.connect() as con:
+            if len(con.execute(test_query).all()) == 0:
+                con.execute(add_column_query)
+                con.execute(drop_key)
+                con.execute(add_key)
 
     # APPLICATIONS
 
@@ -41,11 +56,12 @@ class ElementsDataStore:
 
         entries_to_remove = ('application_name', 'bitstream', 'clock_frequency', 'channels', 'channel_groups',
                              'initial_registers_values', 'macro', 'parameters', 'peripherals', 'soft_cores',
-                             'filters', 'scripts', 'programs')
+                             'filters', 'scripts', 'programs', 'id')
         for k in entries_to_remove:
             misc_app.pop(k, None)
 
-        item = Applications.Applications(application_name=app["application_name"], bitstream=app['bitstream'],
+        item = Applications.Applications(id=app['id'], application_name=app["application_name"],
+                                         bitstream=app['bitstream'],
                                          clock_frequency=app['clock_frequency'], channels=app['channels'],
                                          channel_groups=app['channel_groups'], miscellaneous=misc_app,
                                          initial_registers_values=app['initial_registers_values'], macro=app['macro'],
@@ -56,19 +72,19 @@ class ElementsDataStore:
         self.ude.add_element(item, Applications.Applications)
 
     def edit_application(self, app):
-        self.ude.remove_element(Applications.Applications, 'application_name', app["application_name"])
+        self.ude.remove_element(Applications.Applications, 'id', app["id"])
         self.add_application(app)
 
     def get_applications_dict(self):
         return self.ude.get_elements_dict(Applications.Applications, Applications.application_from_row,
-                                          'application_name')
+                                          'id')
 
-    def get_application(self, name):
-        return self.ude.get_element(Applications.Applications, "application_name", name,
+    def get_application(self, id):
+        return self.ude.get_element(Applications.Applications, "id", id,
                                     Applications.application_from_row)
 
     def remove_application(self, name):
-        self.ude.remove_element(Applications.Applications, 'application_name', name)
+        self.ude.remove_element(Applications.Applications, 'id', name)
 
     # SCRIPTS
     def get_script(self, script_id):
@@ -121,23 +137,24 @@ class ElementsDataStore:
     # PERIPHERALS
 
     def get_peripherals_dict(self):
-        return self.ude.get_elements_dict(Peripherals.Peripherals, Peripherals.peripheral_from_row, 'name')
+        return self.ude.get_elements_dict(Peripherals.Peripherals, Peripherals.peripheral_from_row, 'id')
 
     def get_peripheral(self, name):
-        return self.ude.get_element(Peripherals.Peripherals, "name", name, Peripherals.peripheral_from_row)
+        return self.ude.get_element(Peripherals.Peripherals, "id", name, Peripherals.peripheral_from_row)
 
     def add_peripheral(self, periph: dict):
-        item = Peripherals.Peripherals(name=periph["peripheral_name"], image=periph['image'],
-                                       version=periph['version'], registers=periph['registers'], parametric=periph['parametric'])
+        item = Peripherals.Peripherals(id=periph['id'], name=periph["peripheral_name"], image=periph['image'],
+                                       version=periph['version'], registers=periph['registers'],
+                                       parametric=periph['parametric'])
 
         self.ude.add_element(item, Peripherals.Peripherals)
 
     def edit_peripheral(self, periph):
-        self.remove_peripheral(periph["peripheral_name"])
+        self.remove_peripheral(periph["id"])
         self.add_peripheral(periph)
 
     def remove_peripheral(self, peripheral):
-        self.ude.remove_element(Peripherals.Peripherals, 'name', peripheral)
+        self.ude.remove_element(Peripherals.Peripherals, 'id', peripheral)
 
     # VERSIONS
 
@@ -159,10 +176,13 @@ class ElementsDataStore:
     def get_filters_hash(self):
         return str(self.ude.get_version(Filters.Filters))
 
+    def get_emulators_hash(self):
+        return str(self.ude.get_version(Emulator.Emulator))
+
     # BITSTREAMS
 
     def get_bitstreams_dict(self):
-        return self.ude.get_elements_dict(Bitstreams.Bitstreams, Bitstreams.bitstream_from_row,  'id')
+        return self.ude.get_elements_dict(Bitstreams.Bitstreams, Bitstreams.bitstream_from_row, 'id')
 
     def get_bitstream(self, id):
         return self.ude.get_element(Bitstreams.Bitstreams, "id", id, Bitstreams.bitstream_from_row)
@@ -180,7 +200,7 @@ class ElementsDataStore:
 
     # FILTERS
     def get_filters_dict(self):
-        return self.ude.get_elements_dict(Filters.Filters, Filters.filter_from_row,  'id')
+        return self.ude.get_elements_dict(Filters.Filters, Filters.filter_from_row, 'id')
 
     def get_filter(self, id):
         return self.ude.get_element(Filters.Filters, "id", id, Filters.filter_from_row)
@@ -196,7 +216,8 @@ class ElementsDataStore:
         else:
             q_taps = []
 
-        item = Filters.Filters(id=flt["id"], name=flt["name"], parameters=flt["parameters"], ideal_taps=id_taps, quantized_taps=q_taps)
+        item = Filters.Filters(id=flt["id"], name=flt["name"], parameters=flt["parameters"], ideal_taps=id_taps,
+                               quantized_taps=q_taps)
         self.ude.add_element(item, Filters.Filters)
 
     def edit_filter(self, filter_obj):
@@ -206,13 +227,33 @@ class ElementsDataStore:
     def remove_filter(self, flt_id: dict):
         self.ude.remove_element(Filters.Filters, 'id', flt_id)
 
+    # EMULATORS
+    def get_emulators_dict(self):
+        return self.ude.get_elements_dict(Emulator.Emulator, Emulator.emulator_from_row, 'id')
+
+    def get_emulator(self, emu_id):
+        return self.ude.get_element(Emulator.Emulator, "id", emu_id, Emulator.emulator_from_row)
+
+    def add_emulator(self, emu: dict):
+        item = Emulator.Emulator(id=emu["id"], name=emu["name"], connections=emu["connections"], cores=emu["cores"],
+                                 inputs=emu["inputs"], outputs=emu["outputs"])
+        self.ude.add_element(item, Emulator.Emulator)
+
+    def edit_emulator(self, emulator_obj):
+        self.remove_emulator(emulator_obj["id"])
+        self.add_emulator(emulator_obj)
+
+    def remove_emulator(self, name):
+        self.ude.remove_element(Emulator.Emulator, 'id', name)
+
     def dump(self):
         dump = {'applications': self.ude.dump(Applications.Applications, Applications.application_from_row),
                 'peripherals': self.ude.dump(Peripherals.Peripherals, Peripherals.peripheral_from_row),
                 'scripts': self.ude.dump(Scripts.Scripts, Scripts.script_from_row),
                 'programs': self.ude.dump(Programs.Programs, Programs.program_from_row),
                 'bitstreams': self.ude.dump(Bitstreams.Bitstreams, Bitstreams.bitstream_from_row),
-                'filters': self.ude.dump(Filters.Filters, Filters.filter_from_row)
+                'filters': self.ude.dump(Filters.Filters, Filters.filter_from_row),
+                'emulators': self.ude.dump(Emulator.Emulator, Emulator.emulator_from_row)
                 }
         return dump
 
@@ -241,3 +282,7 @@ class ElementsDataStore:
         for filter_obj in data['filters']:
             self.remove_filter(filter_obj['id'])
             self.add_filter(filter_obj)
+
+        for emulator_obj in data['emulators']:
+            self.remove_emulator(emulator_obj["name"])
+            self.add_emulator(emulator_obj)

@@ -79,6 +79,7 @@ def create_app():
         from uScopeBackend.auth_manager import auth_manager_bp, AuthManager
         from uScopeBackend.bitstream_manager import bitstream_manager_bp, BitstreamManager
         from uScopeBackend.filters_manager import filters_manager_bp, FilterManager
+        from uScopeBackend.emulator_manager import emulator_manager_bp, EmulatorManager
 
         app.interface = interface
 
@@ -92,6 +93,7 @@ def create_app():
         app.auth_mgr = AuthManager(store)
         app.bitstream_mgr = BitstreamManager(store)
         app.filter_mgr = FilterManager(store)
+        app.emu_mgr = EmulatorManager(store)
 
         # Register Blueprints
         app.register_blueprint(application_manager_bp)
@@ -104,5 +106,6 @@ def create_app():
         app.register_blueprint(auth_manager_bp)
         app.register_blueprint(bitstream_manager_bp)
         app.register_blueprint(filters_manager_bp)
+        app.register_blueprint(emulator_manager_bp)
 
     return app
