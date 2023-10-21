@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, ARRAY
 from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
 
@@ -21,12 +21,12 @@ from sqlalchemy.dialects import postgresql
 class Emulator(Base):
     __tablename__ = 'emulators'
 
-    VersionTableName = 'Emulators'
+    VersionTableName = 'emulators'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
     cores = Column(postgresql.JSONB)
-    connections = Column(postgresql.JSONB)
+    connections = Column(ARRAY(postgresql.JSONB))
     inputs = Column(postgresql.JSONB)
     outputs = Column(postgresql.JSONB)
 
@@ -36,6 +36,6 @@ class Emulator(Base):
 
 def emulator_from_row(row):
     return {
-        'id': row.id, 'name': row.name, 'cores': row.registers, 'connections': row.connections,
+        'id': row.id, 'name': row.name, 'cores': row.cores, 'connections': row.connections,
         'inputs': row.inputs, 'outputs': row.outputs
     }

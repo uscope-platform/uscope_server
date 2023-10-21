@@ -34,41 +34,40 @@ class Emulator(Resource):
 
     @jwt_required()
     @role_required("user")
-    def get(self, emu_name):
-        if emu_name == "none":
+    def get(self, emulator_id):
+        if emulator_id == "none":
             return jsonify(current_app.emu_mgr.get_emulators())
-
 
     @jwt_required()
     @role_required("user")
-    def post(self, filter_id):
+    def post(self, emulator_id):
         content = request.get_json()
         current_app.emu_mgr.add_emulator(content)
         return '200'
 
     @jwt_required()
     @role_required("user")
-    def patch(self, filter_id):
+    def patch(self, emulator_id):
         edit = request.get_json()
         current_app.emu_mgr.edit_emulator(edit)
         return '200'
 
     @jwt_required()
     @role_required("user")
-    def delete(self, filter_id):
-        current_app.emu_mgr.delete_emulator(filter_id)
+    def delete(self, emulator_id):
+        current_app.emu_mgr.delete_emulator(emulator_id)
         return '200'
 
 
 class EmulatorDigest(Resource):
     @jwt_required()
     @role_required("user")
-    def get(self, filter_id):
-        return jsonify(current_app.emu_mgr.get_digest(filter_id))
+    def get(self):
+        return jsonify(current_app.emu_mgr.get_digest())
 
 
 api.add_resource(EmulatorDigest, '/digest')
-api.add_resource(Emulator, '/<string:filter_id>')
+api.add_resource(Emulator, '/<string:emulator_id>')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -92,7 +91,11 @@ class EmulatorManager:
 
     def edit_emulator(self, edit_obj):
         emu_obj = self.data_store.get_emulator(edit_obj['emulator'])
-        emu_obj[edit_obj['field']] = edit_obj['value']
+        a = edit_obj['action']
+        if a == 'add_core':
+            emu_obj['cores'][edit_obj['core']['id']] = edit_obj['core']
+        elif a == 'add_connection':
+            emu_obj['connections'].append(edit_obj['connection'])
         self.data_store.edit_emulator(emu_obj)
 
     def delete_emulator(self, filter_id):
