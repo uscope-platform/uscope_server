@@ -12,11 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numpy as np
+
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
-from filter_designer import FilterDesignEngine
 from . import role_required
 
 ############################################################
@@ -106,6 +105,13 @@ class EmulatorManager:
                 if item['source'] != edit_obj['source'] or item['target'] != edit_obj['target']:
                     new_list.append(item)
             emu_obj['connections'] = new_list
+        elif a == 'remove_node_connections':
+            new_list = []
+            for item in emu_obj['connections']:
+                if item['source'] != edit_obj['node'] and item['target'] != edit_obj['node']:
+                    new_list.append(item)
+            emu_obj['connections'] = new_list
+            print(new_list)
         elif a == 'add_output':
             emu_obj['cores'][edit_obj['core']]['outputs'].append(edit_obj['output'])
         elif a == 'add_input':
