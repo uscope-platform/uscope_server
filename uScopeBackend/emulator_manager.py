@@ -86,6 +86,9 @@ class EmulatorManager:
         return self.data_store.get_emulators_dict()
 
     def add_emulator(self, emulator_obj: dict):
+        emulators = self.data_store.get_emulators_dict();
+        if emulator_obj['id'] in emulators:
+            return "Duplicated emulator ID", '400'
         self.data_store.add_emulator(emulator_obj)
 
     def edit_emulator(self, edit_obj):
@@ -93,6 +96,8 @@ class EmulatorManager:
         a = edit_obj['action']
         if a == 'add_core':
             emu_obj['cores'][edit_obj['core']['id']] = edit_obj['core']
+        if a == 'edit_name':
+            emu_obj['name'] = edit_obj['value']
         elif a == 'edit_core_props':
             emu_obj['cores'][edit_obj['core']][edit_obj['field_name']] = edit_obj['value']
         elif a == 'remove_core':
