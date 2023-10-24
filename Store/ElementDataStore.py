@@ -235,8 +235,7 @@ class ElementsDataStore:
         return self.ude.get_element(Emulator.Emulator, "id", emu_id, Emulator.emulator_from_row)
 
     def add_emulator(self, emu: dict):
-        item = Emulator.Emulator(id=emu["id"], name=emu["name"], connections=emu["connections"], cores=emu["cores"],
-                                 inputs=emu["inputs"], outputs=emu["outputs"])
+        item = Emulator.Emulator(id=emu["id"], name=emu["name"], connections=emu["connections"], cores=emu["cores"])
         self.ude.add_element(item, Emulator.Emulator)
 
     def edit_emulator(self, emulator_obj):

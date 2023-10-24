@@ -27,8 +27,6 @@ class Emulator(Base):
     name = Column(String)
     cores = Column(postgresql.JSONB)
     connections = Column(ARRAY(postgresql.JSONB))
-    inputs = Column(postgresql.JSONB)
-    outputs = Column(postgresql.JSONB)
 
     def __repr__(self):
         return "<Peripheral(name='%s')>" % self.name
@@ -36,6 +34,5 @@ class Emulator(Base):
 
 def emulator_from_row(row):
     return {
-        'id': row.id, 'name': row.name, 'cores': row.cores, 'connections': row.connections,
-        'inputs': row.inputs, 'outputs': row.outputs
+        'id': row.id, 'name': row.name, 'cores': row.cores, 'connections': row.connections
     }
