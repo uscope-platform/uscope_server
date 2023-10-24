@@ -136,7 +136,6 @@ class EmulatorManager:
             if memory_idx == -1:
                 return
             emu_obj['cores'][edit_obj['core']]['memory_init'][memory_idx][edit_obj['field_name']] = edit_obj['value']
-
         elif a == 'remove_output':
             new_list = []
             for item in emu_obj['cores'][edit_obj['core']]['outputs']:
@@ -163,6 +162,20 @@ class EmulatorManager:
             if connection_idx == -1:
                 return
             emu_obj['connections'][connection_idx]['channels'].append(edit_obj['channel'])
+        elif a == 'edit_dma_channel':
+            connection_idx = -1
+            for idx, item in enumerate(emu_obj['connections']):
+                if item['source'] == edit_obj['source'] and item['target'] == edit_obj['target']:
+                    connection_idx = idx
+            if connection_idx == -1:
+                return
+            channels_idx = -1
+            for idx, item in enumerate(emu_obj['connections'][connection_idx]['channels']):
+                if item['name'] == edit_obj['channel']:
+                    channels_idx = idx
+            if channels_idx == -1:
+                return
+            emu_obj['connections'][connection_idx]['channels'][channels_idx][edit_obj['field_name']] = edit_obj['value']
         elif a == 'remove_dma_channel':
             pass
 
