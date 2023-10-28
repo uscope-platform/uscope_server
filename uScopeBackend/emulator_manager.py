@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import current_app, Blueprint, jsonify, request
+from flask import current_app, Blueprint, jsonify, request, abort
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
 from . import role_required
+from werkzeug.exceptions import BadRequest
 
 ############################################################
 #                      BLUEPRINT                           #
@@ -86,9 +87,9 @@ class EmulatorManager:
         return self.data_store.get_emulators_dict()
 
     def add_emulator(self, emulator_obj: dict):
-        emulators = self.data_store.get_emulators_dict();
+        emulators = self.data_store.get_emulators_dict()
         if emulator_obj['id'] in emulators:
-            return "Duplicated emulator ID", '400'
+            raise BadRequest("Duplicated emulator ID")
         self.data_store.add_emulator(emulator_obj)
 
     def edit_emulator(self, edit_obj):
@@ -188,7 +189,17 @@ class EmulatorManager:
                 return
             emu_obj['connections'][connection_idx]['channels'][channels_idx][edit_obj['field_name']] = edit_obj['value']
         elif a == 'remove_dma_channel':
-            pass
+            new_channels = []
+            connection_idx = -1
+            for idx, item in enumerate(emu_obj['connections']):
+                if item['source'] == edit_obj['source'] and item['target'] == edit_obj['target']:
+                    connection_idx = idx
+            if connection_idx == -1:
+                return
+            for item in emu_obj['connections'][connection_idx]['channels']:
+                if item['name'] != edit_obj['name']:
+                    new_channels.append(item)
+            emu_obj['connections'][connection_idx]['channels'] = new_channels
 
         self.data_store.edit_emulator(emu_obj)
 
