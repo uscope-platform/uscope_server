@@ -124,6 +124,8 @@ class EmulatorManager:
             emu_obj['cores'][edit_obj['core']]['inputs'].append(edit_obj['input'])
         elif a == 'add_memory':
             emu_obj['cores'][edit_obj['core']]['memory_init'].append(edit_obj['memory'])
+        elif a == 'add_input_data':
+            emu_obj['cores'][edit_obj['core']]['input_data'].append(edit_obj['input_data'])
         elif a == 'edit_input':
             input_idx = -1
             for idx, item in enumerate(emu_obj['cores'][edit_obj['core']]['inputs']):
@@ -160,6 +162,12 @@ class EmulatorManager:
                 if item['name'] != edit_obj["name"]:
                     new_list.append(item)
             emu_obj['cores'][edit_obj['core']]['inputs'] = new_list
+        elif a == 'remove_input_data':
+            new_list = []
+            for item in emu_obj['cores'][edit_obj['core']]['input_data']:
+                if item['name'] != edit_obj["name"]:
+                    new_list.append(item)
+            emu_obj['cores'][edit_obj['core']]['input_data'] = new_list
         elif a == 'remove_memory':
             new_list = []
             for item in emu_obj['cores'][edit_obj['core']]['memory_init']:
