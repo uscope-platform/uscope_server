@@ -19,6 +19,8 @@ from flask_jwt_extended import jwt_required
 from . import role_required
 from werkzeug.exceptions import BadRequest
 
+from fCore_compiler import fCore_emulator
+
 ############################################################
 #                      BLUEPRINT                           #
 ############################################################
@@ -66,7 +68,16 @@ class EmulatorDigest(Resource):
         return jsonify(current_app.emu_mgr.get_digest())
 
 
+class EmulatorRun(Resource):
+    @jwt_required()
+    @role_required("user")
+    def post(self):
+        spec = request.get_json()
+        return jsonify(current_app.emu_mgr.run(spec))
+
+
 api.add_resource(EmulatorDigest, '/digest')
+api.add_resource(EmulatorRun, '/run')
 api.add_resource(Emulator, '/<string:emulator_id>')
 
 ############################################################
@@ -210,6 +221,9 @@ class EmulatorManager:
             emu_obj['connections'][connection_idx]['channels'] = new_channels
 
         self.data_store.edit_emulator(emu_obj)
+
+    def run(self, spec):
+        return fCore_emulator.emulate(spec)
 
     def delete_emulator(self, filter_id):
         self.data_store.remove_emulator(filter_id)
