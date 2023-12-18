@@ -110,6 +110,8 @@ class EmulatorManager:
             emu_obj['cores'][edit_obj['core']['id']] = edit_obj['core']
         if a == 'edit_name':
             emu_obj['name'] = edit_obj['value']
+        if a == 'edit_cycles':
+            emu_obj['n_cycles'] = edit_obj['value']
         elif a == 'edit_core_props':
             emu_obj['cores'][edit_obj['core']][edit_obj['field_name']] = edit_obj['value']
         elif a == 'remove_core':
