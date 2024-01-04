@@ -81,6 +81,10 @@ class BitstreamManager:
 
     def __init__(self, store):
         debug_config = os.environ.get("DEBUG")
+        self.arch = "zynq"
+        if "ARCH" in os.environ:
+            self.arch = os.environ.get("ARCH")
+        self.target_arch = os.environ.get("DEBUG")
         self.debug = debug_config == "TRUE"
 
         if self.debug:
@@ -117,7 +121,12 @@ class BitstreamManager:
         bitstream_path = self.name_to_path(raw_bitstream_obj["name"])
 
         if not self.debug:
-            self.write_bin_bitstream(raw_bitstream_obj, bitstream_path)
+            if self.arch == "zynq":
+                self.write_zynq_bitstream(raw_bitstream_obj, bitstream_path)
+            elif self.arch == "zynqmp":
+                self.write_zynqmp_bitstream(raw_bitstream_obj, bitstream_path)
+            else:
+                return
 
         bitstream_obj = {'id': raw_bitstream_obj['id'], 'path': bitstream_path}
         self.data_store.add_bitstream(bitstream_obj)
@@ -146,7 +155,32 @@ class BitstreamManager:
             os.remove(bitstream['path'])
         self.data_store.remove_bitstream(bitstream_id)
 
-    def write_bin_bitstream(self, bit_file, bitstream_path):
+
+    def write_zynqmp_bitstream(self, bit_file, bitstream_path):
+        content = base64.b64decode(bit_file['content'])
+        bif_content = '''
+            //arch = zynqmp; split = false; format = BIN
+            all:
+            {
+                 [destination_device = pl] {{input_dir}}/input.bit
+            }
+            '''
+
+        bif_content = bif_content.replace("{{input_dir}}", self.bitstream_storage_path)
+
+        input_file_path = f'{self.bitstream_storage_path}/input.bit'
+        input_bif_path = f'{self.bitstream_storage_path}/input.bif'
+        with open(input_file_path, "wb+") as f:
+            f.write(content)
+        with open(input_bif_path, "w") as f:
+            f.write(bif_content)
+        processed_file = f'{input_file_path}.bin'
+        subprocess.run(["bootgen", "-image", input_bif_path, "-arch", "zynqmp", "-o", "./"+processed_file, '-w'])
+        os.rename(processed_file, bitstream_path)
+        os.remove(input_file_path)
+        os.remove(input_bif_path)
+
+    def write_zynq_bitstream(self, bit_file, bitstream_path):
         content = base64.b64decode(bit_file['content'])
         bif_content = '''
         //arch = zynq; split = false; format = BIN
