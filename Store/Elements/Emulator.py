@@ -1,4 +1,4 @@
-# Copyright 2021 University of Nottingham Ningbo China
+## Copyright 2023 Filippo Savi
 # Author: Filippo Savi <filssavi@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,30 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, String, Boolean, Integer
+from sqlalchemy import Column, String, Integer, ARRAY
 from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
 
 
-class Peripherals(Base):
-    __tablename__ = 'peripherals'
+class Emulator(Base):
+    __tablename__ = 'emulators'
 
-    VersionTableName = 'Peripherals'
+    VersionTableName = 'emulators'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    image = Column(String)
-    version = Column(String)
-    registers = Column(postgresql.JSONB)
-    parametric = Column(Boolean)
+    cores = Column(postgresql.JSONB)
+    connections = Column(ARRAY(postgresql.JSONB))
+    n_cycles = Column(Integer)
 
     def __repr__(self):
-        return "<Peripheral(name='%s', image='%s', version='%s')>" % (
-                             self.name, self.image, self.version)
+        return "<Peripheral(name='%s')>" % self.name
 
 
-def peripheral_from_row(row):
+def emulator_from_row(row):
     return {
-        'id': row.id, 'peripheral_name': row.name, 'image': row.image, 'version': row.version,
-        'parametric': row.parametric, 'registers': row.registers
-            }
+        'id': row.id, 'name': row.name, 'cores': row.cores, 'connections': row.connections, 'n_cycles': row.n_cycles
+    }
