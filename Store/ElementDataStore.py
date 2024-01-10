@@ -16,7 +16,7 @@
 import copy
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 from .Elements import Peripherals, Programs, Applications, Scripts, UserDataElement, Bitstreams, Filters, Emulator
 
@@ -38,11 +38,11 @@ class ElementsDataStore:
         self.ude = UserDataElement.UserDataElement(self.Session)
 
     def table_add_id(self, table):
-        test_query = "SELECT column_name FROM information_schema.columns WHERE table_name='{table_name}' and column_name='id';".format(
-            table_name=table)
-        add_column_query = "ALTER TABLE {table_name} ADD COLUMN id SERIAL;".format(table_name=table)
-        drop_key = "alter table {table_name} drop constraint {table_name}_pk;".format(table_name=table)
-        add_key = "alter table {table_name} add constraint {table_name}_pk primary key (id);".format(table_name=table)
+        test_query = text("SELECT column_name FROM information_schema.columns WHERE table_name='{table_name}' and column_name='id';".format(
+            table_name=table))
+        add_column_query = text("ALTER TABLE {table_name} ADD COLUMN id SERIAL;".format(table_name=table))
+        drop_key = text("alter table {table_name} drop constraint {table_name}_pk;".format(table_name=table))
+        add_key = text("alter table {table_name} add constraint {table_name}_pk primary key (id);".format(table_name=table))
         with self.engine.connect() as con:
             if len(con.execute(test_query).all()) == 0:
                 con.execute(add_column_query)
