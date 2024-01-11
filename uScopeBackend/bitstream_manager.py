@@ -175,7 +175,7 @@ class BitstreamManager:
         with open(input_bif_path, "w") as f:
             f.write(bif_content)
         processed_file = f'{input_file_path}.bin'
-        subprocess.run(["bootgen", "-image", input_bif_path, "-arch", "zynqmp", "-o", "./"+processed_file, '-w'])
+        subprocess.run(["bootgen", "-image", input_bif_path, "-arch", "zynqmp", "-o", processed_file, '-w'])
         os.rename(processed_file, bitstream_path)
         os.remove(input_file_path)
         os.remove(input_bif_path)
