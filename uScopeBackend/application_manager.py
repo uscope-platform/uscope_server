@@ -337,6 +337,15 @@ class ApplicationManager:
         if 'initial_registers_values' in chosen_app:
             self.initialize_registers(chosen_app['initial_registers_values'])
 
+        if chosen_app['scope_mux_address'] != "":
+            scope_addresses = {
+                "mux": int(chosen_app['scope_mux_address']),
+                "buffer_address": int(chosen_app['scope_buffer_address']),
+                "enable": int(chosen_app['scope_enable_address']),
+                "length": int(chosen_app['scope_data_length_address'])
+            }
+            self.interface.set_scope_data(scope_addresses)
+
         if "clock_frequency" in chosen_app:
             self.interface.set_clock_frequency(0, chosen_app["clock_frequency"])
 
