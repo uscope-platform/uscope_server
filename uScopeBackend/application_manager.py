@@ -348,6 +348,10 @@ class ApplicationManager:
 
         if "clock_frequency" in chosen_app:
             self.interface.set_clock_frequency(0, chosen_app["clock_frequency"])
+            
+        if "manual_metadata" in chosen_app:
+            if chosen_app["manual_metadata"] == "true":
+                self.interface.enable_manual_metadata()
 
     def get_all_applications(self):
         """ Get all the application specifications

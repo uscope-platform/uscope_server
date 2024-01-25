@@ -35,11 +35,12 @@ C_APPLY_FILTER = 14
 C_SET_CHANNEL_SIGNS = 15
 C_GET_VERSION = 16
 C_SET_SCOPE_DATA = 17
+C_ENABLE_MANUAL_METADATA = 18
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
 RESP_DATA_NOT_READY = '3'
-
+RESP_BITSTREAM_LOAD_FAILED = '5'
 
 class uCube_interface:
     def __init__(self, hw_host, hw_port):
@@ -144,3 +145,6 @@ class uCube_interface:
 
     def set_scope_data(self, scope_data):
         return self.send_command(C_SET_SCOPE_DATA, scope_data)
+
+    def enable_manual_metadata(self):
+        return self.send_command(C_ENABLE_MANUAL_METADATA, {})
