@@ -19,23 +19,24 @@ import json
 
 channel_data_raw = []
 
-C_NULL_COMMAND = 0
-C_LOAD_BITSTREAM = 1
-C_SINGLE_REGISTER_WRITE = 2
-C_SET_FREQUENCY = 3
-C_SINGLE_REGISTER_READ = 4
-C_START_CAPTURE = 6
-C_READ_DATA = 8
-C_CHECK_CAPTURE_PROGRESS = 9
-C_SET_CHANNEL_WIDTHS = 10
-C_APPLY_PROGRAM = 11
-C_SET_SCALING_FACTORS = 12
-C_SET_CHANNEL_STATUS = 13
-C_APPLY_FILTER = 14
-C_SET_CHANNEL_SIGNS = 15
-C_GET_VERSION = 16
-C_SET_SCOPE_DATA = 17
-C_ENABLE_MANUAL_METADATA = 18
+C_NULL_COMMAND = 'null'
+C_LOAD_BITSTREAM = 'load_bitstream'
+C_SINGLE_REGISTER_WRITE = 'register_write'
+C_SET_FREQUENCY = 'set_frequency'
+C_SINGLE_REGISTER_READ = 'register_read'
+C_START_CAPTURE = 'start_capture'
+C_READ_DATA = 'read_data'
+C_CHECK_CAPTURE_PROGRESS = 'check_capture'
+C_SET_CHANNEL_WIDTHS = 'set_channel_widths'
+C_APPLY_PROGRAM = 'apply_program'
+C_SET_SCALING_FACTORS = 'set_scaling_factors'
+C_SET_CHANNEL_STATUS = 'set_channel_status'
+C_APPLY_FILTER = 'apply_filter'
+C_SET_CHANNEL_SIGNS = 'set_channel_signs'
+C_GET_VERSION = 'get_varsion'
+C_SET_SCOPE_DATA = 'set_scope_data'
+C_ENABLE_MANUAL_METADATA = 'enable_manual_metadata'
+C_DEPLOY_HIL = 'deploy_hil'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -148,3 +149,6 @@ class uCube_interface:
 
     def enable_manual_metadata(self):
         return self.send_command(C_ENABLE_MANUAL_METADATA, {})
+
+    def deploy_hil(self, spec):
+        return self.send_command(C_DEPLOY_HIL, spec)
