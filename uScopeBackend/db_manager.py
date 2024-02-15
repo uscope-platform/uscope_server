@@ -111,7 +111,7 @@ class DatabaseManager:
             retval = self.interface.get_version(component)
             return retval
         else:
-            return os.getenv("VERSION")
+            return os.getenv("UPLATFORM_SERVER_VERSION")
 
     def restore_bitstreams(self, dump):
             for i in dump:
