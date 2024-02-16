@@ -26,8 +26,8 @@ def emulate(spec):
         f.write(json.dumps(spec))
         f.close()
 
-    result = subprocess.run(["fCore_emu", "/tmp/emu_specs.json", "--o", "/tmp/results.json"],
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    result = subprocess.run(["fCore_emu", "/tmp/emu_specs.json", "--o", "/tmp/results.json", "--debug_autogen"],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd='/tmp')
 
     if not os.path.exists("/tmp/results.json"):
         if result.stdout:
