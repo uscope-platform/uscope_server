@@ -94,7 +94,7 @@ def create_app():
         app.auth_mgr = AuthManager(store)
         app.bitstream_mgr = BitstreamManager(store)
         app.filter_mgr = FilterManager(store)
-        app.emu_mgr = EmulatorManager(store)
+        app.emu_mgr = EmulatorManager(interface, store)
         app.hil_mgr = HilManager(interface)
 
         # Register Blueprints

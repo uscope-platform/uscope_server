@@ -37,34 +37,36 @@ C_GET_VERSION = 'get_version'
 C_SET_SCOPE_DATA = 'set_scope_data'
 C_ENABLE_MANUAL_METADATA = 'enable_manual_metadata'
 C_DEPLOY_HIL = 'deploy_hil'
+C_EMULATE_HIL = 'emulate_hil'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
 RESP_DATA_NOT_READY = '3'
 RESP_BITSTREAM_LOAD_FAILED = '5'
 
+
 class uCube_interface:
     def __init__(self, hw_host, hw_port):
         self.hw_host = hw_host
         self.hw_port = hw_port
 
-    def socket_recv(self,socket, n_bytes):
+    def socket_recv(self, socket, n_bytes):
         raw_data = b''
         while len(raw_data) != n_bytes:
             raw_data += socket.recv(n_bytes - len(raw_data))
         return raw_data
 
-    def send_command(self, command_idx: int, arguments):
+    def send_command(self, command_idx: str, arguments):
         command_obj = {"cmd": command_idx, "args": arguments}
         command = json.dumps(command_obj)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             data = 0
             s.connect((self.hw_host, self.hw_port))
-            
+
             raw_command = command.encode()
 
             command_length = str(len(raw_command)).zfill(10)
-            
+
             s.send(command_length.encode())
             self.socket_recv(s, 2)
             s.send(raw_command)
@@ -80,9 +82,9 @@ class uCube_interface:
             if response_code != 1:
                 if resp_obj["cmd"] == 8:
                     raise RuntimeError
-                return response_code
+                elif response_code == 7:
+                    raise RuntimeError(response["data"])
             if "data" in response:
-
                 return response["data"]
             return response_code
 
@@ -139,7 +141,7 @@ class uCube_interface:
             addr = int(filter_address, 0)
         else:
             addr = filter_address
-        return  self.send_command(C_APPLY_FILTER, {"address": addr, "taps": taps})
+        return self.send_command(C_APPLY_FILTER, {"address": addr, "taps": taps})
 
     def get_version(self, component):
         return self.send_command(C_GET_VERSION, component)
@@ -152,3 +154,12 @@ class uCube_interface:
 
     def deploy_hil(self, spec):
         return self.send_command(C_DEPLOY_HIL, spec)
+
+    def emulate_hil(self, spec):
+        res = "Generic Emulation error"
+        try:
+            res = json.loads(self.send_command(C_EMULATE_HIL, spec))
+        except RuntimeError as ex:
+            res = {'code': 7, 'error': ex.args[0]}
+
+        return res

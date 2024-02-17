@@ -28,7 +28,6 @@ from fCore_compiler import fCore_emulator
 
 emulator_manager_bp = Blueprint('emulator_manager', __name__, url_prefix='/emulators')
 
-
 api = Api(emulator_manager_bp)
 
 
@@ -80,6 +79,7 @@ api.add_resource(EmulatorDigest, '/digest')
 api.add_resource(EmulatorRun, '/run')
 api.add_resource(Emulator, '/<string:emulator_id>')
 
+
 ############################################################
 #                      IMPLEMENTATION                      #
 ############################################################
@@ -87,8 +87,9 @@ api.add_resource(Emulator, '/<string:emulator_id>')
 
 class EmulatorManager:
 
-    def __init__(self, store):
+    def __init__(self, low_level_interface, store):
 
+        self.interface = low_level_interface
         self.data_store = store.Elements
 
     def get_digest(self):
@@ -225,7 +226,8 @@ class EmulatorManager:
         self.data_store.edit_emulator(emu_obj)
 
     def run(self, spec):
-        return fCore_emulator.emulate(spec)
+        results = self.interface.emulate_hil(spec)
+        return results
 
     def delete_emulator(self, filter_id):
         self.data_store.remove_emulator(filter_id)

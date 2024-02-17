@@ -16,9 +16,6 @@
 import json
 import os
 import subprocess
-from jinja2 import Template
-import hashlib
-
 
 def emulate(spec):
 
