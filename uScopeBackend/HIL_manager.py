@@ -51,4 +51,4 @@ class HilManager:
         self.interface = low_level_interface
 
     def deploy(self, specs):
-        self.interface.deploy_hil(specs)
+        return self.interface.deploy_hil(specs)

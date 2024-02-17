@@ -45,6 +45,16 @@ RESP_DATA_NOT_READY = '3'
 RESP_BITSTREAM_LOAD_FAILED = '5'
 
 
+class DriverError(Exception):
+    def __init__(self, message, code):
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
+
+        # Now for your custom code...
+        self.code = code
+        self.message =  message
+
+
 class uCube_interface:
     def __init__(self, hw_host, hw_port):
         self.hw_host = hw_host
@@ -80,10 +90,7 @@ class uCube_interface:
             response_code = response["response_code"]
 
             if response_code != 1:
-                if resp_obj["cmd"] == 8:
-                    raise RuntimeError
-                elif response_code == 7:
-                    raise RuntimeError(response["data"])
+                raise DriverError(response["data"], response_code)
             if "data" in response:
                 return response["data"]
             return response_code
@@ -153,13 +160,17 @@ class uCube_interface:
         return self.send_command(C_ENABLE_MANUAL_METADATA, {})
 
     def deploy_hil(self, spec):
-        return self.send_command(C_DEPLOY_HIL, spec)
+        res = "Generic Deployment error"
+        try:
+            res = self.send_command(C_DEPLOY_HIL, spec)
+        except DriverError as ex:
+            res = {'code': ex.code, 'error': ex.message}
+        return res
 
     def emulate_hil(self, spec):
         res = "Generic Emulation error"
         try:
             res = json.loads(self.send_command(C_EMULATE_HIL, spec))
-        except RuntimeError as ex:
-            res = {'code': 7, 'error': ex.args[0]}
-
+        except DriverError as ex:
+            res = {'code': ex.code, 'error': ex.message}
         return res
