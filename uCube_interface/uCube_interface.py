@@ -46,12 +46,13 @@ RESP_BITSTREAM_LOAD_FAILED = '5'
 
 
 class DriverError(Exception):
-    def __init__(self, message, code):
+    def __init__(self, message, code, data):
         # Call the base class constructor with the parameters it needs
         super().__init__(message)
 
         # Now for your custom code...
         self.code = code
+        self.data = data
         self.message =  message
 
 
@@ -90,7 +91,7 @@ class uCube_interface:
             response_code = response["response_code"]
 
             if response_code != 1:
-                raise DriverError(response["data"], response_code)
+                raise DriverError(response["data"], response_code, response['duplicates'])
             if "data" in response:
                 return response["data"]
             return response_code
@@ -164,7 +165,7 @@ class uCube_interface:
         try:
             res = self.send_command(C_DEPLOY_HIL, spec)
         except DriverError as ex:
-            res = {'code': ex.code, 'error': ex.message}
+            res = {'code': ex.code, 'error': ex.message, 'duplicates': ex.data}
         return res
 
     def emulate_hil(self, spec):
@@ -172,5 +173,5 @@ class uCube_interface:
         try:
             res = json.loads(self.send_command(C_EMULATE_HIL, spec))
         except DriverError as ex:
-            res = {'code': ex.code, 'error': ex.message}
+            res = {'code': ex.code, 'error': ex.message,  'duplicates': ex.data}
         return res
