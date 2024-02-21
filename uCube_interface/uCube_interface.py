@@ -38,6 +38,8 @@ C_SET_SCOPE_DATA = 'set_scope_data'
 C_ENABLE_MANUAL_METADATA = 'enable_manual_metadata'
 C_DEPLOY_HIL = 'deploy_hil'
 C_EMULATE_HIL = 'emulate_hil'
+C_HIL_SELECT_OUT = 'hil_select_out'
+C_HIL_SET_IN = 'hil_set_in'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -167,6 +169,12 @@ class uCube_interface:
         except DriverError as ex:
             res = {'code': ex.code, 'error': ex.message, 'duplicates': ex.data}
         return res
+
+    def select_out(self, spec):
+        return self.send_command(C_HIL_SELECT_OUT, spec)
+
+    def set_in(self, spec):
+        return self.send_command(C_HIL_SET_IN, spec)
 
     def emulate_hil(self, spec):
         res = "Generic Emulation error"

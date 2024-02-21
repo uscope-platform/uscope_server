@@ -38,7 +38,25 @@ class HIL_deploy(Resource):
         return jsonify(current_app.hil_mgr.deploy(spec))
 
 
+class Hil_select_output(Resource):
+    @jwt_required()
+    @role_required("user")
+    def post(self):
+        spec = request.get_json()
+        return jsonify(current_app.hil_mgr.select_out(spec))
+
+
+class Hil_set_input(Resource):
+    @jwt_required()
+    @role_required("user")
+    def post(self):
+        spec = request.get_json()
+        return jsonify(current_app.hil_mgr.set_input(spec))
+
+
 api.add_resource(HIL_deploy, '/deploy')
+api.add_resource(Hil_select_output, '/select_out')
+api.add_resource(Hil_set_input, '/set_input')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -52,3 +70,9 @@ class HilManager:
 
     def deploy(self, specs):
         return self.interface.deploy_hil(specs)
+
+    def select_out(self, specs):
+        return self.interface.select_out(specs)
+
+    def set_input(self, specs):
+        return self.interface.set_in(specs)
