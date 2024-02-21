@@ -54,9 +54,25 @@ class Hil_set_input(Resource):
         return jsonify(current_app.hil_mgr.set_input(spec))
 
 
+class Hil_start(Resource):
+    @jwt_required()
+    @role_required("user")
+    def get(self):
+        return jsonify(current_app.hil_mgr.start_hil())
+
+
+class Hil_stop(Resource):
+    @jwt_required()
+    @role_required("user")
+    def get(self):
+        return jsonify(current_app.hil_mgr.stop_hil())
+
+
 api.add_resource(HIL_deploy, '/deploy')
 api.add_resource(Hil_select_output, '/select_out')
 api.add_resource(Hil_set_input, '/set_input')
+api.add_resource(Hil_start, '/start')
+api.add_resource(Hil_stop, '/stop')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -76,3 +92,9 @@ class HilManager:
 
     def set_input(self, specs):
         return self.interface.set_in(specs)
+
+    def start_hil(self):
+        return self.interface.start_hil()
+
+    def stop_hil(self):
+        return self.interface.stop_hil()

@@ -40,6 +40,8 @@ C_DEPLOY_HIL = 'deploy_hil'
 C_EMULATE_HIL = 'emulate_hil'
 C_HIL_SELECT_OUT = 'hil_select_out'
 C_HIL_SET_IN = 'hil_set_in'
+C_HIL_START = 'hil_start'
+C_HIL_STOP = 'hil_stop'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -175,6 +177,12 @@ class uCube_interface:
 
     def set_in(self, spec):
         return self.send_command(C_HIL_SET_IN, spec)
+
+    def start_hil(self):
+        return self.send_command(C_HIL_START, {})
+
+    def stop_hil(self):
+        return self.send_command(C_HIL_STOP, {})
 
     def emulate_hil(self, spec):
         res = "Generic Emulation error"
