@@ -339,10 +339,7 @@ class ApplicationManager:
 
         if chosen_app['scope_mux_address'] != "":
             scope_addresses = {
-                "mux": int(chosen_app['scope_mux_address'], 0),
-                "buffer_address": int(chosen_app['scope_buffer_address'], 0),
-                "enable": int(chosen_app['scope_enable_address'], 0),
-                "length": int(chosen_app['scope_data_length_address'], 0)
+                "buffer_address": int(chosen_app['scope_buffer_address'], 0)
             }
             self.interface.set_scope_data(scope_addresses)
 
