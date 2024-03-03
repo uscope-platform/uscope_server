@@ -102,6 +102,20 @@ class ChannelScalingFactors(Resource):
         return current_app.plot_mgr.set_scaling_factors(sfs)
 
 
+class Acquisition(Resource):
+
+    @jwt_required()
+    @role_required("operator")
+    def get(self):
+        return current_app.plot_mgr.get_acquisition_status()
+
+    @jwt_required()
+    @role_required("operator")
+    def post(self):
+        args = request.get_json(force=True)
+        return current_app.plot_mgr.set_acquisition(args)
+
+
 api.add_resource(SetupCapture, '/capture')
 api.add_resource(ChannelsSpecs, '/channels/specs')
 api.add_resource(ChannelParams, '/channels/params')
@@ -110,6 +124,7 @@ api.add_resource(ChannelStatus, '/channels/status')
 api.add_resource(ChannelWidths, '/channels/widths')
 api.add_resource(ChannelSigns,  '/channels/signs')
 api.add_resource(ChannelScalingFactors, '/channels/scaling_factors')
+api.add_resource(Acquisition, '/acquisition')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -218,3 +233,8 @@ class PlotManager:
         self.interface.set_channel_status(status)
         return "200"
 
+    def get_acquisition_status(self):
+        return self.interface.get_acquisition_status()
+
+    def set_acquisition(self, acquisition_obj):
+        return self.interface.set_acquisition(acquisition_obj)

@@ -42,6 +42,8 @@ C_HIL_SELECT_OUT = 'hil_select_out'
 C_HIL_SET_IN = 'hil_set_in'
 C_HIL_START = 'hil_start'
 C_HIL_STOP = 'hil_stop'
+C_GET_ACQUISITION_STATUS = 'get_acquisition_status'
+C_SET_ACQUISITION = 'set_acquisition'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -183,6 +185,12 @@ class uCube_interface:
 
     def stop_hil(self):
         return self.send_command(C_HIL_STOP, {})
+
+    def get_acquisition_status(self):
+        return self.send_command(C_GET_ACQUISITION_STATUS, {})
+
+    def set_acquisition(self, arg):
+        return self.send_command(C_SET_ACQUISITION, arg)
 
     def emulate_hil(self, spec):
         res = "Generic Emulation error"
