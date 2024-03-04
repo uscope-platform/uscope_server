@@ -44,6 +44,7 @@ C_HIL_START = 'hil_start'
 C_HIL_STOP = 'hil_stop'
 C_GET_ACQUISITION_STATUS = 'get_acquisition_status'
 C_SET_ACQUISITION = 'set_acquisition'
+C_SET_SCOPE_ADDRESS = 'set_scope_address'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -191,6 +192,9 @@ class uCube_interface:
 
     def set_acquisition(self, arg):
         return self.send_command(C_SET_ACQUISITION, arg)
+
+    def set_scope_address(self, address):
+        return self.send_command(C_SET_SCOPE_ADDRESS, address)
 
     def emulate_hil(self, spec):
         res = "Generic Emulation error"
