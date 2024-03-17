@@ -30,6 +30,8 @@ class Programs(Base):
     hex = Column(postgresql.ARRAY(BigInteger))
     build_settings = Column(postgresql.JSONB)
     cached_bin_version = Column(String)
+    headers = Column(postgresql.ARRAY(Integer))
+
     def __repr__(self):
         return "<Program(id='%s', name='%s', content='%s')>" % (
                              self.id, self.name, self.content)
@@ -37,4 +39,5 @@ class Programs(Base):
 
 def program_from_row(row):
     return {'id': row.id, 'name': row.name, 'program_content': row.content,
-            'program_type': row.type, 'hex': row.hex, 'build_settings': row.build_settings, 'cached_bin_version':row.cached_bin_version}
+            'program_type': row.type, 'hex': row.hex, 'build_settings': row.build_settings,
+            'cached_bin_version': row.cached_bin_version, 'headers': row.headers}

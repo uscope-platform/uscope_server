@@ -116,8 +116,15 @@ class ProgramsManager:
 
     def compile_program(self, program_id):
         program = self.data_store.get_program(program_id)
+        headers = list()
+
+        for h in program["headers"]:
+            h_obj = self.data_store.get_program(h)
+            headers.append({"name": h_obj["name"], "content": h_obj["program_content"]})
+
         try:
-            compiled_res, program_size, new_hash = self.bridge.compile(program['program_content'], program['program_type'])
+            compiled_res, program_size, new_hash = self.bridge.compile(program['program_content'],
+                                                                       program['program_type'], headers=headers)
         except ValueError as err:
             error_codes = [{"status": "failed", "file": program['name'], "error": str(err)}]
             return error_codes
@@ -140,6 +147,13 @@ class ProgramsManager:
         program = self.data_store.get_program(key)
         core = list(filter(lambda x: x["id"] == core_id, app["soft_cores"]))[0]
         program_hex = program["hex"]
+
+        headers = list()
+
+        for h in program["headers"]:
+            h_obj = self.data_store.get_program(h)
+            headers.append({"name": h_obj["name"], "content": h_obj["program_content"]})
+
         if "io" in core:
             if core["io"]:
                 try:
@@ -147,7 +161,8 @@ class ProgramsManager:
                         program['program_content'],
                         program['program_type'],
                         dma_io=core["io"],
-                        cached_hash=program['cached_bin_version']
+                        cached_hash=program['cached_bin_version'],
+                        headers=headers
                     )
                     if new_hash != program['cached_bin_version']:
                         program["hex"] = program_hex
