@@ -98,7 +98,11 @@ class uCube_interface:
             response_code = response["response_code"]
 
             if response_code != 1:
-                raise DriverError(response["data"], response_code, response['duplicates'])
+                if 'duplicates' in response:
+                    raise DriverError(response["data"], response_code, response['duplicates'])
+                else:
+                    raise DriverError(response["data"], response_code, [])
+
             if "data" in response:
                 return response["data"]
             return response_code
