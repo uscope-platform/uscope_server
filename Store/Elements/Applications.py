@@ -58,9 +58,9 @@ def application_from_row(row: Applications):
         'soft_cores': row.soft_cores,
         'filters': row.filters,
         'scripts': row.scripts,
-        'programs': row.programs
+        'programs': row.programs,
+        'miscellaneous': row.miscellaneous
     }
-    for i in row.miscellaneous:
-        app[i] = row.miscellaneous[i]
+
     return app
 
