@@ -308,7 +308,7 @@ class ApplicationManager:
             "peripheral": "peripherals",
             "channelGroup": "channel_groups",
             "softCores": "soft_cores",
-            "filter":"filters",
+            "filter": "filters",
             "selectedScript": "scripts",
             "selectedProgram": "program"
         }
@@ -362,8 +362,16 @@ class ApplicationManager:
             if present:
                 current_app['peripherals'][idx][edit['field']] = edit['value']
         elif t == "misc":
+
             if edit['field']['old_name'] is None:
-                current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
+                if edit["field"]['name'] == "application_name":
+                    current_app['application_name'] = edit['field']['value']
+                elif edit["field"]['name'] == "clock_frequency":
+                    current_app['clock_frequency'] = edit['field']['value']
+                elif edit["field"]['name'] == "bitstream":
+                    current_app['bitstream'] = edit['field']['value']
+                else:
+                    current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
             else:
                 val = current_app['miscellaneous'][edit['field']['old_name']]
                 del current_app['miscellaneous'][edit['field']['old_name']]
