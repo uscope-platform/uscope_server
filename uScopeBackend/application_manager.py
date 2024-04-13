@@ -301,27 +301,27 @@ class ApplicationManager:
     def add_item(self, t, edit):
         current_app = self.data_store.get_application(edit["application"])
         if t == "channel":
-            current_app['channels'].append(edit['channel'])
+            current_app['channels'].append(edit['item'])
         elif t == "irv":
-            current_app['initial_registers_values'].append(edit['irv'])
+            current_app['initial_registers_values'].append(edit['item'])
         elif t == "macro":
-            current_app['macro'].append(edit['macro'])
+            current_app['macro'].append(edit['item'])
         elif t == "parameter":
-            current_app['parameters'].append(edit['parameter'])
+            current_app['parameters'].append(edit['item'])
         elif t == "peripheral":
-            current_app['peripherals'].append(edit['peripheral'])
+            current_app['peripherals'].append(edit['item'])
         elif t == "misc":
-            current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
-        elif t == "channel_group":
-            current_app['channel_groups'].append(edit['group'])
-        elif t == "soft_core":
-            current_app['soft_cores'].append(edit['soft_core'])
+            current_app['miscellaneous'][edit['item']['name']] = edit['item']['value']
+        elif t == "channelGroup":
+            current_app['channel_groups'].append(edit['item'])
+        elif t == "softCores":
+            current_app['soft_cores'].append(edit['item'])
         elif t == "filter":
-            current_app['filters'].append(edit['filter'])
+            current_app['filters'].append(edit['item'])
         elif t == "selectedScript":
-            current_app["scripts"].append(edit['script'])
+            current_app["scripts"].append(edit['item'])
         elif t == "selectedProgram":
-            current_app["programs"].append(edit['program'])
+            current_app["programs"].append(edit['item'])
 
         self.data_store.edit_application(current_app)
 
@@ -374,7 +374,7 @@ class ApplicationManager:
                 val = current_app['miscellaneous'][edit['field']['old_name']]
                 del current_app['miscellaneous'][edit['field']['old_name']]
                 current_app['miscellaneous'][edit['field']['name']] = val
-        elif t == "channel_group":
+        elif t == "channelGroup":
             present = False
             for idx, val in enumerate(current_app['channel_groups']):
                 if val['group_name'] == edit['group']:
@@ -382,7 +382,7 @@ class ApplicationManager:
                     break
             if present:
                 current_app['channel_groups'][idx][edit['field']] = edit['value']
-        elif t == "soft_core":
+        elif t == "softCores":
             present = False
             for idx, val in enumerate(current_app['soft_cores']):
                 if val['id'] == edit['core']:
@@ -446,7 +446,7 @@ class ApplicationManager:
                 del current_app['peripherals'][idx]
         elif t == "misc":
             del current_app['miscellaneous'][edit['field']['name']]
-        elif t == "channel_group":
+        elif t == "channelGroup":
             present = False
             for idx, val in enumerate(current_app['channel_groups']):
                 if val['group_name'] == edit['group']:
@@ -454,7 +454,7 @@ class ApplicationManager:
                     break
             if present:
                 del current_app['channel_groups'][idx]
-        elif t == "soft_core":
+        elif t == "softCores":
             present = False
             for idx, val in enumerate(current_app['soft_cores']):
                 if val['id'] == edit['core']:
