@@ -52,18 +52,11 @@ class ElementsDataStore:
     # APPLICATIONS
 
     def add_application(self, app):
-        misc_app = copy.copy(app)
-
-        entries_to_remove = ('application_name', 'bitstream', 'clock_frequency', 'channels', 'channel_groups',
-                             'initial_registers_values', 'macro', 'parameters', 'peripherals', 'soft_cores',
-                             'filters', 'scripts', 'programs', 'id')
-        for k in entries_to_remove:
-            misc_app.pop(k, None)
 
         item = Applications.Applications(id=app['id'], application_name=app["application_name"],
                                          bitstream=app['bitstream'],
                                          clock_frequency=app['clock_frequency'], channels=app['channels'],
-                                         channel_groups=app['channel_groups'], miscellaneous=misc_app,
+                                         channel_groups=app['channel_groups'], miscellaneous=app['miscellaneous'],
                                          initial_registers_values=app['initial_registers_values'], macro=app['macro'],
                                          parameters=app['parameters'], peripherals=app['peripherals'],
                                          soft_cores=app['soft_cores'], filters=app['filters'], scripts=app['scripts'],

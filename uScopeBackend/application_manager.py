@@ -229,16 +229,16 @@ class ApplicationManager:
             if present:
                 del current_app['peripherals'][idx]
         elif edit["action"] == "add_misc":
-            current_app[edit['field']['name']] = edit['field']['value']
+            current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
         elif edit["action"] == "edit_misc":
             if edit['field']['old_name'] is None:
-                current_app[edit['field']['name']] = edit['field']['value']
+                current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
             else:
-                val = current_app[edit['field']['old_name']]
-                del current_app[edit['field']['old_name']]
-                current_app[edit['field']['name']] = val
+                val = current_app['miscellaneous'][edit['field']['old_name']]
+                del current_app['miscellaneous'][edit['field']['old_name']]
+                current_app['miscellaneous'][edit['field']['name']] = val
         elif edit["action"] == "remove_misc":
-            del current_app[edit['field']['name']]
+            del current_app['miscellaneous'][edit['field']['name']]
         elif edit["action"] == "add_channel_group":
             current_app['channel_groups'].append(edit['group'])
         elif edit["action"] == "edit_channel_group":
