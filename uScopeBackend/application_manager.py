@@ -300,28 +300,22 @@ class ApplicationManager:
 
     def add_item(self, t, edit):
         current_app = self.data_store.get_application(edit["application"])
-        if t == "channel":
-            current_app['channels'].append(edit['item'])
-        elif t == "irv":
-            current_app['initial_registers_values'].append(edit['item'])
-        elif t == "macro":
-            current_app['macro'].append(edit['item'])
-        elif t == "parameter":
-            current_app['parameters'].append(edit['item'])
-        elif t == "peripheral":
-            current_app['peripherals'].append(edit['item'])
-        elif t == "misc":
+        types_map = {
+            "channel": "channels",
+            "irv": "initial_registers_values",
+            "macro": "macro",
+            "parameter": "parameters",
+            "peripheral": "peripherals",
+            "channelGroup": "channel_groups",
+            "softCores": "soft_cores",
+            "filter":"filters",
+            "selectedScript": "scripts",
+            "selectedProgram": "program"
+        }
+        if t == "misc":
             current_app['miscellaneous'][edit['item']['name']] = edit['item']['value']
-        elif t == "channelGroup":
-            current_app['channel_groups'].append(edit['item'])
-        elif t == "softCores":
-            current_app['soft_cores'].append(edit['item'])
-        elif t == "filter":
-            current_app['filters'].append(edit['item'])
-        elif t == "selectedScript":
-            current_app["scripts"].append(edit['item'])
-        elif t == "selectedProgram":
-            current_app["programs"].append(edit['item'])
+        else:
+            current_app[types_map[t]].append(edit["item"])
 
         self.data_store.edit_application(current_app)
 
