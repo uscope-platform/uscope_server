@@ -137,173 +137,14 @@ class ApplicationManager:
         self.data_store.add_application(val)
 
     def edit_application(self, edit):
-        current_app = self.data_store.get_application(edit["application"])
-        if edit["action"] == "add_channel":
-            current_app['channels'].append(edit['channel'])
-        elif edit["action"] == "edit_channel":
-            present = False
-            for idx, val in enumerate(current_app['channels']):
-                if val['name'] == edit['channel']:
-                    present = True
-                    break
-            if present:
-                current_app['channels'][idx][edit['field']] = edit['value']
-        elif edit["action"] == "remove_channel":
-            present = False
-            for idx, val in enumerate(current_app['channels']):
-                if val['name'] == edit['channel']:
-                    present = True
-                    break
-            if present:
-                del current_app['channels'][idx]
-        elif edit["action"] == "add_irv":
-            current_app['initial_registers_values'].append(edit['irv'])
-        elif edit["action"] == "edit_irv":
-            present = False
-            for idx, val in enumerate(current_app['initial_registers_values']):
-                if val['address'] == edit['address']:
-                    present = True
-                    break
-            if present:
-                current_app['initial_registers_values'][idx][edit['field']] = edit['value']
-        elif edit["action"] == "remove_irv":
-            present = False
-            for idx, val in enumerate(current_app['initial_registers_values']):
-                if val['address'] == edit['address']:
-                    present = True
-                    break
-            if present:
-                del current_app['initial_registers_values'][idx]
-        elif edit["action"] == "add_macro":
-            current_app['macro'].append(edit['macro'])
-        elif edit["action"] == "edit_macro":
-            present = False
-            for idx, val in enumerate(current_app['macro']):
-                if val['name'] == edit['name']:
-                    present = True
-                    break
-            if present:
-                current_app['macro'][idx][edit['field']] = edit['value']
-        elif edit["action"] == "remove_macro":
-            present = False
-            for idx, val in enumerate(current_app['macro']):
-                if val['name'] == edit['name']:
-                    present = True
-                    break
-            if present:
-                del current_app['macro'][idx]
-        elif edit["action"] == "add_parameter":
-            current_app['parameters'].append(edit['parameter'])
-        elif edit["action"] == "edit_parameter":
-            present = False
-            for idx, val in enumerate(current_app['parameters']):
-                if val['parameter_id'] == edit['parameter']:
-                    present = True
-                    break
-            if present:
-                current_app['parameters'][idx][edit['field']] = edit['value']
-        elif edit["action"] == "remove_parameter":
-            present = False
-            for idx, val in enumerate(current_app['parameters']):
-                if val['parameter_id'] == edit['parameter']:
-                    present = True
-                    break
-            if present:
-                del current_app['parameters'][idx]
-        elif edit["action"] == "add_peripheral":
-            current_app['peripherals'].append(edit['peripheral'])
-        elif edit["action"] == "edit_peripheral":
-            present = False
-            for idx, val in enumerate(current_app['peripherals']):
-                if val['name'] == edit['peripheral']:
-                    present = True
-                    break
-            if present:
-                current_app['peripherals'][idx][edit['field']] = edit['value']
-        elif edit["action"] == "remove_peripheral":
-            present = False
-            for idx, val in enumerate(current_app['peripherals']):
-                if val['name'] == edit['peripheral']:
-                    present = True
-                    break
-            if present:
-                del current_app['peripherals'][idx]
-        elif edit["action"] == "add_misc":
-            current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
-        elif edit["action"] == "edit_misc":
-            if edit['field']['old_name'] is None:
-                current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
-            else:
-                val = current_app['miscellaneous'][edit['field']['old_name']]
-                del current_app['miscellaneous'][edit['field']['old_name']]
-                current_app['miscellaneous'][edit['field']['name']] = val
-        elif edit["action"] == "remove_misc":
-            del current_app['miscellaneous'][edit['field']['name']]
-        elif edit["action"] == "add_channel_group":
-            current_app['channel_groups'].append(edit['group'])
-        elif edit["action"] == "edit_channel_group":
-            present = False
-            for idx, val in enumerate(current_app['channel_groups']):
-                if val['group_name'] == edit['group']:
-                    present = True
-                    break
-            if present:
-                current_app['channel_groups'][idx][edit['field']] = edit['value']
-        elif edit["action"] == "remove_channel_group":
-            present = False
-            for idx, val in enumerate(current_app['channel_groups']):
-                if val['group_name'] == edit['group']:
-                    present = True
-                    break
-            if present:
-                del current_app['channel_groups'][idx]
-        elif edit["action"] == "add_soft_core":
-            current_app['soft_cores'].append(edit['soft_core'])
-        elif edit["action"] == "edit_soft_core":
-            present = False
-            for idx, val in enumerate(current_app['soft_cores']):
-                if val['id'] == edit['core']:
-                    present = True
-                    break
-            if present:
-                current_app['soft_cores'][idx][edit['field']] = edit['value']
-        elif edit["action"] == "remove_soft_core":
-            present = False
-            for idx, val in enumerate(current_app['soft_cores']):
-                if val['id'] == edit['core']:
-                    present = True
-                    break
-            if present:
-                del current_app['soft_cores'][idx]
-        elif edit["action"] == "add_filter":
-            current_app['filters'].append(edit['filter'])
-        elif edit["action"] == "edit_filter":
-            present = False
-            for idx, val in enumerate(current_app['filters']):
-                if val['id'] == edit['filter']:
-                    present = True
-                    break
-            if present:
-                current_app['filters'][idx][edit['field']] = edit['value']
-        elif edit["action"] == "remove_filter":
-            present = False
-            for idx, val in enumerate(current_app['filters']):
-                if val['id'] == edit['filter']:
-                    present = True
-                    break
-            if present:
-                del current_app['filters'][idx]
-        elif edit["action"] == "add_selected_script":
-            current_app["scripts"].append(edit['script'])
-        elif edit["action"] == "remove_selected_script":
-            if edit["script"] in current_app["scripts"]:
-                current_app['scripts'].remove(edit["script"])
-        elif edit["action"] == "add_selected_program":
-            current_app["programs"].append(edit['program'])
-        elif edit["action"] == "remove_selected_program":
-            if edit["program"] in current_app["programs"]:
-                current_app['programs'].remove(edit["program"])
-        self.data_store.edit_application(current_app)
+
+        [action, t] = edit["action"].split("_")
+        if action == "add":
+            self.add_item(t, edit)
+        if action == "edit":
+            self.edit_item(t, edit)
+        if action == "remove":
+            self.delete_item(t, edit)
 
     def remove_application(self, application_name):
         """Remove application by name from the database
@@ -456,3 +297,183 @@ class ApplicationManager:
             value = int(reg['value'], 0)
             write_obj = {'type': 'direct', 'proxy_type': '', 'proxy_address': 0, 'address': addr, 'value': value}
             self.interface.write_register(write_obj)
+
+    def add_item(self, t, edit):
+        current_app = self.data_store.get_application(edit["application"])
+        if t == "channel":
+            current_app['channels'].append(edit['channel'])
+        elif t == "irv":
+            current_app['initial_registers_values'].append(edit['irv'])
+        elif t == "macro":
+            current_app['macro'].append(edit['macro'])
+        elif t == "parameter":
+            current_app['parameters'].append(edit['parameter'])
+        elif t == "peripheral":
+            current_app['peripherals'].append(edit['peripheral'])
+        elif t == "misc":
+            current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
+        elif t == "channel_group":
+            current_app['channel_groups'].append(edit['group'])
+        elif t == "soft_core":
+            current_app['soft_cores'].append(edit['soft_core'])
+        elif t == "filter":
+            current_app['filters'].append(edit['filter'])
+        elif t == "selectedScript":
+            current_app["scripts"].append(edit['script'])
+        elif t == "selectedProgram":
+            current_app["programs"].append(edit['program'])
+
+        self.data_store.edit_application(current_app)
+
+    def edit_item(self, t, edit):
+        current_app = self.data_store.get_application(edit["application"])
+        if t == "channel":
+            present = False
+            for idx, val in enumerate(current_app['channels']):
+                if val['name'] == edit['channel']:
+                    present = True
+                    break
+            if present:
+                current_app['channels'][idx][edit['field']] = edit['value']
+        elif t == "irv":
+            present = False
+            for idx, val in enumerate(current_app['initial_registers_values']):
+                if val['address'] == edit['address']:
+                    present = True
+                    break
+            if present:
+                current_app['initial_registers_values'][idx][edit['field']] = edit['value']
+        elif t == "macro":
+            present = False
+            for idx, val in enumerate(current_app['macro']):
+                if val['name'] == edit['name']:
+                    present = True
+                    break
+            if present:
+                current_app['macro'][idx][edit['field']] = edit['value']
+        elif t == "parameter":
+            present = False
+            for idx, val in enumerate(current_app['parameters']):
+                if val['parameter_id'] == edit['parameter']:
+                    present = True
+                    break
+            if present:
+                current_app['parameters'][idx][edit['field']] = edit['value']
+        elif t == "peripheral":
+            present = False
+            for idx, val in enumerate(current_app['peripherals']):
+                if val['name'] == edit['peripheral']:
+                    present = True
+                    break
+            if present:
+                current_app['peripherals'][idx][edit['field']] = edit['value']
+        elif t == "misc":
+            if edit['field']['old_name'] is None:
+                current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
+            else:
+                val = current_app['miscellaneous'][edit['field']['old_name']]
+                del current_app['miscellaneous'][edit['field']['old_name']]
+                current_app['miscellaneous'][edit['field']['name']] = val
+        elif t == "channel_group":
+            present = False
+            for idx, val in enumerate(current_app['channel_groups']):
+                if val['group_name'] == edit['group']:
+                    present = True
+                    break
+            if present:
+                current_app['channel_groups'][idx][edit['field']] = edit['value']
+        elif t == "soft_core":
+            present = False
+            for idx, val in enumerate(current_app['soft_cores']):
+                if val['id'] == edit['core']:
+                    present = True
+                    break
+            if present:
+                current_app['soft_cores'][idx][edit['field']] = edit['value']
+        elif t == "filter":
+            present = False
+            for idx, val in enumerate(current_app['filters']):
+                if val['id'] == edit['filter']:
+                    present = True
+                    break
+            if present:
+                current_app['filters'][idx][edit['field']] = edit['value']
+        self.data_store.edit_application(current_app)
+
+    def delete_item(self, t, edit):
+        current_app = self.data_store.get_application(edit["application"])
+
+        if t == "channel":
+            present = False
+            for idx, val in enumerate(current_app['channels']):
+                if val['name'] == edit['channel']:
+                    present = True
+                    break
+            if present:
+                del current_app['channels'][idx]
+
+        elif t == "irv":
+            present = False
+            for idx, val in enumerate(current_app['initial_registers_values']):
+                if val['address'] == edit['address']:
+                    present = True
+                    break
+            if present:
+                del current_app['initial_registers_values'][idx]
+        elif t == "macro":
+            present = False
+            for idx, val in enumerate(current_app['macro']):
+                if val['name'] == edit['name']:
+                    present = True
+                    break
+            if present:
+                del current_app['macro'][idx]
+        elif t == "parameter":
+            present = False
+            for idx, val in enumerate(current_app['parameters']):
+                if val['parameter_id'] == edit['parameter']:
+                    present = True
+                    break
+            if present:
+                del current_app['parameters'][idx]
+        elif t == "peripheral":
+            present = False
+            for idx, val in enumerate(current_app['peripherals']):
+                if val['name'] == edit['peripheral']:
+                    present = True
+                    break
+            if present:
+                del current_app['peripherals'][idx]
+        elif t == "misc":
+            del current_app['miscellaneous'][edit['field']['name']]
+        elif t == "channel_group":
+            present = False
+            for idx, val in enumerate(current_app['channel_groups']):
+                if val['group_name'] == edit['group']:
+                    present = True
+                    break
+            if present:
+                del current_app['channel_groups'][idx]
+        elif t == "soft_core":
+            present = False
+            for idx, val in enumerate(current_app['soft_cores']):
+                if val['id'] == edit['core']:
+                    present = True
+                    break
+            if present:
+                del current_app['soft_cores'][idx]
+        elif t == "filter":
+            present = False
+            for idx, val in enumerate(current_app['filters']):
+                if val['id'] == edit['filter']:
+                    present = True
+                    break
+            if present:
+                del current_app['filters'][idx]
+        elif t == "selectedScript":
+            if edit["script"] in current_app["scripts"]:
+                current_app['scripts'].remove(edit["script"])
+        elif t == "selectedProgram":
+            if edit["program"] in current_app["programs"]:
+                current_app['programs'].remove(edit["program"])
+        self.data_store.edit_application(current_app)
