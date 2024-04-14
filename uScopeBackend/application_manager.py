@@ -11,8 +11,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
-import json
+# limitations under the License
 
 from flask import current_app, Blueprint, jsonify, request, abort, Response
 from flask_restful import Api, Resource
@@ -126,7 +125,6 @@ class ApplicationManager:
         self.data_store = store.Elements
         self.settings_store = store.Settings
         self.interface = interface
-
         self.item_types_map = {
             "channel": "channels",
             "irv": "initial_registers_values",
@@ -138,6 +136,16 @@ class ApplicationManager:
             "filter": "filters",
             "selectedScript": "scripts",
             "selectedProgram": "programs"
+        }
+        self.item_id_map = {
+            "channel": "name",
+            "irv": "address",
+            "macro": "name",
+            "parameter": "parameter_id",
+            "peripheral": "name",
+            "channelGroup": "group_name",
+            "softCores": "id",
+            "filter": "id"
         }
 
     def add_application(self, application):
@@ -185,7 +193,8 @@ class ApplicationManager:
             raise RuntimeError
 
         for item in chosen_app["soft_cores"]:
-            print(f"APPLY DEFAULT PROGRAM:  CORE={item['id']} ADDRESS={item['address']} PROGRAM={item['default_program']}")
+            print(f"APPLY DEFAULT PROGRAM:  CORE={item['id']}"
+                  f" ADDRESS={item['address']} PROGRAM={item['default_program']}")
             current_app.programs_mgr.apply_program(item['default_program'], item['id'], application_name)
 
         if 'initial_registers_values' in chosen_app:
@@ -323,47 +332,7 @@ class ApplicationManager:
 
     def edit_item(self, t, edit):
         current_app = self.data_store.get_application(edit["application"])
-        if t == "channel":
-            present = False
-            for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val['name'] == edit['channel']:
-                    present = True
-                    break
-            if present:
-                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
-        elif t == "irv":
-            present = False
-            for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val['address'] == edit['address']:
-                    present = True
-                    break
-            if present:
-                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
-        elif t == "macro":
-            present = False
-            for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val['name'] == edit['name']:
-                    present = True
-                    break
-            if present:
-                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
-        elif t == "parameter":
-            present = False
-            for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val['parameter_id'] == edit['parameter']:
-                    present = True
-                    break
-            if present:
-                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
-        elif t == "peripheral":
-            present = False
-            for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val['name'] == edit['peripheral']:
-                    present = True
-                    break
-            if present:
-                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
-        elif t == "misc":
+        if t == "misc":
             if edit['field']['old_name'] is None:
                 if edit["field"]['name'] == "application_name":
                     current_app['application_name'] = edit['field']['value']
@@ -377,26 +346,10 @@ class ApplicationManager:
                 val = current_app['miscellaneous'][edit['field']['old_name']]
                 del current_app['miscellaneous'][edit['field']['old_name']]
                 current_app['miscellaneous'][edit['field']['name']] = val
-        elif t == "channelGroup":
+        else:
             present = False
             for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val['group_name'] == edit['group']:
-                    present = True
-                    break
-            if present:
-                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
-        elif t == "softCores":
-            present = False
-            for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val['id'] == edit['core']:
-                    present = True
-                    break
-            if present:
-                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
-        elif t == "filter":
-            present = False
-            for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val['id'] == edit['filter']:
+                if val[self.item_id_map[t]] == edit['item_id']:
                     present = True
                     break
             if present:
