@@ -358,78 +358,17 @@ class ApplicationManager:
 
     def delete_item(self, t, edit):
         current_app = self.data_store.get_application(edit["application"])
-
-        if t == "channel":
-            present = False
-            for idx, val in enumerate(current_app['channels']):
-                if val['name'] == edit['channel']:
-                    present = True
-                    break
-            if present:
-                del current_app['channels'][idx]
-
-        elif t == "irv":
-            present = False
-            for idx, val in enumerate(current_app['initial_registers_values']):
-                if val['address'] == edit['address']:
-                    present = True
-                    break
-            if present:
-                del current_app['initial_registers_values'][idx]
-        elif t == "macro":
-            present = False
-            for idx, val in enumerate(current_app['macro']):
-                if val['name'] == edit['name']:
-                    present = True
-                    break
-            if present:
-                del current_app['macro'][idx]
-        elif t == "parameter":
-            present = False
-            for idx, val in enumerate(current_app['parameters']):
-                if val['parameter_id'] == edit['parameter']:
-                    present = True
-                    break
-            if present:
-                del current_app['parameters'][idx]
-        elif t == "peripheral":
-            present = False
-            for idx, val in enumerate(current_app['peripherals']):
-                if val['name'] == edit['peripheral']:
-                    present = True
-                    break
-            if present:
-                del current_app['peripherals'][idx]
-        elif t == "misc":
+        if t == "misc":
             del current_app['miscellaneous'][edit['field']['name']]
-        elif t == "channelGroup":
+        elif t in ["selectedScript", "selectedProgram"]:
+            if edit["item_id"] in current_app[self.item_types_map[t]]:
+                current_app[self.item_types_map[t]].remove(edit["item_id"])
+        else:
             present = False
-            for idx, val in enumerate(current_app['channel_groups']):
-                if val['group_name'] == edit['group']:
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
+                if val[self.item_id_map[t]] == edit['item_id']:
                     present = True
                     break
             if present:
-                del current_app['channel_groups'][idx]
-        elif t == "softCores":
-            present = False
-            for idx, val in enumerate(current_app['soft_cores']):
-                if val['id'] == edit['core']:
-                    present = True
-                    break
-            if present:
-                del current_app['soft_cores'][idx]
-        elif t == "filter":
-            present = False
-            for idx, val in enumerate(current_app['filters']):
-                if val['id'] == edit['filter']:
-                    present = True
-                    break
-            if present:
-                del current_app['filters'][idx]
-        elif t == "selectedScript":
-            if edit["script"] in current_app["scripts"]:
-                current_app['scripts'].remove(edit["script"])
-        elif t == "selectedProgram":
-            if edit["program"] in current_app["programs"]:
-                current_app['programs'].remove(edit["program"])
+                del current_app[self.item_types_map[t]][idx]
         self.data_store.edit_application(current_app)
