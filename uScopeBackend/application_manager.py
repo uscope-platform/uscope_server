@@ -127,6 +127,19 @@ class ApplicationManager:
         self.settings_store = store.Settings
         self.interface = interface
 
+        self.item_types_map = {
+            "channel": "channels",
+            "irv": "initial_registers_values",
+            "macro": "macro",
+            "parameter": "parameters",
+            "peripheral": "peripherals",
+            "channelGroup": "channel_groups",
+            "softCores": "soft_cores",
+            "filter": "filters",
+            "selectedScript": "scripts",
+            "selectedProgram": "programs"
+        }
+
     def add_application(self, application):
         """Adds the application from the parameters to the database
 
@@ -300,22 +313,11 @@ class ApplicationManager:
 
     def add_item(self, t, edit):
         current_app = self.data_store.get_application(edit["application"])
-        types_map = {
-            "channel": "channels",
-            "irv": "initial_registers_values",
-            "macro": "macro",
-            "parameter": "parameters",
-            "peripheral": "peripherals",
-            "channelGroup": "channel_groups",
-            "softCores": "soft_cores",
-            "filter": "filters",
-            "selectedScript": "scripts",
-            "selectedProgram": "program"
-        }
+
         if t == "misc":
             current_app['miscellaneous'][edit['item']['name']] = edit['item']['value']
         else:
-            current_app[types_map[t]].append(edit["item"])
+            current_app[self.item_types_map[t]].append(edit["item"])
 
         self.data_store.edit_application(current_app)
 
@@ -323,46 +325,45 @@ class ApplicationManager:
         current_app = self.data_store.get_application(edit["application"])
         if t == "channel":
             present = False
-            for idx, val in enumerate(current_app['channels']):
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
                 if val['name'] == edit['channel']:
                     present = True
                     break
             if present:
-                current_app['channels'][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
         elif t == "irv":
             present = False
-            for idx, val in enumerate(current_app['initial_registers_values']):
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
                 if val['address'] == edit['address']:
                     present = True
                     break
             if present:
-                current_app['initial_registers_values'][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
         elif t == "macro":
             present = False
-            for idx, val in enumerate(current_app['macro']):
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
                 if val['name'] == edit['name']:
                     present = True
                     break
             if present:
-                current_app['macro'][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
         elif t == "parameter":
             present = False
-            for idx, val in enumerate(current_app['parameters']):
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
                 if val['parameter_id'] == edit['parameter']:
                     present = True
                     break
             if present:
-                current_app['parameters'][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
         elif t == "peripheral":
             present = False
-            for idx, val in enumerate(current_app['peripherals']):
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
                 if val['name'] == edit['peripheral']:
                     present = True
                     break
             if present:
-                current_app['peripherals'][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
         elif t == "misc":
-
             if edit['field']['old_name'] is None:
                 if edit["field"]['name'] == "application_name":
                     current_app['application_name'] = edit['field']['value']
@@ -378,28 +379,28 @@ class ApplicationManager:
                 current_app['miscellaneous'][edit['field']['name']] = val
         elif t == "channelGroup":
             present = False
-            for idx, val in enumerate(current_app['channel_groups']):
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
                 if val['group_name'] == edit['group']:
                     present = True
                     break
             if present:
-                current_app['channel_groups'][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
         elif t == "softCores":
             present = False
-            for idx, val in enumerate(current_app['soft_cores']):
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
                 if val['id'] == edit['core']:
                     present = True
                     break
             if present:
-                current_app['soft_cores'][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
         elif t == "filter":
             present = False
-            for idx, val in enumerate(current_app['filters']):
+            for idx, val in enumerate(current_app[self.item_types_map[t]]):
                 if val['id'] == edit['filter']:
                     present = True
                     break
             if present:
-                current_app['filters'][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
         self.data_store.edit_application(current_app)
 
     def delete_item(self, t, edit):
