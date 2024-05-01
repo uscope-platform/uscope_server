@@ -131,11 +131,11 @@ class ApplicationManager:
             "macro": "macro",
             "parameter": "parameters",
             "peripheral": "peripherals",
-            "channelGroup": "channel_groups",
-            "softCores": "soft_cores",
+            "channel_group": "channel_groups",
+            "soft_core": "soft_cores",
             "filter": "filters",
-            "selectedScript": "scripts",
-            "selectedProgram": "programs"
+            "selected_script": "scripts",
+            "selected_program": "programs"
         }
         self.item_id_map = {
             "channel": "name",
@@ -143,8 +143,8 @@ class ApplicationManager:
             "macro": "name",
             "parameter": "parameter_id",
             "peripheral": "name",
-            "channelGroup": "group_name",
-            "softCores": "id",
+            "channel_group": "group_name",
+            "soft_core": "id",
             "filter": "id"
         }
 
@@ -158,14 +158,12 @@ class ApplicationManager:
         self.data_store.add_application(val)
 
     def edit_application(self, edit):
-
-        [action, t] = edit["action"].split("_")
-        if action == "add":
-            self.add_item(t, edit)
-        if action == "edit":
-            self.edit_item(t, edit)
-        if action == "remove":
-            self.delete_item(t, edit)
+        if edit["action"] == "add":
+            self.add_item(edit["object"], edit)
+        if edit["action"] == "edit":
+            self.edit_item(edit["object"], edit)
+        if edit["action"] == "remove":
+            self.delete_item(edit["object"], edit)
 
     def remove_application(self, application_name):
         """Remove application by name from the database
@@ -333,40 +331,40 @@ class ApplicationManager:
     def edit_item(self, t, edit):
         current_app = self.data_store.get_application(edit["application"])
         if t == "misc":
-            if edit['field']['old_name'] is None:
-                if edit["field"]['name'] == "application_name":
-                    current_app['application_name'] = edit['field']['value']
-                elif edit["field"]['name'] == "clock_frequency":
-                    current_app['clock_frequency'] = edit['field']['value']
-                elif edit["field"]['name'] == "bitstream":
-                    current_app['bitstream'] = edit['field']['value']
+            if not edit['item']['edit_name']:
+                if edit["item"]['name'] == "application_name":
+                    current_app['application_name'] = edit['item']['value']
+                elif edit["item"]['name'] == "clock_frequency":
+                    current_app['clock_frequency'] = edit['item']['value']
+                elif edit["item"]['name'] == "bitstream":
+                    current_app['bitstream'] = edit['item']['value']
                 else:
-                    current_app['miscellaneous'][edit['field']['name']] = edit['field']['value']
+                    current_app['miscellaneous'][edit['item']['name']] = edit['item']['value']
             else:
-                val = current_app['miscellaneous'][edit['field']['old_name']]
-                del current_app['miscellaneous'][edit['field']['old_name']]
-                current_app['miscellaneous'][edit['field']['name']] = val
+                val = current_app['miscellaneous'][edit['item']['name']]
+                del current_app['miscellaneous'][edit['item']['name']]
+                current_app['miscellaneous'][edit['item']['value']] = val
         else:
             present = False
             for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val[self.item_id_map[t]] == edit['item_id']:
+                if val[self.item_id_map[t]] == edit['item']['item_id']:
                     present = True
                     break
             if present:
-                current_app[self.item_types_map[t]][idx][edit['field']] = edit['value']
+                current_app[self.item_types_map[t]][idx][edit['item']['field']] = edit['item']['value']
         self.data_store.edit_application(current_app)
 
     def delete_item(self, t, edit):
         current_app = self.data_store.get_application(edit["application"])
         if t == "misc":
-            del current_app['miscellaneous'][edit['field']['name']]
-        elif t in ["selectedScript", "selectedProgram"]:
-            if edit["item_id"] in current_app[self.item_types_map[t]]:
-                current_app[self.item_types_map[t]].remove(edit["item_id"])
+            del current_app['miscellaneous'][edit['item']]
+        elif t in ["selected_script", "selected_program"]:
+            if edit["item"] in current_app[self.item_types_map[t]]:
+                current_app[self.item_types_map[t]].remove(edit["item"])
         else:
             present = False
             for idx, val in enumerate(current_app[self.item_types_map[t]]):
-                if val[self.item_id_map[t]] == edit['item_id']:
+                if val[self.item_id_map[t]] == edit['item']:
                     present = True
                     break
             if present:

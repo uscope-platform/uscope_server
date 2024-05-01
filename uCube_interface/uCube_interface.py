@@ -100,6 +100,8 @@ class uCube_interface:
             if response_code != 1:
                 if 'duplicates' in response:
                     raise DriverError(response["data"], response_code, response['duplicates'])
+                elif response_code == 6:
+                    raise DriverError("Generic acquisition error", response_code, [])
                 else:
                     raise DriverError(response["data"], response_code, [])
 
