@@ -28,7 +28,6 @@ class Emulator(Base):
     cores = Column(postgresql.JSONB)
     connections = Column(ARRAY(postgresql.JSONB))
     n_cycles = Column(Integer)
-    async_multirate = Column(Boolean)
 
     def __repr__(self):
         return "<Peripheral(name='%s')>" % self.name
@@ -40,6 +39,5 @@ def emulator_from_row(row):
         'name': row.name,
         'cores': row.cores,
         'connections': row.connections,
-        'n_cycles': row.n_cycles,
-        'async_multirate': row.async_multirate
+        'n_cycles': row.n_cycles
     }

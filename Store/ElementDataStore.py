@@ -234,8 +234,7 @@ class ElementsDataStore:
             name=emu["name"],
             connections=emu["connections"],
             cores=emu["cores"],
-            n_cycles=emu["n_cycles"],
-            async_multirate=emu["async_multirate"]
+            n_cycles=emu["n_cycles"]
         )
         self.ude.add_element(item, Emulator.Emulator)
 
