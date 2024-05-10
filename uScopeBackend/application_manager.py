@@ -198,9 +198,9 @@ class ApplicationManager:
         if 'initial_registers_values' in chosen_app:
             self.initialize_registers(chosen_app['initial_registers_values'])
 
-        if chosen_app['scope_buffer_address'] != "":
+        if chosen_app['miscellaneous']['scope_buffer_address'] != "":
             scope_addresses = {
-                "buffer_address": int(chosen_app['scope_buffer_address'], 0)
+                "buffer_address": int(chosen_app['miscellaneous']['scope_buffer_address'], 0)
             }
             self.interface.set_scope_data(scope_addresses)
 
