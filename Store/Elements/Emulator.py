@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, String, Integer, ARRAY, Boolean
+from sqlalchemy import Column, String, Integer, ARRAY, REAL
 from .OrmBase import Base
 from sqlalchemy.dialects import postgresql
 
@@ -28,6 +28,7 @@ class Emulator(Base):
     cores = Column(postgresql.JSONB)
     connections = Column(ARRAY(postgresql.JSONB))
     n_cycles = Column(Integer)
+    emulation_time = Column(REAL)
 
     def __repr__(self):
         return "<Peripheral(name='%s')>" % self.name
@@ -39,5 +40,6 @@ def emulator_from_row(row):
         'name': row.name,
         'cores': row.cores,
         'connections': row.connections,
-        'n_cycles': row.n_cycles
+        'n_cycles': row.n_cycles,
+        'emulation_time': row.emulation_time
     }

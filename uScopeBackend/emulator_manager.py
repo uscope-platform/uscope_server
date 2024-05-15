@@ -109,29 +109,8 @@ class EmulatorManager:
         a = edit_obj['action']
         if a == 'add_core':
             emu_obj['cores'][edit_obj['core']['id']] = edit_obj['core']
-        if a == 'edit_name':
-            emu_obj['name'] = edit_obj['value']
-        if a == 'edit_cycles':
-            emu_obj['n_cycles'] = edit_obj['value']
-        elif a == 'edit_core_props':
-            emu_obj['cores'][edit_obj['core']][edit_obj['field_name']] = edit_obj['value']
-        elif a == 'remove_core':
-            del emu_obj['cores'][edit_obj['core']]
         elif a == 'add_connection':
             emu_obj['connections'].append(edit_obj['connection'])
-        elif a == 'remove_connection':
-            new_list = []
-            for item in emu_obj['connections']:
-                if item['source'] != edit_obj['source'] or item['target'] != edit_obj['target']:
-                    new_list.append(item)
-            emu_obj['connections'] = new_list
-        elif a == 'remove_node_connections':
-            new_list = []
-            for item in emu_obj['connections']:
-                if item['source'] != edit_obj['node'] and item['target'] != edit_obj['node']:
-                    new_list.append(item)
-            emu_obj['connections'] = new_list
-            print(new_list)
         elif a == 'add_output':
             emu_obj['cores'][edit_obj['core']]['outputs'].append(edit_obj['output'])
         elif a == 'add_input':
@@ -140,6 +119,22 @@ class EmulatorManager:
             emu_obj['cores'][edit_obj['core']]['memory_init'].append(edit_obj['memory'])
         elif a == 'add_input_data':
             emu_obj['cores'][edit_obj['core']]['input_data'].append(edit_obj['input_data'])
+        elif a == 'add_dma_channel':
+            connection_idx = -1
+            for idx, item in enumerate(emu_obj['connections']):
+                if item['source'] == edit_obj['source'] and item['target'] == edit_obj['target']:
+                    connection_idx = idx
+            if connection_idx == -1:
+                return
+            emu_obj['connections'][connection_idx]['channels'].append(edit_obj['channel'])
+        if a == 'edit_name':
+            emu_obj['name'] = edit_obj['value']
+        if a == 'edit_cycles':
+            emu_obj['n_cycles'] = edit_obj['value']
+        if a == 'edit_emu_time':
+            emu_obj['emulation_time'] = edit_obj['value']
+        elif a == 'edit_core_props':
+            emu_obj['cores'][edit_obj['core']][edit_obj['field_name']] = edit_obj['value']
         elif a == 'edit_input':
             input_idx = -1
             for idx, item in enumerate(emu_obj['cores'][edit_obj['core']]['inputs']):
@@ -164,6 +159,35 @@ class EmulatorManager:
             if memory_idx == -1:
                 return
             emu_obj['cores'][edit_obj['core']]['memory_init'][memory_idx][edit_obj['field_name']] = edit_obj['value']
+        elif a == 'edit_dma_channel':
+            connection_idx = -1
+            for idx, item in enumerate(emu_obj['connections']):
+                if item['source'] == edit_obj['source'] and item['target'] == edit_obj['target']:
+                    connection_idx = idx
+            if connection_idx == -1:
+                return
+            channels_idx = -1
+            for idx, item in enumerate(emu_obj['connections'][connection_idx]['channels']):
+                if item['name'] == edit_obj['channel']:
+                    channels_idx = idx
+            if channels_idx == -1:
+                return
+            emu_obj['connections'][connection_idx]['channels'][channels_idx][edit_obj['field_name']] = edit_obj['value']
+        elif a == 'remove_core':
+            del emu_obj['cores'][edit_obj['core']]
+        elif a == 'remove_connection':
+            new_list = []
+            for item in emu_obj['connections']:
+                if item['source'] != edit_obj['source'] or item['target'] != edit_obj['target']:
+                    new_list.append(item)
+            emu_obj['connections'] = new_list
+        elif a == 'remove_node_connections':
+            new_list = []
+            for item in emu_obj['connections']:
+                if item['source'] != edit_obj['node'] and item['target'] != edit_obj['node']:
+                    new_list.append(item)
+            emu_obj['connections'] = new_list
+            print(new_list)
         elif a == 'remove_output':
             new_list = []
             for item in emu_obj['cores'][edit_obj['core']]['outputs']:
@@ -188,28 +212,6 @@ class EmulatorManager:
                 if item['name'] != edit_obj["name"]:
                     new_list.append(item)
             emu_obj['cores'][edit_obj['core']]['memory_init'] = new_list
-        elif a == 'add_dma_channel':
-            connection_idx = -1
-            for idx, item in enumerate(emu_obj['connections']):
-                if item['source'] == edit_obj['source'] and item['target'] == edit_obj['target']:
-                    connection_idx = idx
-            if connection_idx == -1:
-                return
-            emu_obj['connections'][connection_idx]['channels'].append(edit_obj['channel'])
-        elif a == 'edit_dma_channel':
-            connection_idx = -1
-            for idx, item in enumerate(emu_obj['connections']):
-                if item['source'] == edit_obj['source'] and item['target'] == edit_obj['target']:
-                    connection_idx = idx
-            if connection_idx == -1:
-                return
-            channels_idx = -1
-            for idx, item in enumerate(emu_obj['connections'][connection_idx]['channels']):
-                if item['name'] == edit_obj['channel']:
-                    channels_idx = idx
-            if channels_idx == -1:
-                return
-            emu_obj['connections'][connection_idx]['channels'][channels_idx][edit_obj['field_name']] = edit_obj['value']
         elif a == 'remove_dma_channel':
             new_channels = []
             connection_idx = -1
