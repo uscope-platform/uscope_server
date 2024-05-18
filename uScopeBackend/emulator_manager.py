@@ -129,8 +129,6 @@ class EmulatorManager:
             emu_obj['connections'][connection_idx]['channels'].append(edit_obj['channel'])
         if a == 'edit_name':
             emu_obj['name'] = edit_obj['value']
-        if a == 'edit_cycles':
-            emu_obj['n_cycles'] = edit_obj['value']
         if a == 'edit_emu_time':
             emu_obj['emulation_time'] = edit_obj['value']
         elif a == 'edit_core_props':

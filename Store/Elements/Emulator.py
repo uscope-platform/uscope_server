@@ -27,7 +27,6 @@ class Emulator(Base):
     name = Column(String)
     cores = Column(postgresql.JSONB)
     connections = Column(ARRAY(postgresql.JSONB))
-    n_cycles = Column(Integer)
     emulation_time = Column(REAL)
 
     def __repr__(self):
@@ -40,6 +39,5 @@ def emulator_from_row(row):
         'name': row.name,
         'cores': row.cores,
         'connections': row.connections,
-        'n_cycles': row.n_cycles,
         'emulation_time': row.emulation_time
     }

@@ -234,7 +234,6 @@ class ElementsDataStore:
             name=emu["name"],
             connections=emu["connections"],
             cores=emu["cores"],
-            n_cycles=emu["n_cycles"],
             emulation_time=emu["emulation_time"]
         )
         self.ude.add_element(item, Emulator.Emulator)
