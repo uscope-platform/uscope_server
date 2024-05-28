@@ -185,7 +185,7 @@ class ApplicationManager:
         self.settings_store.set_per_user_value('parameters', chosen_app['parameters'], username)
 
         for item in chosen_app["pl_clocks"]:
-            current_app.interface.set_clock_frequency(int(item), chosen_app['pl_clocks'][item])
+            current_app.interface.set_pl_clock(int(item), chosen_app['pl_clocks'][item])
 
         if chosen_app['bitstream'] == "":
             return
@@ -200,17 +200,12 @@ class ApplicationManager:
 
         self.initialize_registers(chosen_app['initial_registers_values'])
 
-        for item in chosen_app["pl_clocks"]:
-            current_app.interface.set_clock_frequency(item, chosen_app['pl_clocks'][item])
-
         if chosen_app['miscellaneous']['scope_buffer_address'] != "":
             scope_addresses = {
                 "buffer_address": int(chosen_app['miscellaneous']['scope_buffer_address'], 0)
             }
             self.interface.set_scope_data(scope_addresses)
 
-        if "clock_frequency" in chosen_app:
-            self.interface.set_clock_frequency(0, chosen_app["clock_frequency"])
 
         if "manual_metadata" in chosen_app:
             if chosen_app["manual_metadata"] == "true":

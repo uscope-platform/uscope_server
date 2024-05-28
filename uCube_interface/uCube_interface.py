@@ -22,7 +22,6 @@ channel_data_raw = []
 C_NULL_COMMAND = 'null'
 C_LOAD_BITSTREAM = 'load_bitstream'
 C_SINGLE_REGISTER_WRITE = 'register_write'
-C_SET_FREQUENCY = 'set_frequency'
 C_SINGLE_REGISTER_READ = 'register_read'
 C_START_CAPTURE = 'start_capture'
 C_READ_DATA = 'read_data'
@@ -45,6 +44,8 @@ C_HIL_STOP = 'hil_stop'
 C_GET_ACQUISITION_STATUS = 'get_acquisition_status'
 C_SET_ACQUISITION = 'set_acquisition'
 C_SET_SCOPE_ADDRESS = 'set_scope_address'
+C_SET_PL_CLOCK = 'set_pl_clock'
+C_GET_CLOCK =  'get_clock'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -123,10 +124,6 @@ class uCube_interface:
         response = self.send_command(C_LOAD_BITSTREAM, bitstream)
         return response
 
-    def set_clock_frequency(self, clock, frequency):
-        response = self.send_command(C_SET_FREQUENCY, [clock, frequency])
-        return response
-
     # DEPRECATED
     def setup_capture_mode(self, n_buffers):
         response = self.send_command(C_START_CAPTURE, n_buffers)
@@ -201,6 +198,13 @@ class uCube_interface:
 
     def set_scope_address(self, address):
         return self.send_command(C_SET_SCOPE_ADDRESS, address)
+
+    def set_pl_clock(self, clock_n, frequency):
+        return self.send_command(C_SET_PL_CLOCK, {"id":clock_n, "value":frequency, "is_primary":True})
+
+    def get_clock(self, clock_n):
+        return self.send_command(C_GET_CLOCK, clock_n)
+
 
     def emulate_hil(self, spec):
         res = "Generic Emulation error"
