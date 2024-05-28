@@ -38,6 +38,7 @@ class Applications(Base):
     filters = Column(postgresql.JSONB)
     programs = Column(ARRAY(String))
     scripts = Column(ARRAY(String))
+    pl_clocks = Column(postgresql.JSONB)
 
     def __repr__(self):
         return "<Application(id='%s' application_name='%s', bitstream='%s')>" % ( self.id, self.application_name, self.bitstream)
@@ -59,7 +60,8 @@ def application_from_row(row: Applications):
         'filters': row.filters,
         'scripts': row.scripts,
         'programs': row.programs,
-        'miscellaneous': row.miscellaneous
+        'miscellaneous': row.miscellaneous,
+        'pl_clocks': row.pl_clocks
     }
 
     return app

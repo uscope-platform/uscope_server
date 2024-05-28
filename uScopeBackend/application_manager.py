@@ -184,6 +184,9 @@ class ApplicationManager:
         self.settings_store.set_per_user_value('chosen_application', chosen_app, username)
         self.settings_store.set_per_user_value('parameters', chosen_app['parameters'], username)
 
+        for item in chosen_app["pl_clocks"]:
+            current_app.interface.set_clock_frequency(int(item), chosen_app['pl_clocks'][item])
+
         if chosen_app['bitstream'] == "":
             return
 
@@ -195,8 +198,10 @@ class ApplicationManager:
                   f" ADDRESS={item['address']} PROGRAM={item['default_program']}")
             current_app.programs_mgr.apply_program(item['default_program'], item['id'], application_name)
 
-        if 'initial_registers_values' in chosen_app:
-            self.initialize_registers(chosen_app['initial_registers_values'])
+        self.initialize_registers(chosen_app['initial_registers_values'])
+
+        for item in chosen_app["pl_clocks"]:
+            current_app.interface.set_clock_frequency(item, chosen_app['pl_clocks'][item])
 
         if chosen_app['miscellaneous']['scope_buffer_address'] != "":
             scope_addresses = {
@@ -206,10 +211,12 @@ class ApplicationManager:
 
         if "clock_frequency" in chosen_app:
             self.interface.set_clock_frequency(0, chosen_app["clock_frequency"])
-            
+
         if "manual_metadata" in chosen_app:
             if chosen_app["manual_metadata"] == "true":
                 self.interface.enable_manual_metadata()
+
+
 
     def get_all_applications(self):
         """ Get all the application specifications
@@ -344,6 +351,8 @@ class ApplicationManager:
                 val = current_app['miscellaneous'][edit['item']['name']]
                 del current_app['miscellaneous'][edit['item']['name']]
                 current_app['miscellaneous'][edit['item']['value']] = val
+        elif t == 'pl_clocks':
+                current_app['pl_clocks'][edit['item']['item_id']] = edit['item']['value']
         else:
             present = False
             for idx, val in enumerate(current_app[self.item_types_map[t]]):

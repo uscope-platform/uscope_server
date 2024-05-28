@@ -60,7 +60,7 @@ class ElementsDataStore:
                                          initial_registers_values=app['initial_registers_values'], macro=app['macro'],
                                          parameters=app['parameters'], peripherals=app['peripherals'],
                                          soft_cores=app['soft_cores'], filters=app['filters'], scripts=app['scripts'],
-                                         programs=app['programs'])
+                                         programs=app['programs'], pl_clocks=app['pl_clocks'])
 
         self.ude.add_element(item, Applications.Applications)
 
