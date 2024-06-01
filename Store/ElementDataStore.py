@@ -54,8 +54,7 @@ class ElementsDataStore:
     def add_application(self, app):
 
         item = Applications.Applications(id=app['id'], application_name=app["application_name"],
-                                         bitstream=app['bitstream'],
-                                         clock_frequency=app['clock_frequency'], channels=app['channels'],
+                                         bitstream=app['bitstream'], channels=app['channels'],
                                          channel_groups=app['channel_groups'], miscellaneous=app['miscellaneous'],
                                          initial_registers_values=app['initial_registers_values'], macro=app['macro'],
                                          parameters=app['parameters'], peripherals=app['peripherals'],

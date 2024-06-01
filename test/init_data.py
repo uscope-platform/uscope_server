@@ -18,7 +18,6 @@ test_app = [
     {
         'application_name': 'test_app',
         'bitstream': "test_bit.bin",
-        'clock_frequency': 1000,
         'channels': [],
         'channel_groups': [],
         'initial_registers_values': [],
@@ -30,7 +29,6 @@ test_app = [
     {
         'application_name': 'test_app_2',
         'bitstream': "test_bit_2.bin",
-        'clock_frequency': 1000,
         'channels': [],
         'channel_groups': [],
         'initial_registers_values': [],

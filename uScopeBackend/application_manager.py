@@ -336,8 +336,6 @@ class ApplicationManager:
             if not edit['item']['edit_name']:
                 if edit["item"]['name'] == "application_name":
                     current_app['application_name'] = edit['item']['value']
-                elif edit["item"]['name'] == "clock_frequency":
-                    current_app['clock_frequency'] = edit['item']['value']
                 elif edit["item"]['name'] == "bitstream":
                     current_app['bitstream'] = edit['item']['value']
                 else:

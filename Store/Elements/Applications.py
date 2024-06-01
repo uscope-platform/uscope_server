@@ -26,7 +26,6 @@ class Applications(Base):
     id = Column(Integer, primary_key=True)
     application_name = Column(String)
     bitstream = Column(String)
-    clock_frequency = Column(String)
     channels = Column(postgresql.JSONB)
     channel_groups = Column(postgresql.JSONB)
     initial_registers_values = Column(postgresql.JSONB)
@@ -49,7 +48,6 @@ def application_from_row(row: Applications):
         'id': row.id,
         'application_name': row.application_name,
         'bitstream': row.bitstream,
-        'clock_frequency': row.clock_frequency,
         'channels': row.channels,
         'channel_groups': row.channel_groups,
         'initial_registers_values': row.initial_registers_values,

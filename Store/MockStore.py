@@ -92,13 +92,13 @@ class MockElementsAuthStore:
     def add_application(self, app):
         misc_app = copy.copy(app)
 
-        entries_to_remove = ('application_name', 'bitstream', 'clock_frequency', 'channels', 'channel_groups',
+        entries_to_remove = ('application_name', 'bitstream', 'channels', 'channel_groups',
                              'initial_registers_values', 'macro', 'parameters', 'peripherals')
         for k in entries_to_remove:
             misc_app.pop(k, None)
 
         item = {'application_name': app["application_name"], 'bitstream': app['bitstream'],
-                'clock_frequency': app['clock_frequency'], 'channels': app['channels'],
+                'channels': app['channels'],
                 'channel_groups': app['channel_groups'], 'miscellaneous': misc_app,
                 'initial_registers_values': app['initial_registers_values'], 'macro': app['macro'],
                 'parameters': app['parameters'], 'peripherals': app['peripherals']}
@@ -107,7 +107,7 @@ class MockElementsAuthStore:
 
     def _construct_app(self, item):
         result = {'application_name': item["application_name"], 'bitstream': item['bitstream'],
-                  'clock_frequency': item['clock_frequency'], 'channels': item['channels'],
+                 'channels': item['channels'],
                   'channel_groups': item['channel_groups'],
                   'initial_registers_values': item['initial_registers_values'], 'macro': item['macro'],
                   'parameters': item['parameters'], 'peripherals': item['peripherals']}
