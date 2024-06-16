@@ -27,6 +27,7 @@ C_START_CAPTURE = 'start_capture'
 C_READ_DATA = 'read_data'
 C_CHECK_CAPTURE_PROGRESS = 'check_capture'
 C_SET_CHANNEL_WIDTHS = 'set_channel_widths'
+C_COMPILE_PROGRAM = 'compile_program'
 C_APPLY_PROGRAM = 'apply_program'
 C_SET_SCALING_FACTORS = 'set_scaling_factors'
 C_SET_CHANNEL_STATUS = 'set_channel_status'
@@ -152,6 +153,10 @@ class uCube_interface:
             addr = core_address
 
         response = self.send_command(C_APPLY_PROGRAM, {"address": addr, "program": program})
+
+    def compile_program(self, program):
+        response = self.send_command(C_COMPILE_PROGRAM, program)
+        return response
 
     def apply_filter(self, filter_address, taps):
 

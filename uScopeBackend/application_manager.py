@@ -35,7 +35,6 @@ class ApplicationSet(Resource):
     def get(self, application_id):
         try:
             user = get_jwt_identity()
-            current_app.plot_mgr.set_application(application_id, user)
             return jsonify(current_app.app_mgr.set_application(application_id, user))
         except RuntimeError:
             abort(Response("Bitstream not found", 418))

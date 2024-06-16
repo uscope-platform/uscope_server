@@ -63,7 +63,7 @@ class ProgramApply(Resource):
     @role_required("operator")
     def post(self, program_id):
         content = request.get_json()
-        return current_app.programs_mgr.apply_program(program_id, content['core_id'], content["application"])
+        return current_app.programs_mgr.program_soft_core(content, program_id)
 
 
 class ProgramHash(Resource):
@@ -157,6 +157,7 @@ class ProgramsManager:
         if "io" in core:
             if core["io"]:
                 try:
+                    ##CONVERT THIS TO PUSH COMPILATION TO DRIVER AS WELL
                     program_hex, program_size, new_hash = self.bridge.compile(
                         program['program_content'],
                         program['program_type'],
@@ -176,3 +177,21 @@ class ProgramsManager:
         self.interface.apply_program(program_hex, core["address"])
         return '200'
 
+    def program_soft_core(self, program_info, prog_id):
+
+        program = self.data_store.get_program(int(prog_id))
+
+        if program['cached_bin_version'] != program_info['hash']:
+            for i in program_info["io"]:
+                i["address"] = int(i["address"])
+
+            result = self.interface.compile_program(program_info)
+            program_hex = result
+            program["hex"] = program_hex
+            program['cached_bin_version'] = program_info['hash']
+            self.data_store.edit_program(program)
+        else:
+            program_hex = program["hex"]
+
+        self.interface.apply_program(program_hex, program_info["core_address"])
+        return '200'
