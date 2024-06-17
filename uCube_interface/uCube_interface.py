@@ -145,7 +145,7 @@ class uCube_interface:
     def set_channel_status(self, status):
         return self.send_command(C_SET_CHANNEL_STATUS, status)
 
-    def apply_program(self, program, core_address):
+    def load_program(self, program, core_address):
 
         if isinstance(core_address, str):
             addr = int(core_address, 0)

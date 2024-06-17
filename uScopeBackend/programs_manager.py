@@ -133,50 +133,6 @@ class ProgramsManager:
         error_codes = [{"status": "passed", "file": program['name'], "error": None}]
         return error_codes
 
-
-    def apply_program(self, program_id, core_id, application_name):
-        print(f'APPLY PROGRAM ID: {program_id} TO CORE: {core_id}')
-        app = self.data_store.get_application(application_name)
-        programs = self.data_store.get_programs_dict()
-        key = None
-        for key in programs:
-            if program_id == programs[key]['name']:
-                break
-        if not key:
-            raise RuntimeError(f"ERROR: program named {program_id} not found")
-        program = self.data_store.get_program(key)
-        core = list(filter(lambda x: x["id"] == core_id, app["soft_cores"]))[0]
-        program_hex = program["hex"]
-
-        headers = list()
-
-        for h in program["headers"]:
-            h_obj = self.data_store.get_program(h)
-            headers.append({"name": h_obj["name"], "content": h_obj["program_content"]})
-
-        if "io" in core:
-            if core["io"]:
-                try:
-                    ##CONVERT THIS TO PUSH COMPILATION TO DRIVER AS WELL
-                    program_hex, program_size, new_hash = self.bridge.compile(
-                        program['program_content'],
-                        program['program_type'],
-                        dma_io=core["io"],
-                        cached_hash=program['cached_bin_version'],
-                        headers=headers
-                    )
-                    if new_hash != program['cached_bin_version']:
-                        program["hex"] = program_hex
-                        program['cached_bin_version'] = new_hash
-                        self.data_store.edit_program(program)
-                except ValueError as err:
-                    return "501"
-                except fCore_compiler.CacheHitException as err:
-                    pass
-
-        self.interface.apply_program(program_hex, core["address"])
-        return '200'
-
     def program_soft_core(self, program_info, prog_id):
 
         program = self.data_store.get_program(int(prog_id))
@@ -193,5 +149,5 @@ class ProgramsManager:
         else:
             program_hex = program["hex"]
 
-        self.interface.apply_program(program_hex, program_info["core_address"])
+        self.interface.load_program(program_hex, program_info["core_address"])
         return '200'
