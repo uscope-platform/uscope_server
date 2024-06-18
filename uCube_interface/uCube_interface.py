@@ -26,16 +26,13 @@ C_SINGLE_REGISTER_READ = 'register_read'
 C_START_CAPTURE = 'start_capture'
 C_READ_DATA = 'read_data'
 C_CHECK_CAPTURE_PROGRESS = 'check_capture'
-C_SET_CHANNEL_WIDTHS = 'set_channel_widths'
 C_COMPILE_PROGRAM = 'compile_program'
 C_APPLY_PROGRAM = 'apply_program'
 C_SET_SCALING_FACTORS = 'set_scaling_factors'
 C_SET_CHANNEL_STATUS = 'set_channel_status'
 C_APPLY_FILTER = 'apply_filter'
-C_SET_CHANNEL_SIGNS = 'set_channel_signs'
 C_GET_VERSION = 'get_version'
 C_SET_SCOPE_DATA = 'set_scope_data'
-C_ENABLE_MANUAL_METADATA = 'enable_manual_metadata'
 C_DEPLOY_HIL = 'deploy_hil'
 C_EMULATE_HIL = 'emulate_hil'
 C_HIL_SELECT_OUT = 'hil_select_out'
@@ -133,12 +130,6 @@ class uCube_interface:
     def get_capture_data(self):
         return self.send_command(C_CHECK_CAPTURE_PROGRESS, []).split(b' ')
 
-    def set_channel_widths(self, widths):
-        return self.send_command(C_SET_CHANNEL_WIDTHS, widths)
-
-    def set_channel_signs(self, signs):
-        self.send_command(C_SET_CHANNEL_SIGNS, signs)
-
     def set_scaling_factors(self, factors):
         return self.send_command(C_SET_SCALING_FACTORS, factors)
 
@@ -171,9 +162,6 @@ class uCube_interface:
 
     def set_scope_data(self, scope_data):
         return self.send_command(C_SET_SCOPE_DATA, scope_data)
-
-    def enable_manual_metadata(self):
-        return self.send_command(C_ENABLE_MANUAL_METADATA, {})
 
     def deploy_hil(self, spec):
         res = "Generic Deployment error"

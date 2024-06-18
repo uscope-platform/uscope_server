@@ -121,7 +121,7 @@ class ProgramsManager:
         for h in program["headers"]:
             h_obj = self.data_store.get_program(h)
             headers.append({"name": h_obj["name"], "content": h_obj["program_content"]})
-
+            
         try:
             compiled_res, program_size, new_hash = self.bridge.compile(program['program_content'],
                                                                        program['program_type'], headers=headers)

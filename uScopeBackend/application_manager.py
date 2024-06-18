@@ -201,11 +201,6 @@ class ApplicationManager:
             self.interface.set_scope_data(scope_addresses)
 
 
-        if "manual_metadata" in chosen_app:
-            if chosen_app["manual_metadata"] == "true":
-                self.interface.enable_manual_metadata()
-
-
 
     def get_all_applications(self):
         """ Get all the application specifications
