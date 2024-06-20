@@ -16,7 +16,6 @@
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
-import fCore_compiler
 
 from . import role_required
 
@@ -76,8 +75,9 @@ class ProgramHash(Resource):
 class ProgramCompile(Resource):
     @jwt_required()
     @role_required("user")
-    def get(self, program_id):
-        return jsonify(current_app.programs_mgr.compile_program(program_id))
+    def post(self, program_id):
+        content = request.get_json()
+        return jsonify(current_app.programs_mgr.compile_program(content))
 
 
 api.add_resource(ProgramHash, '/hash')
@@ -95,7 +95,6 @@ class ProgramsManager:
     def __init__(self, interface, store):
         self.interface = interface
         self.data_store = store.Elements
-        self.bridge = fCore_compiler.CompilerBridge()
 
     def load_programs(self):
         return self.data_store.get_programs_dict()
@@ -114,23 +113,13 @@ class ProgramsManager:
     def remove_program(self, program):
         self.data_store.remove_program(program)
 
-    def compile_program(self, program_id):
-        program = self.data_store.get_program(program_id)
-        headers = list()
+    def compile_program(self, program_info):
 
-        for h in program["headers"]:
-            h_obj = self.data_store.get_program(h)
-            headers.append({"name": h_obj["name"], "content": h_obj["program_content"]})
-            
-        try:
-            compiled_res, program_size, new_hash = self.bridge.compile(program['program_content'],
-                                                                       program['program_type'], headers=headers)
-        except ValueError as err:
-            error_codes = [{"status": "failed", "file": program['name'], "error": str(err)}]
-            return error_codes
-        program['hex'] = compiled_res
-        self.data_store.edit_program(program)
-        error_codes = [{"status": "passed", "file": program['name'], "error": None}]
+        result = self.interface.compile_program(program_info)
+        if 'error' in result:
+            error_codes = [{"status": "failed", "error": result['error']}]
+        else:
+            error_codes = [{"status": "passed", "error": None}]
         return error_codes
 
     def program_soft_core(self, program_info, prog_id):
@@ -142,7 +131,9 @@ class ProgramsManager:
                 i["address"] = int(i["address"])
 
             result = self.interface.compile_program(program_info)
-            program_hex = result
+            if 'error' in result:
+                return [{"status": "failed", "error": result['error']}]
+            program_hex = result['data']
             program["hex"] = program_hex
             program['cached_bin_version'] = program_info['hash']
             self.data_store.edit_program(program)
@@ -150,4 +141,4 @@ class ProgramsManager:
             program_hex = program["hex"]
 
         self.interface.load_program(program_hex, program_info["core_address"])
-        return '200'
+        return [{"status": "passed", "error": None}]

@@ -19,7 +19,6 @@ from flask_jwt_extended import jwt_required
 from . import role_required
 from werkzeug.exceptions import BadRequest
 
-from fCore_compiler import fCore_emulator
 
 ############################################################
 #                      BLUEPRINT                           #
