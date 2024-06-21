@@ -47,22 +47,6 @@ class ApplicationGet(Resource):
         return jsonify(current_app.app_mgr.get_application(application_name))
 
 
-class ApplicationParameters(Resource):
-    @jwt_required()
-    @role_required("operator")
-    def get(self):
-        user = get_jwt_identity()
-        return jsonify(current_app.app_mgr.get_parameters(user))
-
-    @jwt_required()
-    @role_required("operator")
-    def post(self):
-        parameters = request.get_json(force=True)
-        user = get_jwt_identity()
-        current_app.app_mgr.set_parameters(parameters['payload'], user)
-        return '200'
-
-
 class ApplicationsDigest(Resource):
     @jwt_required()
     @role_required("operator")
@@ -107,7 +91,6 @@ class ApplicationRemove(Resource):
 api.add_resource(ApplicationsSpecs, '/all/specs')
 api.add_resource(ApplicationSet, '/set/<string:application_id>')
 api.add_resource(ApplicationGet, '/get/<string:application_name>')
-api.add_resource(ApplicationParameters, '/parameters')
 api.add_resource(ApplicationsDigest, '/digest')
 api.add_resource(ApplicationAdd, '/add')
 api.add_resource(ApplicationEdit, '/edit')
@@ -181,7 +164,6 @@ class ApplicationManager:
         """
         chosen_app = self.data_store.get_application(application_name)
         self.settings_store.set_per_user_value('chosen_application', chosen_app, username)
-        self.settings_store.set_per_user_value('parameters', chosen_app['parameters'], username)
 
         for item in chosen_app["pl_clocks"]:
             current_app.interface.set_pl_clock(int(item), chosen_app['pl_clocks'][item])
@@ -226,68 +208,18 @@ class ApplicationManager:
         """
         return self.data_store.get_application(application_id)
 
-    def get_peripheral_base_address(self, peripheral, username):
-        """ Get base address for the specified peripheral
-
-            Parameters:
-                peripheral: peripheral id
-                username: username of the requester
-        """
-        chosen_application = self.settings_store.get_per_user_value('chosen_application', username)
-        for tab in chosen_application['peripherals']:
-            if tab['peripheral_id'] == peripheral:
-                return tab['base_address']
-            pass
-
-        raise ValueError('could not find the periperal %s' % peripheral)
-
-    def peripheral_is_proxied(self, peripheral, username):
+    def peripheral_is_proxied(self, application, peripheral, username):
         """Find out whether a peripheral is proxied or not
 
             Parameters:
                 peripheral: peripheral id
                 username: username of the requester
         """
-        chosen_application = self.settings_store.get_per_user_value('chosen_application', username)
-        for tab in chosen_application['peripherals']:
+        for tab in application['peripherals']:
             if tab['peripheral_id'] == peripheral:
                 return tab['proxied']
             pass
         raise ValueError('could not find the periperal %s' % peripheral)
-
-    def get_peripheral_proxy_address(self, peripheral, username):
-        """ Get proxy address for the specified peripheral
-
-            Parameters:
-                peripheral: peripheral id
-                username: username of the requester
-        """
-        chosen_application = self.settings_store.get_per_user_value('chosen_application', username)
-        for tab in chosen_application['peripherals']:
-            if tab['peripheral_id'] == peripheral:
-                return tab['proxy_address']
-            pass
-
-    def get_parameters(self, username):
-        """ Get parameters for the current peripheral
-
-            Parameters:
-                username: username of the requester
-
-        """
-        params = self.settings_store.get_per_user_value('parameters', username)
-        return params
-
-    def set_parameters(self, param, username):
-        """ set parameter of the current peripheral
-
-            Parameters:
-                param: dictionary containing name and value of the parameter to set
-                username: username of the requester
-        """
-        params = self.settings_store.get_per_user_value('parameters', username)
-        params[param['name']] = param['value']
-        self.settings_store.set_per_user_value('parameters', params, username)
 
     def load_bitstream(self, name):
         """ Load the specified bitstream on the programmable logic

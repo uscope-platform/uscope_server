@@ -140,7 +140,7 @@ class RegistersManager:
         registers_values = {}
         for i in parameters['registers']:
             if ('R' in i['direction'] or 'r' in i['direction']) and not current_app.app_mgr.peripheral_is_proxied(
-                    peripheral_name, username):
+                    app, peripheral_name, username):
                 address = base_address + int(i['offset'], 0)
                 if i['register_format'] == 'words':
                     registers_values[i['register_name']] = self.interface.read_register(address)

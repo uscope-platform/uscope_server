@@ -29,24 +29,6 @@ plot_manager_bp = Blueprint('plot_manager', __name__, url_prefix='/plot')
 api = Api(plot_manager_bp)
 
 
-class ChannelsSpecs(Resource):
-    @jwt_required()
-    @role_required("operator")
-    def get(self):
-        user = get_jwt_identity()
-        return jsonify(current_app.plot_mgr.get_channels_specs(user))
-
-
-class ChannelParams(Resource):
-    @jwt_required()
-    @role_required("operator")
-    def post(self):
-        message = request.get_json(force=True)
-        user = get_jwt_identity()
-        current_app.plot_mgr.set_channel_params(message, user)
-        return '200'
-
-
 class ChannelsData(Resource):
     @jwt_required()
     def get(self):
@@ -93,8 +75,6 @@ class Acquisition(Resource):
         return current_app.plot_mgr.set_acquisition(args)
 
 
-api.add_resource(ChannelsSpecs, '/channels/specs')
-api.add_resource(ChannelParams, '/channels/params')
 api.add_resource(ChannelsData, '/channels/data')
 api.add_resource(ChannelStatus, '/channels/status')
 api.add_resource(ChannelScalingFactors, '/channels/scaling_factors')
@@ -125,10 +105,6 @@ class PlotManager:
                 username: username of the requester
            """
         self.settings_store.clear_settings()
-        parameters = self.data_store.get_application(name)['parameters']
-        channels = self.data_store.get_application(name)['channels']
-        self.settings_store.set_per_user_value('channel_parameters', parameters, username)
-        self.settings_store.set_per_user_value('channel_specs', channels, username)
 
     def get_data(self, username):
         """Get the latest scope data
@@ -149,34 +125,7 @@ class PlotManager:
     def set_scaling_factors(self, sfs):
         self.interface.set_scaling_factors(sfs['scaling_factors'])
 
-    def get_channels_specs(self, username):
-        """Returns the specifications for the scope channels of the current application
-            Parameter:
-                username: username of the requester
-            Returns:
-                Dict:specifications for the current channel
-           """
-        specs = self.settings_store.get_per_user_value('channel_specs', username)
-        return specs
 
-    def set_channel_params(self, message, username):
-        """Set the value for a channel parameter
-
-            Parameters:
-                message: dictionary with the values for the parameter to set
-                username: username of the requester
-           """
-        params = self.settings_store.get_per_user_value('channel_parameters', username)
-        specs = self.settings_store.get_per_user_value('channel_specs', username)
-
-        if type(message) is list:
-            for s in message:
-                specs['channels'][s['channel_id']][s['name']] = s['value']
-        else:
-            params[message['name']] = params[message['value']]
-
-        self.settings_store.set_per_user_value('channel_parameters', params, username)
-        self.settings_store.set_per_user_value('channel_specs', specs, username)
 
     def set_channel_status(self, status, username):
         self.interface.set_channel_status(status)

@@ -29,21 +29,7 @@ class SettingsStore:
     def set_per_user_value(self, name, value, username):
         self.redis.set(name+'__'+username, json.dumps(value))
 
-    def get_per_server_value(self, name):
-        return json.loads(self.redis.get(name))
-
-    def set_per_server_value(self, name, value):
-        self.redis.set(name, json.dumps(value))
-
-    def delete_per_server_value(self, name):
-        self.redis.dump(name)
 
     def clear_settings(self):
         print("CLEARED SETTINGS")
         self.redis.flushdb()
-
-    def dump(self):
-        pass
-
-    def restore(self, data):
-        pass
