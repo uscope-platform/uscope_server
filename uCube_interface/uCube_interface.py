@@ -23,9 +23,7 @@ C_NULL_COMMAND = 'null'
 C_LOAD_BITSTREAM = 'load_bitstream'
 C_SINGLE_REGISTER_WRITE = 'register_write'
 C_SINGLE_REGISTER_READ = 'register_read'
-C_START_CAPTURE = 'start_capture'
 C_READ_DATA = 'read_data'
-C_CHECK_CAPTURE_PROGRESS = 'check_capture'
 C_COMPILE_PROGRAM = 'compile_program'
 C_APPLY_PROGRAM = 'apply_program'
 C_SET_SCALING_FACTORS = 'set_scaling_factors'
@@ -122,13 +120,6 @@ class uCube_interface:
         response = self.send_command(C_LOAD_BITSTREAM, bitstream)
         return response
 
-    # DEPRECATED
-    def setup_capture_mode(self, n_buffers):
-        response = self.send_command(C_START_CAPTURE, n_buffers)
-
-    # DEPRECATED
-    def get_capture_data(self):
-        return self.send_command(C_CHECK_CAPTURE_PROGRESS, []).split(b' ')
 
     def set_scaling_factors(self, factors):
         return self.send_command(C_SET_SCALING_FACTORS, factors)

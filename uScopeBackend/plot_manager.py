@@ -54,21 +54,6 @@ class ChannelsData(Resource):
         return jsonify(current_app.plot_mgr.get_data(user))
 
 
-class SetupCapture(Resource):
-    @jwt_required()
-    @role_required("operator")
-    def get(self):
-        data = jsonify(current_app.plot_mgr.get_capture_data())
-        return data
-
-    @jwt_required()
-    @role_required("operator")
-    def post(self):
-        parameters = request.get_json(force=True)
-        current_app.plot_mgr.setup_capture(parameters)
-        return '200'
-
-
 class ChannelStatus(Resource):
     @jwt_required()
     @role_required("operator")
@@ -108,7 +93,6 @@ class Acquisition(Resource):
         return current_app.plot_mgr.set_acquisition(args)
 
 
-api.add_resource(SetupCapture, '/capture')
 api.add_resource(ChannelsSpecs, '/channels/specs')
 api.add_resource(ChannelParams, '/channels/params')
 api.add_resource(ChannelsData, '/channels/data')
@@ -193,27 +177,6 @@ class PlotManager:
 
         self.settings_store.set_per_user_value('channel_parameters', params, username)
         self.settings_store.set_per_user_value('channel_specs', specs, username)
-
-    def setup_capture(self, param):
-        """Setup and start a capture
-
-            Parameters:
-                param: parameters of the capture
-           """
-        n_buffers = param['length']
-        self.interface.setup_capture_mode(n_buffers)
-
-    def get_capture_data(self):
-        """Get the captured data
-
-            Returns:
-                String:Content of the file to upload to the client with the capture data
-           """
-        returnval = {'elapsed': self.interface.get_capture_data()}
-        if returnval['elapsed'] == 0:
-            with open('/dev/shm/uscope_capture_writeback', 'r') as f:
-                returnval['data'] = f.read()
-        return returnval
 
     def set_channel_status(self, status, username):
         self.interface.set_channel_status(status)
