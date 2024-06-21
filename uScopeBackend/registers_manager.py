@@ -30,19 +30,6 @@ registers_manager_bp = Blueprint('regusters_manager', __name__, url_prefix='/reg
 api = Api(registers_manager_bp)
 
 
-class RegisterDescriptions(Resource):
-    @jwt_required()
-    @role_required("operator")
-    def get(self, peripheral):
-        user = get_jwt_identity()
-        return jsonify(current_app.register_mgr.get_registers_descriptions(peripheral, user))
-
-    @jwt_required()
-    @role_required("operator")
-    def post(self):
-        pass
-
-
 class PeripheralsSpecs(Resource):
     @jwt_required()
     @role_required("operator")
@@ -80,7 +67,6 @@ class RegistersRead(Resource):
         return current_app.register_mgr.get_register_value(address)
 
 
-api.add_resource(RegisterDescriptions, '/<string:peripheral>/descriptions')
 api.add_resource(PeripheralsSpecs, '/all_peripheral/descriptions')
 api.add_resource(RegistersBulkWrite, '/bulk_write')
 api.add_resource(RegistersRead, '/direct_read/<string:address>')
@@ -97,7 +83,6 @@ class RegistersManager:
     def __init__(self, interface, store):
         self.interface = interface
         self.data_store = store.Elements
-        self.settings_store = store.Settings
 
     def get_all_peripherals(self):
         """Returns all the peripherals present in the database
@@ -114,43 +99,6 @@ class RegistersManager:
                 str:Digest of the peripherals present in the database
            """
         return self.data_store.get_peripherals_hash()
-
-    def get_registers_descriptions(self, peripheral_name, username):
-        """Returns the specification for the registers of the specified peripheral
-
-            Parameters:
-                peripheral_name: name of the peripheral whose registers need to be returned
-                username: username of the request issuer
-            Returns:
-                List:list of registers in the peripheral
-
-           """
-
-        app = self.settings_store.get_per_user_value('chosen_application', username)
-        found = False
-        for peripheral in app['peripherals']:
-            if peripheral_name in peripheral['peripheral_id']:
-                found = True
-                parameters = self.data_store.get_peripheral(peripheral['spec_id'])
-                base_address = int(peripheral['base_address'], 0)
-
-        if not found:
-            raise ValueError("The component register file was not found")
-
-        registers_values = {}
-        for i in parameters['registers']:
-            if ('R' in i['direction'] or 'r' in i['direction']) and not current_app.app_mgr.peripheral_is_proxied(
-                    app, peripheral_name, username):
-                address = base_address + int(i['offset'], 0)
-                if i['register_format'] == 'words':
-                    registers_values[i['register_name']] = self.interface.read_register(address)
-                else:
-                    registers_values[i['register_name']] = self.interface.read_register(address)
-
-            else:
-                registers_values[i['register_name']] = 0
-
-        return {'peripheral_name': parameters['peripheral_name'], 'registers': registers_values}
 
     def get_register_value(self, address):
         if isinstance(address, str):

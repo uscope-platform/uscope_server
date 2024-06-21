@@ -16,34 +16,6 @@
 import datetime as dt
 import copy
 
-class MockSettingsStore:
-    def __init__(self):
-        self._store = {}
-
-    def get_per_user_value(self, name, username):
-        return self._store[name + '__' + username]
-
-    def set_per_user_value(self, name, value, username):
-        self._store[name + '__' + username] = value
-
-    def get_per_server_value(self, name):
-        return self._store[name]
-
-    def set_per_server_value(self, name, value):
-        self._store[name] = value
-
-    def delete_per_server_value(self, name):
-        del self._store[name]
-
-    def clear_settings(self):
-        self._store = {}
-
-    def dump(self):
-        pass
-
-    def restore(self, data):
-        pass
-
 class MockAuthStore:
     def __init__(self):
         self._users_table = {}

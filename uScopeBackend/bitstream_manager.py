@@ -96,7 +96,6 @@ class BitstreamManager:
             os.makedirs(self.bitstream_storage_path)
 
         self.data_store = store.Elements
-        self.settings_store = store.Settings
 
     def get_digest(self):
         return self.data_store.get_bitstreams_hash()

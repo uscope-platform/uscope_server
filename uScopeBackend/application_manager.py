@@ -105,7 +105,6 @@ class ApplicationManager:
     def __init__(self, interface, store):
         self.parameters = {}
         self.data_store = store.Elements
-        self.settings_store = store.Settings
         self.interface = interface
         self.item_types_map = {
             "channel": "channels",
@@ -163,7 +162,6 @@ class ApplicationManager:
                 username: username of the requester
         """
         chosen_app = self.data_store.get_application(application_name)
-        self.settings_store.set_per_user_value('chosen_application', chosen_app, username)
 
         for item in chosen_app["pl_clocks"]:
             current_app.interface.set_pl_clock(int(item), chosen_app['pl_clocks'][item])

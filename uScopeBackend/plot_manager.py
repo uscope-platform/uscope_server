@@ -92,19 +92,10 @@ class PlotManager:
     def __init__(self, low_level_interface, store):
         self.interface = low_level_interface
         self.data_store = store.Elements
-        self.settings_store = store.Settings
         self.data_points_per_channel = 1024
 
         self.channel_data = None
 
-    def set_application(self, name, username):
-        """Set the current application
-
-            Parameters:
-                name: name of the application to set
-                username: username of the requester
-           """
-        self.settings_store.clear_settings()
 
     def get_data(self, username):
         """Get the latest scope data
