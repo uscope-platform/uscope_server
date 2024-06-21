@@ -121,8 +121,6 @@ class FilterManager:
         ret["quantized"] = {"frequency": q_data[0], "response": q_data[1]}
         return ret
 
-
-
     def add_filter(self, filter_obj: dict):
         self.data_store.add_filter(filter_obj)
 

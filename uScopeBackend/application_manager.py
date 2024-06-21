@@ -172,8 +172,6 @@ class ApplicationManager:
         if self.load_bitstream(chosen_app['bitstream']) == 2:
             raise RuntimeError
 
-        self.initialize_registers(chosen_app['initial_registers_values'])
-
         if chosen_app['miscellaneous']['scope_buffer_address'] != "":
             scope_addresses = {
                 "buffer_address": int(chosen_app['miscellaneous']['scope_buffer_address'], 0)
@@ -234,8 +232,8 @@ class ApplicationManager:
                 registers: List of dictionaries containing the details of the registers to initialize
         """
         for reg in registers:
-            addr = int(reg['address'], 0)
-            value = int(reg['value'], 0)
+            addr = reg['address']
+            value = reg['value']
             write_obj = {'type': 'direct', 'proxy_type': '', 'proxy_address': 0, 'address': addr, 'value': value}
             self.interface.write_register(write_obj)
 
