@@ -34,8 +34,7 @@ class ApplicationSet(Resource):
     @role_required("operator")
     def get(self, application_id):
         try:
-            user = get_jwt_identity()
-            return jsonify(current_app.app_mgr.set_application(application_id, user))
+            return jsonify(current_app.app_mgr.set_application(application_id))
         except RuntimeError:
             abort(Response("Bitstream not found", 418))
 
@@ -169,12 +168,11 @@ class ApplicationManager:
         """
         self.data_store.remove_application(application_name)
 
-    def set_application(self, application_name, username):
+    def set_application(self, application_name):
         """Setup and start a capture
 
             Parameters:
                 application_name: name of the application
-                username: username of the requester
         """
 
         chosen_app = self.data_store.get_application(application_name)
