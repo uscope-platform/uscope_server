@@ -88,6 +88,21 @@ class ApplicationRemove(Resource):
         return '200'
 
 
+class ApplicationClock(Resource):
+    @jwt_required()
+    @role_required("operator")
+    def get(self):
+        return jsonify(current_app.app_mgr.get_clock())
+
+    @jwt_required()
+    @role_required("user")
+    def post(self):
+        parameters = request.get_json(force=True)
+        current_app.app_mgr.set_clock(parameters)
+        return '200'
+
+
+api.add_resource(ApplicationClock, '/clock')
 api.add_resource(ApplicationsSpecs, '/all/specs')
 api.add_resource(ApplicationSet, '/set/<string:application_id>')
 api.add_resource(ApplicationGet, '/get/<string:application_name>')
@@ -161,22 +176,14 @@ class ApplicationManager:
                 application_name: name of the application
                 username: username of the requester
         """
-        chosen_app = self.data_store.get_application(application_name)
 
-        for item in chosen_app["pl_clocks"]:
-            current_app.interface.set_pl_clock(int(item), chosen_app['pl_clocks'][item])
+        chosen_app = self.data_store.get_application(application_name)
 
         if chosen_app['bitstream'] == "":
             return
 
         if self.load_bitstream(chosen_app['bitstream']) == 2:
             raise RuntimeError
-
-        if chosen_app['miscellaneous']['scope_buffer_address'] != "":
-            scope_addresses = {
-                "buffer_address": int(chosen_app['miscellaneous']['scope_buffer_address'], 0)
-            }
-            self.interface.set_scope_data(scope_addresses)
 
 
 
@@ -236,6 +243,17 @@ class ApplicationManager:
             value = reg['value']
             write_obj = {'type': 'direct', 'proxy_type': '', 'proxy_address': 0, 'address': addr, 'value': value}
             self.interface.write_register(write_obj)
+
+    def set_clock(self, clock_obj):
+        if clock_obj["type"] == "global":
+            current_app.interface.set_pl_clock(clock_obj["clock_n"], clock_obj["frequency"])
+
+    def get_clock(self):
+        clocks = dict()
+        for i in range(0,4):
+            req = {"is_primary":True, "id":i}
+            clocks[i] = current_app.interface.get_clock(req)
+        return clocks
 
     def add_item(self, t, edit):
         current_app = self.data_store.get_application(edit["application"])
