@@ -16,6 +16,7 @@
 import socket
 import msgpack
 import json
+import zmq
 
 channel_data_raw = []
 
@@ -48,7 +49,6 @@ RESP_ERR_BITSTREAM_NOT_FOUND = '2'
 RESP_DATA_NOT_READY = '3'
 RESP_BITSTREAM_LOAD_FAILED = '5'
 
-
 class DriverError(Exception):
     def __init__(self, message, code, data):
         # Call the base class constructor with the parameters it needs
@@ -60,10 +60,15 @@ class DriverError(Exception):
         self.message =  message
 
 
+
 class uCube_interface:
     def __init__(self, hw_host, hw_port):
         self.hw_host = hw_host
         self.hw_port = hw_port
+        context = zmq.Context()
+        self.socket = context.socket(zmq.REQ)
+        host = "tcp://" + hw_host+":" +str(hw_port)
+        self.socket.connect(host)
 
     def socket_recv(self, socket, n_bytes):
         raw_data = b''
@@ -74,37 +79,25 @@ class uCube_interface:
     def send_command(self, command_idx: str, arguments):
         command_obj = {"cmd": command_idx, "args": arguments}
         command = json.dumps(command_obj)
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            data = 0
-            s.connect((self.hw_host, self.hw_port))
 
-            raw_command = command.encode()
+        self.socket.send(command.encode())
+        message = self.socket.recv()
 
-            command_length = str(len(raw_command)).zfill(10)
+        resp_obj = msgpack.unpackb(message)
+        response = resp_obj["body"]
+        response_code = response["response_code"]
 
-            s.send(command_length.encode())
-            self.socket_recv(s, 2)
-            s.send(raw_command)
+        if response_code != 1:
+            if 'duplicates' in response:
+                raise DriverError(response["data"], response_code, response['duplicates'])
+            elif response_code == 6:
+                raise DriverError("Generic acquisition error", response_code, [])
+            else:
+                raise DriverError(response["data"], response_code, [])
 
-            raw_status_resp = self.socket_recv(s, 4)
-            response_length = int.from_bytes(raw_status_resp, "big")
-            raw_response = self.socket_recv(s, response_length)
-
-            resp_obj = msgpack.unpackb(raw_response)
-            response = resp_obj["body"]
-            response_code = response["response_code"]
-
-            if response_code != 1:
-                if 'duplicates' in response:
-                    raise DriverError(response["data"], response_code, response['duplicates'])
-                elif response_code == 6:
-                    raise DriverError("Generic acquisition error", response_code, [])
-                else:
-                    raise DriverError(response["data"], response_code, [])
-
-            if "data" in response:
-                return response["data"]
-            return response_code
+        if "data" in response:
+            return response["data"]
+        return response_code
 
     def read_data(self):
         return self.send_command(C_READ_DATA, [])
