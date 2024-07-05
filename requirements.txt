@@ -9,3 +9,4 @@ sqlalchemy
 redis
 psycopg2
 pyzmq
+msgpack

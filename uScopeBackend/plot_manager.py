@@ -116,8 +116,6 @@ class PlotManager:
     def set_scaling_factors(self, sfs):
         self.interface.set_scaling_factors(sfs['scaling_factors'])
 
-
-
     def set_channel_status(self, status, username):
         self.interface.set_channel_status(status)
         return "200"
