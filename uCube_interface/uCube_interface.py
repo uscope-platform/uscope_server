@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import socket
 import msgpack
+import threading
 import json
 import zmq
 
@@ -63,6 +63,8 @@ class DriverError(Exception):
 
 class uCube_interface:
     def __init__(self, hw_host, hw_port):
+
+        self.lock = threading.Lock()
         self.hw_host = hw_host
         self.hw_port = hw_port
         context = zmq.Context()
@@ -70,18 +72,15 @@ class uCube_interface:
         host = "tcp://" + hw_host+":" +str(hw_port)
         self.socket.connect(host)
 
-    def socket_recv(self, socket, n_bytes):
-        raw_data = b''
-        while len(raw_data) != n_bytes:
-            raw_data += socket.recv(n_bytes - len(raw_data))
-        return raw_data
-
     def send_command(self, command_idx: str, arguments):
+
         command_obj = {"cmd": command_idx, "args": arguments}
         command = json.dumps(command_obj)
 
+        self.lock.acquire()
         self.socket.send(command.encode())
         message = self.socket.recv()
+        self.lock.release()
 
         resp_obj = msgpack.unpackb(message)
         response = resp_obj["body"]
