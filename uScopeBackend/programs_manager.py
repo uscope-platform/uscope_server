@@ -103,7 +103,9 @@ class ProgramsManager:
         return str(self.data_store.get_program_hash())
 
     def upload_program(self, content):
-        self.data_store.add_program(content)
+        program = content
+        program ["cached_bin_version"] = ""
+        self.data_store.add_program(program)
 
     def edit_program(self, edit):
         program = self.data_store.get_program(edit['program'])
