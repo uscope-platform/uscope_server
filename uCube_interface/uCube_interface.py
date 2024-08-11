@@ -43,6 +43,7 @@ C_SET_ACQUISITION = 'set_acquisition'
 C_SET_SCOPE_ADDRESS = 'set_scope_address'
 C_SET_PL_CLOCK = 'set_pl_clock'
 C_GET_CLOCK =  'get_clock'
+C_SET_DEBUG_LEVEL = 'set_debug_level'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -184,7 +185,6 @@ class uCube_interface:
     def get_clock(self, clock_n):
         return self.send_command(C_GET_CLOCK, clock_n)
 
-
     def emulate_hil(self, spec):
         res = "Generic Emulation error"
         try:
@@ -192,3 +192,6 @@ class uCube_interface:
         except DriverError as ex:
             res = {'code': ex.code, 'error': ex.message,  'duplicates': ex.data}
         return res
+
+    def set_debug_level(self, level):
+        return self.send_command(C_SET_DEBUG_LEVEL, level)
