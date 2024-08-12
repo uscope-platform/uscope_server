@@ -33,12 +33,32 @@ class DebugLevel(Resource):
 
     @jwt_required()
     @role_required("user")
+    def get(self):
+        return current_app.settings_mgr.get_debug_level()
+
+    @jwt_required()
+    @role_required("user")
     def post(self):
         spec = request.get_json()
         return jsonify(current_app.settings_mgr.set_debug_level(spec['level']))
 
 
+class HilAddressMap(Resource):
+
+    @jwt_required()
+    @role_required("user")
+    def get(self):
+        return current_app.settings_mgr.get_hil_address_map()
+
+    @jwt_required()
+    @role_required("user")
+    def post(self):
+        spec = request.get_json()
+        return jsonify(current_app.settings_mgr.set_hil_address_map(spec))
+
+
 api.add_resource(DebugLevel, '/debug_level')
+api.add_resource(HilAddressMap, '/hil_address_map')
 
 ############################################################
 #                      IMPLEMENTATION                      #
@@ -52,3 +72,12 @@ class SettingsManager:
 
     def set_debug_level(self, level):
         self.interface.set_debug_level(level)
+
+    def get_debug_level(self):
+        return self.interface.get_debug_level()
+
+    def get_hil_address_map(self):
+        return self.interface.get_hil_address_map()
+
+    def set_hil_address_map(self, level):
+        self.interface.set_hil_address_map(level)

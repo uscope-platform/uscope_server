@@ -44,11 +44,15 @@ C_SET_SCOPE_ADDRESS = 'set_scope_address'
 C_SET_PL_CLOCK = 'set_pl_clock'
 C_GET_CLOCK =  'get_clock'
 C_SET_DEBUG_LEVEL = 'set_debug_level'
+C_GET_DEBUG_LEVEL = 'get_debug_level'
+C_GET_HIL_ADDRESS_MAP = 'get_hil_address_map'
+C_SET_HIL_ADDRESS_MAP = 'set_hil_address_map'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
 RESP_DATA_NOT_READY = '3'
 RESP_BITSTREAM_LOAD_FAILED = '5'
+
 
 class DriverError(Exception):
     def __init__(self, message, code, data):
@@ -112,7 +116,6 @@ class uCube_interface:
     def load_bitstream(self, bitstream):
         response = self.send_command(C_LOAD_BITSTREAM, bitstream)
         return response
-
 
     def set_scaling_factors(self, factors):
         return self.send_command(C_SET_SCALING_FACTORS, factors)
@@ -195,3 +198,12 @@ class uCube_interface:
 
     def set_debug_level(self, level):
         return self.send_command(C_SET_DEBUG_LEVEL, level)
+
+    def get_debug_level(self):
+        return self.send_command(C_GET_DEBUG_LEVEL, {})
+
+    def get_hil_address_map(self):
+        return self.send_command(C_GET_HIL_ADDRESS_MAP, {})
+
+    def set_hil_address_map(self, address_map):
+        return self.send_command(C_SET_HIL_ADDRESS_MAP, address_map)
