@@ -130,6 +130,8 @@ class EmulatorManager:
             emu_obj['name'] = edit_obj['value']
         if a == 'edit_emu_time':
             emu_obj['emulation_time'] = edit_obj['value']
+        if a == 'edit_deployment_mode':
+            emu_obj['deployment_mode'] = edit_obj['value']
         elif a == 'edit_core_props':
             emu_obj['cores'][edit_obj['core']][edit_obj['field_name']] = edit_obj['value']
         elif a == 'edit_input':

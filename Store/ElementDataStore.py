@@ -233,7 +233,8 @@ class ElementsDataStore:
             name=emu["name"],
             connections=emu["connections"],
             cores=emu["cores"],
-            emulation_time=emu["emulation_time"]
+            emulation_time=emu["emulation_time"],
+            deployment_mode=emu["deployment_mode"]
         )
         self.ude.add_element(item, Emulator.Emulator)
 
