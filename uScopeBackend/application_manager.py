@@ -230,18 +230,6 @@ class ApplicationManager:
         """
         return self.interface.load_bitstream(name)
 
-    def initialize_registers(self, registers):
-        """ Initializes registers from arguments
-
-            Parameters:
-                registers: List of dictionaries containing the details of the registers to initialize
-        """
-        for reg in registers:
-            addr = reg['address']
-            value = reg['value']
-            write_obj = {'type': 'direct', 'proxy_type': '', 'proxy_address': 0, 'address': addr, 'value': value}
-            self.interface.write_register(write_obj)
-
     def set_clock(self, clock_obj):
         if clock_obj["type"] == "global":
             current_app.interface.set_pl_clock(clock_obj["clock_n"], clock_obj["frequency"])

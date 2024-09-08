@@ -48,6 +48,7 @@ C_GET_DEBUG_LEVEL = 'get_debug_level'
 C_GET_HIL_ADDRESS_MAP = 'get_hil_address_map'
 C_SET_HIL_ADDRESS_MAP = 'set_hil_address_map'
 C_DISABLE_SCOPE_DMA = 'disable_scope_dma'
+C_APPLY_FILTER = 'apply_filter'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'

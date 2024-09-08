@@ -94,7 +94,7 @@ def create_app():
         app.db_mgr = DatabaseManager(store, interface)
         app.auth_mgr = AuthManager(store)
         app.bitstream_mgr = BitstreamManager(store)
-        app.filter_mgr = FilterManager(store)
+        app.filter_mgr = FilterManager(interface, store)
         app.emu_mgr = EmulatorManager(interface, store)
         app.hil_mgr = HilManager(interface)
         app.settings_mgr = SettingsManager(interface)

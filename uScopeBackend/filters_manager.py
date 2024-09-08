@@ -95,8 +95,9 @@ api.add_resource(FilterImplementer, '/implement/<string:filter_id>')
 
 class FilterManager:
 
-    def __init__(self, store):
+    def __init__(self,low_level_interface, store):
 
+        self.interface = low_level_interface
         self.data_store = store.Elements
 
     def get_digest(self):
@@ -158,4 +159,7 @@ class FilterManager:
             return 500
 
     def apply_filter(self, filter_id):
-        pass
+        flt_object = self.data_store.get_filters_dict()[int(filter_id)]
+        taps = flt_object["quantized_taps"]
+        address = 0x41
+        return self.interface.apply_filter(address,taps)
