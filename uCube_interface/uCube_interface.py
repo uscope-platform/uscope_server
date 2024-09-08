@@ -47,6 +47,7 @@ C_SET_DEBUG_LEVEL = 'set_debug_level'
 C_GET_DEBUG_LEVEL = 'get_debug_level'
 C_GET_HIL_ADDRESS_MAP = 'get_hil_address_map'
 C_SET_HIL_ADDRESS_MAP = 'set_hil_address_map'
+C_DISABLE_SCOPE_DMA = 'disable_scope_dma'
 
 RESP_OK = '1'
 RESP_ERR_BITSTREAM_NOT_FOUND = '2'
@@ -207,3 +208,6 @@ class uCube_interface:
 
     def set_hil_address_map(self, address_map):
         return self.send_command(C_SET_HIL_ADDRESS_MAP, address_map)
+
+    def disable_scope_dma(self, status):
+        return self.send_command(C_DISABLE_SCOPE_DMA, status)

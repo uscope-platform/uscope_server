@@ -60,6 +60,12 @@ class ScopeAddress(Resource):
         args = request.get_json(force=True)
         return current_app.plot_mgr.set_scope_address(args)
 
+class ScodeDmaDisable(Resource):
+    @jwt_required()
+    @role_required("operator")
+    def post(self):
+        args = request.get_json(force=True)
+        return current_app.plot_mgr.disable_scope_dma(args)
 
 class Acquisition(Resource):
 
@@ -79,6 +85,7 @@ api.add_resource(ChannelsData, '/channels/data')
 api.add_resource(ChannelStatus, '/channels/status')
 api.add_resource(ChannelScalingFactors, '/channels/scaling_factors')
 api.add_resource(ScopeAddress, '/address')
+api.add_resource(ScodeDmaDisable, '/dma_disable')
 api.add_resource(Acquisition, '/acquisition')
 
 
@@ -119,6 +126,9 @@ class PlotManager:
     def set_channel_status(self, status, username):
         self.interface.set_channel_status(status)
         return "200"
+
+    def disable_scope_dma(self, status):
+        self.interface.disable_dma(status)
 
     def get_acquisition_status(self):
         return self.interface.get_acquisition_status()
