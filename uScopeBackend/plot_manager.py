@@ -128,7 +128,7 @@ class PlotManager:
         return "200"
 
     def disable_scope_dma(self, status):
-        self.interface.disable_dma(status)
+        self.interface.disable_scope_dma({"status":status})
 
     def get_acquisition_status(self):
         return self.interface.get_acquisition_status()
