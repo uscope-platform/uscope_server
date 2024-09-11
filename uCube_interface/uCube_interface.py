@@ -135,11 +135,7 @@ class uCube_interface:
         response = self.send_command(C_APPLY_PROGRAM, {"address": addr, "program": program})
 
     def compile_program(self, program):
-        try:
-            response = {'data': self.send_command(C_COMPILE_PROGRAM, program)}
-        except DriverError as ex:
-            response = {'code': ex.code, 'error': ex.message,  'duplicates': ex.data}
-        return response
+        return self.send_command(C_COMPILE_PROGRAM, program)
 
     def apply_filter(self, filter_address, taps):
 
