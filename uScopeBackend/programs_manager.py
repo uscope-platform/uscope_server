@@ -118,13 +118,11 @@ class ProgramsManager:
 
     def compile_program(self, program_info):
 
-        try:
-            result = self.interface.compile_program(program_info)
-            inta = 0
-        except DriverError as ex:
-            return  [{"status": "failed", "error":  ex.message}]
-
-        return  [{"status": "passed", "error": None}]
+        result = self.interface.compile_program(program_info)
+        if result["status"] == "ok":
+            return [{"status": "passed", "error": None}]
+        else:
+            return [{"status": "failed", "error": result["error"]}]
 
     def program_soft_core(self, program_info, prog_id):
 
@@ -133,12 +131,14 @@ class ProgramsManager:
         if program['cached_bin_version'] != program_info['hash']:
             for i in program_info["io"]:
                 i["address"] = int(i["address"])
-            try:
-                program_hex = self.interface.compile_program(program_info)
-            except DriverError as ex:
-                return [{"status": "failed", "error":  ex.message}]
 
-            program["hex"] = program_hex
+
+            program_hex = self.interface.compile_program(program_info)
+            if program_hex["status"] == "error":
+                return [{"status": "failed", "error":  program_hex["error"]}]
+
+
+            program["hex"] = program_hex["hex"]
             program['cached_bin_version'] = program_info['hash']
             self.data_store.edit_program(program)
         else:

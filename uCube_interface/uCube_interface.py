@@ -138,7 +138,6 @@ class uCube_interface:
         return self.send_command(C_COMPILE_PROGRAM, program)
 
     def apply_filter(self, filter_address, taps):
-
         if isinstance(filter_address, str):
             addr = int(filter_address, 0)
         else:
@@ -180,19 +179,14 @@ class uCube_interface:
     def set_scope_address(self, address):
         return self.send_command(C_SET_SCOPE_ADDRESS, address)
 
-    def set_pl_clock(self, clock_n, frequency):
-        return self.send_command(C_SET_PL_CLOCK, {"id":clock_n, "value":frequency, "is_primary":True})
+    def set_pl_clock(self, clock_obj):
+        return self.send_command(C_SET_PL_CLOCK, clock_obj)
 
     def get_clock(self, clock_n):
         return self.send_command(C_GET_CLOCK, clock_n)
 
     def emulate_hil(self, spec):
-        res = "Generic Emulation error"
-        try:
-            res = json.loads(self.send_command(C_EMULATE_HIL, spec))
-        except DriverError as ex:
-            res = {'code': ex.code, 'error': ex.message,  'duplicates': ex.data}
-        return res
+        return self.send_command(C_EMULATE_HIL, spec)
 
     def set_debug_level(self, level):
         return self.send_command(C_SET_DEBUG_LEVEL, level)

@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 
 from flask import current_app, Blueprint, jsonify, request, abort
 from flask_restful import Api, Resource
@@ -230,8 +231,11 @@ class EmulatorManager:
         self.data_store.edit_emulator(emu_obj)
 
     def run(self, spec):
-        results = self.interface.emulate_hil(spec)
-        return results
+        res = self.interface.emulate_hil(spec)
+        if res["results_valid"]:
+            return json.loads(res["results"])
+        else:
+            return {"code": res["code"], "error": res["results"], "duplicates": res["duplicates"]}
 
     def delete_emulator(self, filter_id):
         self.data_store.remove_emulator(filter_id)

@@ -232,7 +232,7 @@ class ApplicationManager:
 
     def set_clock(self, clock_obj):
         if clock_obj["type"] == "global":
-            current_app.interface.set_pl_clock(clock_obj["clock_n"], clock_obj["frequency"])
+            current_app.interface.set_pl_clock({"id": clock_obj["clock_n"], "value": clock_obj["frequency"], "is_primary": True})
 
     def get_clock(self):
         clocks = dict()
