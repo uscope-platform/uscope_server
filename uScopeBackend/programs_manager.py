@@ -144,5 +144,10 @@ class ProgramsManager:
         else:
             program_hex = program["hex"]
 
-        self.interface.load_program(program_hex, program_info["core_address"])
+        if isinstance(program_info["core_address"], str):
+            addr = int(program_info["core_address"], 0)
+        else:
+            addr = program_info["core_address"]
+
+        self.interface.load_program(program_hex, addr)
         return [{"status": "passed", "error": None}]

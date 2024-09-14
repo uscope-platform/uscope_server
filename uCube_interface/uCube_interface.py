@@ -109,15 +109,13 @@ class uCube_interface:
         return self.send_command(C_READ_DATA, [])
 
     def read_register(self, address):
-        data = self.send_command(C_SINGLE_REGISTER_READ, address)
-        return data
+        return self.send_command(C_SINGLE_REGISTER_READ, address)
 
     def write_register(self, write_obj):
-        response = self.send_command(C_SINGLE_REGISTER_WRITE, write_obj)
+        return self.send_command(C_SINGLE_REGISTER_WRITE, write_obj)
 
     def load_bitstream(self, bitstream):
-        response = self.send_command(C_LOAD_BITSTREAM, bitstream)
-        return response
+        return self.send_command(C_LOAD_BITSTREAM, bitstream)
 
     def set_scaling_factors(self, factors):
         return self.send_command(C_SET_SCALING_FACTORS, factors)
@@ -126,23 +124,13 @@ class uCube_interface:
         return self.send_command(C_SET_CHANNEL_STATUS, status)
 
     def load_program(self, program, core_address):
-
-        if isinstance(core_address, str):
-            addr = int(core_address, 0)
-        else:
-            addr = core_address
-
-        response = self.send_command(C_APPLY_PROGRAM, {"address": addr, "program": program})
+        return self.send_command(C_APPLY_PROGRAM, {"address": core_address, "program": program})
 
     def compile_program(self, program):
         return self.send_command(C_COMPILE_PROGRAM, program)
 
     def apply_filter(self, filter_address, taps):
-        if isinstance(filter_address, str):
-            addr = int(filter_address, 0)
-        else:
-            addr = filter_address
-        return self.send_command(C_APPLY_FILTER, {"address": addr, "taps": taps})
+        return self.send_command(C_APPLY_FILTER, {"address": filter_address, "taps": taps})
 
     def get_version(self, component):
         return self.send_command(C_GET_VERSION, component)
@@ -151,12 +139,7 @@ class uCube_interface:
         return self.send_command(C_SET_SCOPE_DATA, scope_data)
 
     def deploy_hil(self, spec):
-        res = "Generic Deployment error"
-        try:
-            res = self.send_command(C_DEPLOY_HIL, spec)
-        except DriverError as ex:
-            res = {'code': ex.code, 'error': ex.message, 'duplicates': ex.data}
-        return res
+        return self.send_command(C_DEPLOY_HIL, spec)
 
     def select_out(self, spec):
         return self.send_command(C_HIL_SELECT_OUT, spec)

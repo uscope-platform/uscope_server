@@ -12,7 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import numpy as np
+
+import json
 from flask import current_app, Blueprint, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import jwt_required
@@ -84,8 +85,14 @@ class HilManager:
     def __init__(self, low_level_interface):
         self.interface = low_level_interface
 
+
     def deploy(self, specs):
-        return self.interface.deploy_hil(specs)
+        res = self.interface.deploy_hil(specs)
+        if res == 1:
+            return json.loads(res["results"])
+        else:
+            return {"code": res["error_code"], "error": res["error"], "duplicates": res["duplicates"]}
+
 
     def select_out(self, specs):
         return self.interface.select_out(specs)
